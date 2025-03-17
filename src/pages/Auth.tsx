@@ -11,9 +11,20 @@ import { toast } from 'sonner';
 const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Handle redirects from GitHub
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const errorDescription = hashParams.get('error_description');
+    
+    if (errorDescription) {
+      console.error('Auth error from hash:', errorDescription);
+      toast.error(`Authentication error: ${errorDescription}`);
+      setError(errorDescription);
+    }
+
     // Check if user is already signed in
     const checkUser = async () => {
       try {
@@ -21,12 +32,16 @@ const Auth: React.FC = () => {
         if (error) {
           console.error('Error checking session:', error);
           toast.error('Error checking authentication status');
+          setError(error.message);
         } else if (data.session) {
           console.log('User already signed in, redirecting to home');
           navigate('/');
         }
       } catch (error) {
         console.error('Exception checking session:', error);
+        if (error instanceof Error) {
+          setError(error.message);
+        }
       } finally {
         setCheckingSession(false);
       }
@@ -52,22 +67,32 @@ const Auth: React.FC = () => {
   const handleGithubLogin = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log('Initiating GitHub login');
+      
+      // Set redirect to current origin
+      const redirectUrl = `${window.location.origin}/auth`;
+      console.log('Using redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: redirectUrl,
         },
       });
       
       if (error) {
         console.error('GitHub login error:', error);
         toast.error('Failed to sign in with GitHub');
+        setError(error.message);
         setLoading(false);
       }
     } catch (error) {
       console.error('Exception during GitHub sign in:', error);
       toast.error('Failed to sign in with GitHub');
+      if (error instanceof Error) {
+        setError(error.message);
+      }
       setLoading(false);
     }
   };
@@ -107,6 +132,12 @@ const Auth: React.FC = () => {
               <p className="font-mono text-sm mb-6">
                 AUTHENTICATION REQUIRED: Access to secure terminal
               </p>
+              
+              {error && (
+                <div className="cyber-alert bg-red-900/50 border border-red-500 p-3 mb-4 text-sm font-mono text-red-300">
+                  ERROR: {error}
+                </div>
+              )}
               
               <div className="cyber-alert flex items-center gap-2 text-sm mb-6">
                 <div className="font-mono">
