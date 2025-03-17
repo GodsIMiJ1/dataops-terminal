@@ -10,14 +10,25 @@ import { toast } from 'sonner';
 
 const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is already signed in
     const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate('/');
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error checking session:', error);
+          toast.error('Error checking authentication status');
+        } else if (data.session) {
+          console.log('User already signed in, redirecting to home');
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Exception checking session:', error);
+      } finally {
+        setCheckingSession(false);
       }
     };
     
@@ -26,6 +37,7 @@ const Auth: React.FC = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session ? 'session exists' : 'no session');
         if (event === 'SIGNED_IN' && session) {
           navigate('/');
         }
@@ -40,6 +52,7 @@ const Auth: React.FC = () => {
   const handleGithubLogin = async () => {
     try {
       setLoading(true);
+      console.log('Initiating GitHub login');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
@@ -48,14 +61,32 @@ const Auth: React.FC = () => {
       });
       
       if (error) {
-        throw error;
+        console.error('GitHub login error:', error);
+        toast.error('Failed to sign in with GitHub');
+        setLoading(false);
       }
     } catch (error) {
-      console.error('Error signing in with GitHub:', error);
+      console.error('Exception during GitHub sign in:', error);
       toast.error('Failed to sign in with GitHub');
       setLoading(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-cyber-black flex flex-col items-center justify-center">
+        <div className="cyber-panel rounded-lg p-6 max-w-md w-full">
+          <div className="cyber-scanline"></div>
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 text-cyber-cyan animate-spin" />
+            <div className="text-sm font-mono text-cyber-cyan">
+              Checking authentication status...
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cyber-black text-white relative overflow-hidden">

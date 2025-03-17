@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   session: Session | null;
@@ -23,11 +24,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get initial session
     const getInitialSession = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
-        setUser(data.session?.user ?? null);
+        console.log('Getting initial session');
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+          toast.error('Authentication error: ' + error.message);
+        } else {
+          console.log('Session data:', data.session ? 'Session exists' : 'No session');
+          setSession(data.session);
+          setUser(data.session?.user ?? null);
+        }
       } catch (error) {
-        console.error('Error getting initial session:', error);
+        console.error('Exception getting initial session:', error);
+        toast.error('Authentication system error');
       } finally {
         setLoading(false);
       }
@@ -37,7 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
+      (event, newSession) => {
+        console.log('Auth state change event:', event);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
@@ -51,10 +62,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-      navigate('/auth');
+      setLoading(true);
+      console.log('Signing out');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        toast.error('Error signing out: ' + error.message);
+      } else {
+        navigate('/auth');
+      }
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('Exception signing out:', error);
+      toast.error('Error during sign out');
+    } finally {
+      setLoading(false);
     }
   };
 
