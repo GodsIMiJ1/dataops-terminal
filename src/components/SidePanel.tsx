@@ -3,7 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import GlitchText from './GlitchText';
 import StatusIndicator from './StatusIndicator';
-import { Shield, ShieldAlert, Lock, Spider, Eye, Zap } from 'lucide-react';
+import { Shield, ShieldAlert, Lock, Bug, Eye, Zap } from 'lucide-react';
 
 interface SidePanelProps {
   side: 'left' | 'right';
@@ -95,7 +95,7 @@ const RightPanel: React.FC = () => {
             </div>
             
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <Spider className="w-16 h-16 text-cyber-red animate-pulse" />
+              <Bug className="w-16 h-16 text-cyber-red animate-pulse" />
             </div>
           </div>
         </div>
