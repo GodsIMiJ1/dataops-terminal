@@ -1,5 +1,9 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -8,16 +12,26 @@ interface Message {
   timestamp: Date;
 }
 
+interface Chat {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
 interface UseChatAIReturn {
   messages: Message[];
   isLoading: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
   clearMessages: () => void;
+  saveChat: () => Promise<void>;
+  loadChat: (chatId: string) => Promise<void>;
+  createNewChat: () => void;
+  chats: Chat[];
+  currentChatId: string | null;
+  loadingChats: boolean;
 }
 
-// This is a simulated AI chat hook
-// In a real implementation, this would connect to Ollama with the deepseekr1-14b model
 export const useChatAI = (): UseChatAIReturn => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -29,6 +43,85 @@ export const useChatAI = (): UseChatAIReturn => {
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [loadingChats, setLoadingChats] = useState<boolean>(false);
+  const { user } = useAuth();
+
+  // Fetch user's chats
+  useEffect(() => {
+    const fetchChats = async () => {
+      if (!user) return;
+      
+      setLoadingChats(true);
+      try {
+        const { data, error } = await supabase
+          .from('rebel_chats')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        setChats(data as Chat[]);
+
+        // If no current chat and there are chats, set the first one as current
+        if (!currentChatId && data.length > 0) {
+          setCurrentChatId(data[0].id);
+          await loadMessagesForChat(data[0].id);
+        } else if (!currentChatId) {
+          // If no chats exist, create a new one
+          createNewChat();
+        }
+      } catch (err) {
+        console.error('Error fetching chats:', err);
+        toast.error('Failed to load chats');
+      } finally {
+        setLoadingChats(false);
+      }
+    };
+    
+    fetchChats();
+  }, [user]);
+
+  // Load messages for a specific chat
+  const loadMessagesForChat = async (chatId: string) => {
+    if (!user || !chatId) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('rebel_messages')
+        .select('*')
+        .eq('chat_id', chatId)
+        .order('timestamp', { ascending: true });
+        
+      if (error) throw error;
+      
+      if (data.length > 0) {
+        const formattedMessages = data.map((msg) => ({
+          id: msg.id,
+          role: msg.role as 'user' | 'assistant' | 'system' | 'error',
+          content: msg.content,
+          timestamp: new Date(msg.timestamp)
+        }));
+        
+        setMessages(formattedMessages);
+      } else {
+        // If no messages, show the system welcome message
+        setMessages([{
+          id: 'system-1',
+          role: 'system',
+          content: 'R3B3L 4F initialized. Cybersecurity interface active. Ready to assist with security analysis and ethical hacking tasks.',
+          timestamp: new Date()
+        }]);
+      }
+    } catch (err) {
+      console.error('Error loading messages:', err);
+      toast.error('Failed to load messages');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Simulated AI response
   const getAIResponse = async (userMessage: string): Promise<string> => {
@@ -51,8 +144,72 @@ export const useChatAI = (): UseChatAIReturn => {
     }
   };
 
+  // Create a new chat if none exists
+  const createNewChat = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('rebel_chats')
+        .insert([
+          { 
+            title: 'New Chat',
+            user_id: user.id
+          }
+        ])
+        .select();
+        
+      if (error) throw error;
+      
+      const newChat = data[0];
+      setCurrentChatId(newChat.id);
+      setChats(prev => [newChat, ...prev]);
+      
+      // Reset messages to just the system welcome
+      setMessages([{
+        id: 'system-1',
+        role: 'system',
+        content: 'R3B3L 4F initialized. Cybersecurity interface active. Ready to assist with security analysis and ethical hacking tasks.',
+        timestamp: new Date()
+      }]);
+      
+      toast.success('New chat created');
+    } catch (err) {
+      console.error('Error creating new chat:', err);
+      toast.error('Failed to create new chat');
+    }
+  }, [user]);
+
+  // Save message to database
+  const saveMessageToDatabase = async (message: Message) => {
+    if (!user || !currentChatId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('rebel_messages')
+        .insert([
+          {
+            chat_id: currentChatId,
+            content: message.content,
+            role: message.role,
+            timestamp: message.timestamp.getTime()
+          }
+        ]);
+        
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error saving message:', err);
+      // Continue even if there's an error - the message is already in the UI
+    }
+  };
+
   const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || !user) return;
+    
+    // Ensure we have a chat to save to
+    if (!currentChatId) {
+      await createNewChat();
+    }
     
     const userMessage: Message = {
       id: `user-${Date.now()}`,
@@ -65,6 +222,9 @@ export const useChatAI = (): UseChatAIReturn => {
     setIsLoading(true);
     setError(null);
     
+    // Save user message to database
+    await saveMessageToDatabase(userMessage);
+    
     try {
       const response = await getAIResponse(content);
       
@@ -76,6 +236,25 @@ export const useChatAI = (): UseChatAIReturn => {
       };
       
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Save AI message to database
+      await saveMessageToDatabase(aiMessage);
+      
+      // Update chat title if it's a new chat
+      if (currentChatId && chats.find(c => c.id === currentChatId)?.title === 'New Chat') {
+        const truncatedContent = content.length > 30 ? content.substring(0, 30) + '...' : content;
+        
+        const { error } = await supabase
+          .from('rebel_chats')
+          .update({ title: truncatedContent })
+          .eq('id', currentChatId);
+          
+        if (!error) {
+          setChats(prev => prev.map(chat => 
+            chat.id === currentChatId ? { ...chat, title: truncatedContent } : chat
+          ));
+        }
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       
@@ -89,10 +268,13 @@ export const useChatAI = (): UseChatAIReturn => {
       };
       
       setMessages(prev => [...prev, errorMsg]);
+      
+      // Save error message to database
+      await saveMessageToDatabase(errorMsg);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user, currentChatId, chats, createNewChat]);
 
   const clearMessages = useCallback(() => {
     setMessages([{
@@ -104,11 +286,46 @@ export const useChatAI = (): UseChatAIReturn => {
     setError(null);
   }, []);
 
+  const saveChat = useCallback(async () => {
+    if (!user || !currentChatId || messages.length <= 1) {
+      toast.error('No messages to save');
+      return;
+    }
+    
+    try {
+      // The chat is already saved as we go, so we just update the timestamp
+      const { error } = await supabase
+        .from('rebel_chats')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', currentChatId);
+        
+      if (error) throw error;
+      
+      toast.success('Chat saved successfully');
+    } catch (err) {
+      console.error('Error saving chat:', err);
+      toast.error('Failed to save chat');
+    }
+  }, [user, currentChatId, messages]);
+
+  const loadChat = useCallback(async (chatId: string) => {
+    if (!user) return;
+    
+    setCurrentChatId(chatId);
+    await loadMessagesForChat(chatId);
+  }, [user]);
+
   return {
     messages,
     isLoading,
     error,
     sendMessage,
-    clearMessages
+    clearMessages,
+    saveChat,
+    loadChat,
+    createNewChat,
+    chats,
+    currentChatId,
+    loadingChats
   };
 };
