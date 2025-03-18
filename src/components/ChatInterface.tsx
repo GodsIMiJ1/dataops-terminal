@@ -1,22 +1,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useChatAI } from '@/hooks/useChatAI';
-import { useAuth } from '@/context/AuthContext';
 import ActionButton from './ActionButton';
 import StatusIndicator from './StatusIndicator';
 import GlitchText from './GlitchText';
-import { Send, RotateCcw, ShieldAlert, AlertTriangle, Terminal, Cpu, Zap, Save, Plus, LogOut } from 'lucide-react';
+import { Send, RotateCcw, ShieldAlert, AlertTriangle, Terminal, Cpu, Zap } from 'lucide-react';
 
 const ChatInterface: React.FC = () => {
-  const { 
-    messages, 
-    isLoading, 
-    sendMessage, 
-    clearMessages, 
-    saveChat,
-    createNewChat
-  } = useChatAI();
-  const { signOut } = useAuth();
+  const { messages, isLoading, sendMessage, clearMessages } = useChatAI();
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -62,49 +53,7 @@ const ChatInterface: React.FC = () => {
               <span>DEEPSEEKR1-14B</span>
             </div>
           </div>
-          <ActionButton
-            type="button"
-            variant="danger"
-            size="sm"
-            onClick={signOut}
-            icon={<LogOut className="w-3 h-3" />}
-          >
-            Logout
-          </ActionButton>
         </div>
-      </div>
-      
-      {/* Action Buttons */}
-      <div className="p-2 border-b border-cyber-red/30 flex items-center gap-2">
-        <ActionButton
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={createNewChat}
-          icon={<Plus className="w-3 h-3" />}
-        >
-          New Chat
-        </ActionButton>
-        
-        <ActionButton
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={saveChat}
-          icon={<Save className="w-3 h-3" />}
-        >
-          Save Chat
-        </ActionButton>
-        
-        <ActionButton
-          type="button"
-          variant="danger"
-          size="sm"
-          onClick={clearMessages}
-          icon={<RotateCcw className="w-3 h-3" />}
-        >
-          Clear
-        </ActionButton>
       </div>
       
       {/* Messages Area */}
@@ -204,6 +153,15 @@ const ChatInterface: React.FC = () => {
             icon={<Send className="w-4 h-4" />}
           >
             Send
+          </ActionButton>
+          
+          <ActionButton
+            type="button"
+            variant="danger"
+            onClick={clearMessages}
+            icon={<RotateCcw className="w-4 h-4" />}
+          >
+            Clear
           </ActionButton>
         </form>
       </div>

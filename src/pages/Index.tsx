@@ -3,15 +3,12 @@ import React, { useEffect, useState } from 'react';
 import DigitalRain from '@/components/DigitalRain';
 import SidePanel from '@/components/SidePanel';
 import ChatInterface from '@/components/ChatInterface';
-import ChatSidebar from '@/components/ChatSidebar';
 import GlitchText from '@/components/GlitchText';
 import StatusIndicator from '@/components/StatusIndicator';
 import { ShieldAlert, Zap } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { user } = useAuth();
 
   useEffect(() => {
     // Simulate loading
@@ -67,15 +64,12 @@ const Index: React.FC = () => {
         {/* Main grid layout */}
         <div className="grid grid-cols-12 gap-4 flex-1">
           {/* Left sidebar */}
-          <div className="col-span-2">
-            <div className="cyber-panel h-full p-3">
-              <div className="cyber-scanline"></div>
-              <ChatSidebar />
-            </div>
+          <div className="col-span-3">
+            <SidePanel side="left" />
           </div>
           
           {/* Main chat area */}
-          <div className="col-span-7">
+          <div className="col-span-6">
             <ChatInterface />
           </div>
           
