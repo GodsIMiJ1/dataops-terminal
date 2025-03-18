@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import StatusIndicator from '@/components/StatusIndicator';
 import GlitchText from '@/components/GlitchText';
-import { Cpu, Memory, Wifi, WifiOff, AlertCircle, HardDrive, Bot, Server } from 'lucide-react';
+import { Cpu, Microchip, Wifi, WifiOff, AlertCircle, HardDrive, Bot, Server } from 'lucide-react';
 
 interface SystemMetric {
   value: number;
@@ -143,7 +143,7 @@ const StatusDashboard: React.FC = () => {
         <div className="space-y-1">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1">
-              <Memory className="w-4 h-4 text-cyber-cyan" />
+              <Microchip className="w-4 h-4 text-cyber-cyan" />
               <span className="text-xs font-mono">RAM</span>
             </div>
             <span className={`text-xs font-mono font-bold ${getStatusColor(ramUsage.status)}`}>
