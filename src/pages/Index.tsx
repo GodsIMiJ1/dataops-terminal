@@ -5,6 +5,7 @@ import SidePanel from '@/components/SidePanel';
 import ChatInterface from '@/components/ChatInterface';
 import GlitchText from '@/components/GlitchText';
 import StatusIndicator from '@/components/StatusIndicator';
+import StatusDashboard from '@/components/StatusDashboard';
 import { ShieldAlert, Zap } from 'lucide-react';
 
 const Index: React.FC = () => {
@@ -61,7 +62,7 @@ const Index: React.FC = () => {
           </div>
         </header>
         
-        {/* Main grid layout */}
+        {/* Main grid layout - Updated to include StatusDashboard */}
         <div className="grid grid-cols-12 gap-4 flex-1">
           {/* Left sidebar */}
           <div className="col-span-3">
@@ -73,9 +74,14 @@ const Index: React.FC = () => {
             <ChatInterface />
           </div>
           
-          {/* Right sidebar */}
-          <div className="col-span-3">
-            <SidePanel side="right" />
+          {/* Right sidebar - Updated to use both SidePanel and StatusDashboard */}
+          <div className="col-span-3 grid grid-rows-2 gap-4">
+            <div className="row-span-1">
+              <StatusDashboard />
+            </div>
+            <div className="row-span-1">
+              <SidePanel side="right" />
+            </div>
           </div>
         </div>
       </div>
