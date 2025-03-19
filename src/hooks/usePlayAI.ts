@@ -22,13 +22,14 @@ export const usePlayAI = ({ onSpeechRecognized }: UsePlayAIProps = {}) => {
       setError(null);
       
       // Check if browser supports Speech Recognition
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      // Use window.SpeechRecognition for TypeScript
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       
-      if (!SpeechRecognition) {
+      if (!SpeechRecognitionAPI) {
         throw new Error("Your browser doesn't support speech recognition");
       }
       
-      const recognition = new SpeechRecognition();
+      const recognition = new SpeechRecognitionAPI();
       recognition.lang = 'en-US';
       recognition.continuous = false;
       recognition.interimResults = false;
@@ -60,8 +61,8 @@ export const usePlayAI = ({ onSpeechRecognized }: UsePlayAIProps = {}) => {
     setIsListening(false);
     // Stop the speech recognition if it's active
     if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognitionAPI();
       recognition.stop();
     }
   }, []);
@@ -178,7 +179,6 @@ interface SpeechRecognition extends EventTarget {
   abort(): void;
   start(): void;
   stop(): void;
-  new(): SpeechRecognition;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
