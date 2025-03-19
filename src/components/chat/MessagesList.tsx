@@ -30,7 +30,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
   };
 
   return (
-    <ScrollArea className="flex-1 h-[calc(100%-140px)]">
+    <ScrollArea className="flex-1 h-[calc(100vh-240px)] w-full">
       <div className="p-4 space-y-4">
         {messages.map((message) => {
           let messageClass = '';
