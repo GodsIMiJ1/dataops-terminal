@@ -1,13 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useChatAI } from '@/hooks/useChatAI';
+import { usePlayAI } from '@/hooks/usePlayAI';
 import ActionButton from './ActionButton';
 import StatusIndicator from './StatusIndicator';
 import GlitchText from './GlitchText';
-import { Send, RotateCcw, ShieldAlert, AlertTriangle, Terminal, Cpu, Zap } from 'lucide-react';
+import VoiceChat from './VoiceChat';
+import { Send, RotateCcw, ShieldAlert, AlertTriangle, Terminal, Cpu, Zap, Volume2 } from 'lucide-react';
 
 const ChatInterface: React.FC = () => {
   const { messages, isLoading, sendMessage, clearMessages } = useChatAI();
+  const { speak, isSpeaking } = usePlayAI();
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -16,10 +19,28 @@ const ChatInterface: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Auto-speak the latest assistant message
+  useEffect(() => {
+    const latestMessage = messages[messages.length - 1];
+    if (latestMessage && latestMessage.role === 'assistant') {
+      speak(latestMessage.content);
+    }
+  }, [messages, speak]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
       sendMessage(input);
+      setInput('');
+    }
+  };
+
+  // Handle voice recognition results
+  const handleSpeechRecognized = (text: string) => {
+    setInput(text);
+    // Auto-submit after voice recognition
+    if (text.trim()) {
+      sendMessage(text);
       setInput('');
     }
   };
@@ -43,6 +64,9 @@ const ChatInterface: React.FC = () => {
         <div className="flex items-center gap-2">
           <Terminal className="w-5 h-5 text-cyber-red" />
           <GlitchText text="R3B3L 4F" className="font-bold text-cyber-red" />
+          {isSpeaking && (
+            <Volume2 className="w-4 h-4 text-cyber-cyan animate-pulse" />
+          )}
         </div>
         
         <div className="flex items-center gap-3">
@@ -146,6 +170,11 @@ const ChatInterface: React.FC = () => {
               </button>
             )}
           </div>
+          
+          <VoiceChat 
+            onSpeechRecognized={handleSpeechRecognized} 
+            disabled={isLoading}
+          />
           
           <ActionButton
             type="submit"
