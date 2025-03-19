@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { Terminal, Zap, Cpu, AlertTriangle } from 'lucide-react';
 import { MessageType } from '@/hooks/useChatAI';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MessagesListProps {
   messages: MessageType[];
@@ -11,6 +12,7 @@ interface MessagesListProps {
 
 const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -30,7 +32,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
   };
 
   return (
-    <ScrollArea className="flex-1 h-[calc(100vh-240px)] w-full">
+    <ScrollArea className={`flex-1 w-full ${isMobile ? 'h-[calc(100vh-280px)]' : 'h-[calc(100vh-240px)]'}`}>
       <div className="p-4 space-y-4">
         {messages.map((message) => {
           let messageClass = '';
@@ -58,14 +60,14 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
           return (
             <div 
               key={message.id}
-              className={`cyber-panel p-3 rounded max-w-[85%] ${messageClass}`}
+              className={`cyber-panel p-3 rounded ${isMobile ? 'max-w-[95%]' : 'max-w-[85%]'} ${messageClass}`}
             >
               <div className="flex items-start gap-2">
                 <div className="mt-1">
                   {iconComponent}
                 </div>
-                <div>
-                  <div className="font-mono text-sm whitespace-pre-wrap">
+                <div className="flex-1 overflow-hidden">
+                  <div className="font-mono text-sm whitespace-pre-wrap break-words">
                     {message.content}
                   </div>
                   <div className="text-xs text-gray-500 mt-1 font-mono">

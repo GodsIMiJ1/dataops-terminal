@@ -7,9 +7,11 @@ import GlitchText from '@/components/GlitchText';
 import StatusIndicator from '@/components/StatusIndicator';
 import StatusDashboard from '@/components/StatusDashboard';
 import { ShieldAlert, Zap } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Simulate loading
@@ -50,40 +52,52 @@ const Index: React.FC = () => {
       {/* Main content */}
       <div className="container mx-auto py-4 h-screen flex flex-col">
         {/* Header */}
-        <header className="flex items-center justify-between mb-4">
+        <header className="flex items-center justify-between mb-4 px-2">
           <GlitchText text="R3B3L 4F" className="text-2xl font-bold text-cyber-red" intense />
           
-          <div className="flex items-center gap-4">
-            <StatusIndicator status="online" label="SYSTEM ACTIVE" />
-            <div className="cyber-panel px-3 py-1 rounded-full flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-cyber-red" />
-              <span className="text-xs font-mono text-cyber-red">LIVE TRUTH TEAM</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <StatusIndicator status="online" label={isMobile ? "ACTIVE" : "SYSTEM ACTIVE"} />
+            {!isMobile && (
+              <div className="cyber-panel px-3 py-1 rounded-full flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-cyber-red" />
+                <span className="text-xs font-mono text-cyber-red">LIVE TRUTH TEAM</span>
+              </div>
+            )}
           </div>
         </header>
         
-        {/* Main grid layout - Updated to include StatusDashboard */}
-        <div className="grid grid-cols-12 gap-4 flex-1">
-          {/* Left sidebar */}
-          <div className="col-span-3">
-            <SidePanel side="left" />
-          </div>
-          
-          {/* Main chat area */}
-          <div className="col-span-6">
-            <ChatInterface />
-          </div>
-          
-          {/* Right sidebar - Updated to use both SidePanel and StatusDashboard */}
-          <div className="col-span-3 grid grid-rows-2 gap-4">
-            <div className="row-span-1">
-              <StatusDashboard />
-            </div>
-            <div className="row-span-1">
-              <SidePanel side="right" />
+        {/* Main grid layout - Responsive for mobile and desktop */}
+        {isMobile ? (
+          // Mobile layout
+          <div className="flex flex-col gap-4 flex-1 px-2">
+            <div className="flex-1">
+              <ChatInterface />
             </div>
           </div>
-        </div>
+        ) : (
+          // Desktop layout
+          <div className="grid grid-cols-12 gap-4 flex-1">
+            {/* Left sidebar */}
+            <div className="col-span-3">
+              <SidePanel side="left" />
+            </div>
+            
+            {/* Main chat area */}
+            <div className="col-span-6">
+              <ChatInterface />
+            </div>
+            
+            {/* Right sidebar */}
+            <div className="col-span-3 grid grid-rows-2 gap-4">
+              <div className="row-span-1">
+                <StatusDashboard />
+              </div>
+              <div className="row-span-1">
+                <SidePanel side="right" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
