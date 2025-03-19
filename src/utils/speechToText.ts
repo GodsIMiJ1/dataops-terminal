@@ -18,7 +18,6 @@ export const useSpeechToText = (
       setError(null);
       
       // Check if browser supports Speech Recognition
-      // Use window.SpeechRecognition for TypeScript
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       
       if (!SpeechRecognitionAPI) {

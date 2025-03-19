@@ -1,7 +1,6 @@
-
 import { useState, useCallback } from 'react';
 
-interface Message {
+export interface MessageType {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'error';
   content: string;
@@ -9,7 +8,7 @@ interface Message {
 }
 
 interface UseChatAIReturn {
-  messages: Message[];
+  messages: MessageType[];
   isLoading: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
@@ -19,7 +18,7 @@ interface UseChatAIReturn {
 // This is a simulated AI chat hook
 // In a real implementation, this would connect to Ollama with the deepseekr1-14b model
 export const useChatAI = (): UseChatAIReturn => {
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<MessageType[]>([
     {
       id: 'system-1',
       role: 'system',
@@ -54,7 +53,7 @@ export const useChatAI = (): UseChatAIReturn => {
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return;
     
-    const userMessage: Message = {
+    const userMessage: MessageType = {
       id: `user-${Date.now()}`,
       role: 'user',
       content,
@@ -68,7 +67,7 @@ export const useChatAI = (): UseChatAIReturn => {
     try {
       const response = await getAIResponse(content);
       
-      const aiMessage: Message = {
+      const aiMessage: MessageType = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
         content: response,
@@ -81,7 +80,7 @@ export const useChatAI = (): UseChatAIReturn => {
       
       setError(errorMessage);
       
-      const errorMsg: Message = {
+      const errorMsg: MessageType = {
         id: `error-${Date.now()}`,
         role: 'error',
         content: `Error: ${errorMessage}`,
