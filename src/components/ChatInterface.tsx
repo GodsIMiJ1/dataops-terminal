@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useChatAI } from '@/hooks/useChatAI';
 import { usePlayAI } from '@/hooks/usePlayAI';
+import { useSystemMetrics } from '@/hooks/useSystemMetrics';
 import ChatHeader from './chat/ChatHeader';
 import MessagesList from './chat/MessagesList';
 import SecurityAlert from './chat/SecurityAlert';
@@ -11,6 +12,7 @@ import { Shield, ShieldAlert } from 'lucide-react';
 const ChatInterface: React.FC = () => {
   const { messages, isLoading, sendMessage, clearMessages, error } = useChatAI();
   const { speak, isSpeaking } = usePlayAI();
+  const { modelStatus } = useSystemMetrics();
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
 
   // Check if LM Studio API is available
@@ -56,7 +58,7 @@ const ChatInterface: React.FC = () => {
         ) : apiConnected ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <Shield className="w-3 h-3 text-green-500" />
-            Connected to deepseek-r1-distill-qwen-7b on LM Studio
+            Connected to LM Studio
           </div>
         ) : (
           <div className="text-xs font-mono text-cyber-red flex items-center gap-2">
