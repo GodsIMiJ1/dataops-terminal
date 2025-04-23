@@ -32,7 +32,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
   };
 
   return (
-    <ScrollArea className={`flex-1 w-full ${isMobile ? 'h-[calc(100vh-280px)]' : 'h-[calc(100vh-240px)]'}`}>
+    <div className={`flex-1 w-full overflow-y-auto ${isMobile ? 'h-[calc(100vh-280px)]' : 'h-[calc(100vh-240px)]'}`}>
       <div className="p-4 space-y-4">
         {messages.map((message) => {
           let messageClass = '';
@@ -88,7 +88,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
           </div>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 };
 
