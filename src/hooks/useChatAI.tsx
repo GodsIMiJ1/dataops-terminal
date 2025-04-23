@@ -1,4 +1,6 @@
+
 import { useState, useCallback } from 'react';
+import { toast } from "@/components/ui/use-toast";
 
 export interface MessageType {
   id: string;
@@ -15,8 +17,10 @@ interface UseChatAIReturn {
   clearMessages: () => void;
 }
 
-// This is a simulated AI chat hook
-// In a real implementation, this would connect to Ollama with the deepseekr1-14b model
+// LM Studio API configuration
+const API_URL = "http://127.0.0.1:1234/v1/chat/completions";
+const MODEL = "deepseek-r1-distill-qwen-7b";
+
 export const useChatAI = (): UseChatAIReturn => {
   const [messages, setMessages] = useState<MessageType[]>([
     {
@@ -29,24 +33,56 @@ export const useChatAI = (): UseChatAIReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Simulated AI response
+  // Get real AI response from LM Studio API
   const getAIResponse = async (userMessage: string): Promise<string> => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simulate different responses based on input
+    try {
+      // Create messages history in the format expected by the API
+      const apiMessages = messages.map(msg => ({
+        role: msg.role === 'error' ? 'system' : msg.role,
+        content: msg.content
+      }));
+      
+      // Add the new user message
+      apiMessages.push({
+        role: 'user',
+        content: userMessage
+      });
+
+      // Make API request to LM Studio
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: apiMessages,
+          temperature: 0.7,
+          max_tokens: 2000
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (err) {
+      console.error("LM Studio API error:", err);
+      throw err;
+    }
+  };
+
+  // Fallback responses in case the API connection fails
+  const getFallbackResponse = (userMessage: string): string => {
     if (userMessage.toLowerCase().includes('vulnerability')) {
       return 'Vulnerability scan initiated. Analyzing system for potential security weaknesses. Several CVEs detected in outdated packages. Recommend immediate patching.';
     } else if (userMessage.toLowerCase().includes('password')) {
       return 'Password security analysis complete. Several weak credentials detected. Implementing zero-trust architecture and multi-factor authentication recommended.';
-    } else if (userMessage.toLowerCase().includes('encrypt')) {
-      return 'Encryption protocols analyzed. Using AES-256 with proper key management recommended for sensitive data. Quantum-resistant algorithms should be considered for long-term storage.';
-    } else if (userMessage.toLowerCase().includes('network')) {
-      return 'Network analysis complete. Detected 3 unauthorized access attempts. IP addresses logged and blocked. Recommend implementing additional firewall rules and IDS/IPS solutions.';
-    } else if (userMessage.toLowerCase().includes('help')) {
-      return 'R3B3L 4F can assist with: vulnerability scanning, penetration testing, secure coding practices, encryption, network security, social engineering prevention, and security architecture design.';
     } else {
-      return `Analysis complete. ${Math.floor(Math.random() * 3) + 1} potential security concerns identified. Remediation strategies calculated. Awaiting command for detailed report.`;
+      return 'API connection failed. Fallback security analysis activated. Please check your LM Studio connection and try again.';
     }
   };
 
@@ -65,6 +101,7 @@ export const useChatAI = (): UseChatAIReturn => {
     setError(null);
     
     try {
+      // Try to get a response from the LM Studio API
       const response = await getAIResponse(content);
       
       const aiMessage: MessageType = {
@@ -77,21 +114,31 @@ export const useChatAI = (): UseChatAIReturn => {
       setMessages(prev => [...prev, aiMessage]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error("Error in useChatAI:", errorMessage);
       
-      setError(errorMessage);
+      // Show toast notification for API errors
+      toast({
+        variant: "destructive",
+        title: "API Connection Error",
+        description: "Could not connect to LM Studio. Check if it's running on port 1234."
+      });
       
-      const errorMsg: MessageType = {
-        id: `error-${Date.now()}`,
-        role: 'error',
-        content: `Error: ${errorMessage}`,
+      // Use fallback response and mark it as coming from the assistant
+      // but still log the error in console
+      const fallbackResponse = getFallbackResponse(content);
+      const aiMessage: MessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: fallbackResponse,
         timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, errorMsg]);
+      setMessages(prev => [...prev, aiMessage]);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [messages]);
 
   const clearMessages = useCallback(() => {
     setMessages([{
