@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import StatusIndicator from '@/components/StatusIndicator';
-import { Cpu, Microchip, HardDrive, Bot } from 'lucide-react';
+import { Cpu, Microchip, HardDrive, Server } from 'lucide-react';
 
 interface SystemMetric {
   value: number;
@@ -12,10 +11,18 @@ interface SystemMetric {
 interface ResourceMonitorProps {
   cpuUsage: SystemMetric;
   ramUsage: SystemMetric;
+  storageUsage: SystemMetric;
   modelStatus: 'idle' | 'processing' | 'error';
+  modelName: string;
 }
 
-const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ cpuUsage, ramUsage, modelStatus }) => {
+const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ 
+  cpuUsage, 
+  ramUsage, 
+  storageUsage,
+  modelStatus,
+  modelName 
+}) => {
   // Get status colors
   const getStatusColor = (status: 'normal' | 'warning' | 'critical'): string => {
     switch (status) {
@@ -86,8 +93,10 @@ const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ cpuUsage, ramUsage, m
       <div className="space-y-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1">
-            <Bot className="w-4 h-4 text-cyber-cyan" />
-            <span className="text-xs font-mono">DEEPSEEK-14B</span>
+            <Server className="w-4 h-4 text-cyber-cyan" />
+            <span className="text-xs font-mono truncate max-w-[150px]">
+              {modelName || 'NO MODEL'}
+            </span>
           </div>
           <div>
             {getModelStatusIndicator()}
@@ -102,10 +111,13 @@ const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ cpuUsage, ramUsage, m
             <HardDrive className="w-4 h-4 text-cyber-cyan" />
             <span className="text-xs font-mono">STORAGE</span>
           </div>
-          <span className="text-xs font-mono font-bold text-cyber-green">38%</span>
+          <span className={`text-xs font-mono font-bold ${getStatusColor(storageUsage.status)}`}>
+            {storageUsage.value}%
+          </span>
         </div>
-        <Progress value={38} className="h-1.5 bg-cyber-darkgray">
-          <div className="h-full bg-cyber-green transition-all" style={{ width: '38%' }} />
+        <Progress value={storageUsage.value} className="h-1.5 bg-cyber-darkgray">
+          <div className={`h-full ${getProgressColor(storageUsage.status)} transition-all`} 
+               style={{ width: `${storageUsage.value}%` }} />
         </Progress>
       </div>
     </div>
