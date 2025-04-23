@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import StatusHeader from '@/components/dashboard/StatusHeader';
 import ConnectionStatus from '@/components/dashboard/ConnectionStatus';
 import ResourceMonitor from '@/components/dashboard/ResourceMonitor';
-import AlertsPanel from '@/components/dashboard/AlertsPanel';
 
 interface SystemMetric {
   value: number;
@@ -16,7 +15,6 @@ const StatusDashboard: React.FC = () => {
   const [ramUsage, setRamUsage] = useState<SystemMetric>({ value: 62, status: 'warning' });
   const [sshStatus, setSshStatus] = useState<boolean>(true);
   const [modelStatus, setModelStatus] = useState<'idle' | 'processing' | 'error'>('idle');
-  const [errors, setErrors] = useState<string[]>([]);
   
   // Simulate changing system metrics
   useEffect(() => {
@@ -44,9 +42,6 @@ const StatusDashboard: React.FC = () => {
       // Occasionally simulate SSH connection changes
       if (Math.random() > 0.95) {
         setSshStatus(prev => !prev);
-        if (!sshStatus) {
-          setErrors(prev => [...prev, `SSH connection lost at ${new Date().toLocaleTimeString()}`]);
-        }
       }
       
       // Occasionally simulate model status changes
@@ -54,16 +49,12 @@ const StatusDashboard: React.FC = () => {
         const statuses: ('idle' | 'processing' | 'error')[] = ['idle', 'processing', 'error'];
         const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
         setModelStatus(newStatus);
-        
-        if (newStatus === 'error') {
-          setErrors(prev => [...prev, `Model error detected at ${new Date().toLocaleTimeString()}`]);
-        }
       }
     };
     
     const interval = setInterval(simulateMetrics, 2000);
     return () => clearInterval(interval);
-  }, [sshStatus]);
+  }, []);
 
   return (
     <div className="cyber-panel h-full rounded flex flex-col gap-4 p-4">
@@ -81,9 +72,6 @@ const StatusDashboard: React.FC = () => {
         ramUsage={ramUsage}
         modelStatus={modelStatus}
       />
-      
-      {/* Error Log */}
-      <AlertsPanel errors={errors} />
     </div>
   );
 };
