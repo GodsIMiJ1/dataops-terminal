@@ -11,7 +11,7 @@ interface ChatHeaderProps {
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ isSpeaking }) => {
   const { modelName, modelStatus } = useSystemMetrics();
-  
+
   return (
     <div className="p-3 border-b border-cyber-red/30 flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -21,11 +21,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ isSpeaking }) => {
           <Volume2 className="w-4 h-4 text-cyber-cyan animate-pulse" />
         )}
       </div>
-      
+
       <div className="flex items-center gap-3">
-        <StatusIndicator 
-          status={modelStatus === 'idle' ? 'online' : modelStatus === 'processing' ? 'processing' : 'error'} 
-          label={modelStatus.toUpperCase()} 
+        <StatusIndicator
+          status={modelStatus === 'idle' ? 'online' : modelStatus === 'processing' ? 'processing' : 'error'}
+          label={modelStatus.toUpperCase()}
         />
         <div className="bg-cyber-darkgray px-2 py-1 rounded text-xs font-mono">
           <div className="flex items-center gap-1">

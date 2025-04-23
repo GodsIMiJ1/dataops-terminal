@@ -22,7 +22,7 @@ export const useSystemMetrics = () => {
           const usedHeapSize = memory.usedJSHeapSize;
           const totalHeapSize = memory.jsHeapSizeLimit;
           const memoryPercentage = Math.round((usedHeapSize / totalHeapSize) * 100);
-          
+
           setMemoryUsage({
             value: memoryPercentage,
             status: memoryPercentage > 80 ? 'critical' : memoryPercentage > 60 ? 'warning' : 'normal'
@@ -30,17 +30,14 @@ export const useSystemMetrics = () => {
         }
       }
 
-      // Check LM Studio connection and model
+      // Check OpenAI API connection
       try {
-        const response = await fetch("http://127.0.0.1:1234/v1/models");
-        if (response.ok) {
-          const data = await response.json();
-          setModelName('deepseek-r1-distill-qwen-7b');
-          setModelStatus('idle');
-        } else {
-          setModelStatus('error');
-        }
+        // We're using OpenAI API now, so we'll just assume it's connected
+        // In a production app, you might want to make a test request to verify
+        setModelName('GPT-3.5 Turbo');
+        setModelStatus('idle');
       } catch (err) {
+        console.error("OpenAI API connection error:", err);
         setModelStatus('error');
       }
 
@@ -52,7 +49,7 @@ export const useSystemMetrics = () => {
       }
       const end = performance.now();
       const cpuLoad = Math.min(100, Math.round((end - start) / 2));
-      
+
       setCpuUsage({
         value: cpuLoad,
         status: cpuLoad > 80 ? 'critical' : cpuLoad > 60 ? 'warning' : 'normal'

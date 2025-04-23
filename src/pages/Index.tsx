@@ -45,16 +45,16 @@ const Index: React.FC = () => {
     <div className="min-h-screen bg-cyber-black text-white relative overflow-hidden">
       {/* Matrix background */}
       <DigitalRain />
-      
+
       {/* Digital noise overlay */}
       <div className="digital-noise"></div>
-      
+
       {/* Main content */}
       <div className="container mx-auto py-4 h-screen flex flex-col">
         {/* Header */}
         <header className="flex items-center justify-between mb-4 px-2">
           <GlitchText text="R3B3L 4F" className="text-2xl font-bold text-cyber-red" intense />
-          
+
           <div className="flex items-center gap-2">
             <StatusIndicator status="online" label={isMobile ? "ACTIVE" : "SYSTEM ACTIVE"} />
             {!isMobile && (
@@ -65,7 +65,7 @@ const Index: React.FC = () => {
             )}
           </div>
         </header>
-        
+
         {/* Main grid layout - Responsive for mobile and desktop */}
         {isMobile ? (
           // Mobile layout
@@ -81,12 +81,12 @@ const Index: React.FC = () => {
             <div className="col-span-3">
               <SidePanel side="left" />
             </div>
-            
+
             {/* Main chat area */}
             <div className="col-span-6">
               <ChatInterface />
             </div>
-            
+
             {/* Right sidebar */}
             <div className="col-span-3 grid grid-rows-2 gap-4">
               <div className="row-span-1">

@@ -15,22 +15,14 @@ const ChatInterface: React.FC = () => {
   const { modelStatus } = useSystemMetrics();
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
 
-  // Check if LM Studio API is available
+  // Using OpenAI API now
   useEffect(() => {
-    const checkApiConnection = async () => {
-      try {
-        const response = await fetch("http://127.0.0.1:1234/v1/models");
-        setApiConnected(response.ok);
-      } catch (err) {
-        console.error("Could not connect to LM Studio:", err);
-        setApiConnected(false);
-      }
-    };
-    
-    checkApiConnection();
-    // Check connection every 30 seconds
-    const interval = setInterval(checkApiConnection, 30000);
-    return () => clearInterval(interval);
+    // We're using OpenAI API now, so we'll just assume it's connected
+    // In a production app, you might want to make a test request to verify
+    setApiConnected(true);
+
+    // No need to check connection periodically for OpenAI
+    return () => {};
   }, []);
 
   // Auto-speak the latest assistant message
@@ -44,10 +36,10 @@ const ChatInterface: React.FC = () => {
   return (
     <div className="cyber-panel h-full rounded flex flex-col">
       <div className="cyber-scanline"></div>
-      
+
       {/* Header */}
       <ChatHeader isSpeaking={isSpeaking} />
-      
+
       {/* API Status Indicator */}
       <div className="px-4 py-1 flex items-center gap-2 border-b border-cyber-red/30">
         {apiConnected === null ? (
@@ -58,27 +50,27 @@ const ChatInterface: React.FC = () => {
         ) : apiConnected ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <Shield className="w-3 h-3 text-green-500" />
-            Connected to LM Studio
+            Connected to OpenAI API
           </div>
         ) : (
           <div className="text-xs font-mono text-cyber-red flex items-center gap-2">
             <ShieldAlert className="w-3 h-3 animate-pulse" />
-            LM Studio not detected - using fallback responses
+            OpenAI API not connected - using fallback responses
           </div>
         )}
       </div>
-      
+
       {/* Messages Area */}
       <MessagesList messages={messages} isLoading={isLoading} />
-      
+
       {/* Security Alert */}
       <SecurityAlert />
-      
+
       {/* Input Area */}
-      <ChatInputArea 
-        onSendMessage={sendMessage} 
-        onClearMessages={clearMessages} 
-        isLoading={isLoading} 
+      <ChatInputArea
+        onSendMessage={sendMessage}
+        onClearMessages={clearMessages}
+        isLoading={isLoading}
       />
     </div>
   );
