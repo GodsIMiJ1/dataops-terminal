@@ -2,7 +2,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Terminal, Zap, Cpu, AlertTriangle } from 'lucide-react';
 import { MessageType } from '@/hooks/useChatAI';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MessagesListProps {

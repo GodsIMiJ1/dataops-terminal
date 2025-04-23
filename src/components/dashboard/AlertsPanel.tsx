@@ -8,13 +8,13 @@ interface AlertsPanelProps {
 
 const AlertsPanel: React.FC<AlertsPanelProps> = ({ errors }) => {
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1 overflow-hidden flex flex-col">
       <h3 className="text-xs font-mono text-gray-400 uppercase mb-1 flex items-center gap-1">
         <AlertCircle className="w-3 h-3 text-cyber-red" />
         System Alerts
       </h3>
       
-      <div className="bg-cyber-darkgray/50 border border-cyber-red/30 rounded h-[90%] overflow-y-auto p-2">
+      <div className="bg-cyber-darkgray/50 border border-cyber-red/30 rounded flex-1 overflow-y-auto p-2 max-h-[calc(100%-24px)]">
         {errors.length > 0 ? (
           <div className="space-y-1">
             {errors.map((error, index) => (
