@@ -15,9 +15,9 @@ const ChatInterface: React.FC = () => {
   const { modelStatus } = useSystemMetrics();
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
 
-  // Using OpenAI API now
+  // Using OpenAI API
   useEffect(() => {
-    // We're using OpenAI API now, so we'll just assume it's connected
+    // We're using OpenAI API, so we'll just assume it's connected
     // In a production app, you might want to make a test request to verify
     setApiConnected(true);
 
@@ -45,7 +45,7 @@ const ChatInterface: React.FC = () => {
         {apiConnected === null ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-            Checking LM Studio connection...
+            Checking OpenAI API connection...
           </div>
         ) : apiConnected ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">

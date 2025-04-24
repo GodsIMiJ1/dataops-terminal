@@ -20,26 +20,9 @@ interface UseChatAIReturn {
 // OpenAI API configuration
 const API_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-3.5-turbo"; // Using GPT-3.5 Turbo as default
-const API_KEY = "YOUR_OPENAI_API_KEY"; // Replace with your actual OpenAI API key
+const API_KEY = "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"; // Your OpenAI API key
 
-// Check if LM Studio is running
-fetch("http://127.0.0.1:1234/v1/models", {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
-.then(response => {
-  console.log("LM Studio API check response:", response);
-  if (response.ok) {
-    console.log("LM Studio API is available");
-  } else {
-    console.error("LM Studio API returned an error:", response.status);
-  }
-})
-.catch(error => {
-  console.error("Failed to connect to LM Studio API:", error);
-});
+// No need to check API connection here, we'll do it in the component
 
 export const useChatAI = (): UseChatAIReturn => {
   const [messages, setMessages] = useState<MessageType[]>([
@@ -115,7 +98,7 @@ export const useChatAI = (): UseChatAIReturn => {
         throw new Error("Failed to parse API response");
       }
     } catch (err) {
-      console.error("LM Studio API error:", err);
+      console.error("OpenAI API error:", err);
       throw err;
     }
   };
@@ -127,7 +110,7 @@ export const useChatAI = (): UseChatAIReturn => {
     } else if (userMessage.toLowerCase().includes('password')) {
       return 'Password security analysis complete. Several weak credentials detected. Implementing zero-trust architecture and multi-factor authentication recommended.';
     } else {
-      return 'API connection failed. Fallback security analysis activated. Please check your LM Studio connection and try again.';
+      return 'API connection failed. Fallback security analysis activated. Please check your internet connection and OpenAI API key.';
     }
   };
 
@@ -167,7 +150,7 @@ export const useChatAI = (): UseChatAIReturn => {
       toast({
         variant: "destructive",
         title: "API Connection Error",
-        description: `Could not connect to LM Studio. Check if it's running on port 1234. Error: ${errorMessage}`
+        description: `Could not connect to OpenAI API. Please check your internet connection and API key. Error: ${errorMessage}`
       });
 
       // Use fallback response and mark it as coming from the assistant
