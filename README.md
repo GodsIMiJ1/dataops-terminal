@@ -19,7 +19,7 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v18 or higher)
 - npm or yarn
 - OpenAI API key
 
@@ -95,7 +95,7 @@ If you need to modify the API settings:
 2. Connect your GitHub repository to Netlify.
 3. Configure the build settings:
    - Build command: `npm run build` or `yarn build`
-   - Publish directory: `build`
+   - Publish directory: `dist`
 4. Add your OpenAI API key as an environment variable in the Netlify dashboard:
    - Go to Site settings > Build & deploy > Environment
    - Add a variable with key `REACT_APP_OPENAI_API_KEY` and your API key as the value
