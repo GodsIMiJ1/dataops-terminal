@@ -38,9 +38,10 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
    yarn install
    ```
 
-3. Configure your OpenAI API key:
-   - Open `src/hooks/useChatAI.tsx`
-   - Replace the API_KEY value with your OpenAI API key
+3. Create a `.env` file in the root directory and add your OpenAI API key:
+   ```
+   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   ```
 
 4. Start the development server:
    ```bash
@@ -71,16 +72,19 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 ## API Configuration
 
-R3B3L 4F uses the OpenAI API to generate responses. The API key is configured in the `src/hooks/useChatAI.tsx` file.
+R3B3L 4F uses the OpenAI API to generate responses. The API key is configured through environment variables.
 
 If you need to modify the API settings:
 
-1. Open `src/hooks/useChatAI.tsx`
-2. Update the API configuration variables:
+1. Update your `.env` file with your OpenAI API key:
+   ```
+   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+2. If you need to change the model or API URL, open `src/hooks/useChatAI.tsx` and update:
    ```typescript
    const API_URL = "https://api.openai.com/v1/chat/completions";
    const MODEL = "gpt-3.5-turbo"; // You can change to a different model
-   const API_KEY = "your_api_key_here";
    ```
 
 ## Deployment
@@ -92,7 +96,9 @@ If you need to modify the API settings:
 3. Configure the build settings:
    - Build command: `npm run build` or `yarn build`
    - Publish directory: `build`
-4. Add your OpenAI API key as an environment variable in the Netlify dashboard.
+4. Add your OpenAI API key as an environment variable in the Netlify dashboard:
+   - Go to Site settings > Build & deploy > Environment
+   - Add a variable with key `REACT_APP_OPENAI_API_KEY` and your API key as the value
 5. Deploy your site.
 
 ## Technologies Used

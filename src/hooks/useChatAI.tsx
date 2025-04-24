@@ -20,7 +20,7 @@ interface UseChatAIReturn {
 // OpenAI API configuration
 const API_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-3.5-turbo"; // Using GPT-3.5 Turbo as default
-const API_KEY = "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"; // Your OpenAI API key
+const API_KEY = process.env.REACT_APP_OPENAI_API_KEY || ""; // Get API key from environment variable
 
 // No need to check API connection here, we'll do it in the component
 

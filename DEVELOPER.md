@@ -168,7 +168,7 @@ The application uses the OpenAI API to generate responses. The configuration is 
 // OpenAI API configuration
 const API_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-3.5-turbo"; // Using GPT-3.5 Turbo as default
-const API_KEY = "your_api_key_here"; // Replace with your actual OpenAI API key
+const API_KEY = process.env.REACT_APP_OPENAI_API_KEY || ""; // Get API key from environment variable
 ```
 
 The API request is formatted as follows:
@@ -298,14 +298,16 @@ This will create a `build` directory with the production-ready files.
 
 ### Environment Variables
 
-For production deployment, it's recommended to use environment variables for sensitive information like API keys:
+The project uses environment variables for sensitive information like API keys:
 
-1. Create a `.env.production` file
+1. For local development, create a `.env` file in the root directory
 2. Add your API key: `REACT_APP_OPENAI_API_KEY=your_api_key_here`
-3. Update `useChatAI.tsx` to use the environment variable:
-   ```typescript
-   const API_KEY = process.env.REACT_APP_OPENAI_API_KEY || "";
-   ```
+3. For production, add the environment variable in your hosting platform (e.g., Netlify)
+
+The application is already configured to use the environment variable in `useChatAI.tsx`:
+```typescript
+const API_KEY = process.env.REACT_APP_OPENAI_API_KEY || "";
+```
 
 ### Netlify Configuration
 
