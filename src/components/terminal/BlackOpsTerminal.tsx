@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save } from 'lucide-react';
+import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock } from 'lucide-react';
 import TerminalComponent from './TerminalComponent';
 import { executeAndFormatCommand, confirmCommandExecution } from '@/services/CommandExecutionService';
 import { parseNaturalLanguageCommand } from '@/services/CommandParserService';
@@ -17,6 +17,19 @@ import {
   getCurrentMission,
   loadMissions
 } from '@/services/MissionMemoryService';
+import {
+  activateAirlock,
+  deactivateAirlock,
+  isAirlockActive,
+  getAirlockStatus,
+  AIRLOCK_EVENTS
+} from '@/services/AirlockService';
+import {
+  isEncryptionEnabled,
+  toggleEncryption,
+  setPassphrase,
+  processScrollForLoading
+} from '@/services/ScrollVaultService';
 import { cn } from '@/lib/utils';
 
 interface BlackOpsTerminalProps {
@@ -31,6 +44,8 @@ const BlackOpsTerminal: React.FC<BlackOpsTerminalProps> = ({ className }) => {
   const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
   const [pendingCommand, setPendingCommand] = useState<{command: string, token: string} | null>(null);
   const [nlpMode, setNlpMode] = useState(false);
+  const [airlockActive, setAirlockActive] = useState(isAirlockActive());
+  const [encryptionEnabled, setEncryptionEnabled] = useState(isEncryptionEnabled());
 
   const lastAiResponseRef = useRef<string>('');
 
@@ -44,7 +59,51 @@ const BlackOpsTerminal: React.FC<BlackOpsTerminalProps> = ({ className }) => {
     if (mission) {
       setCurrentMission(mission.mission);
     }
+
+    // Check if cloak mode is enabled in environment variables
+    const cloakMode = import.meta.env.VITE_CLOAK_MODE === 'true';
+    if (cloakMode) {
+      activateAirlock();
+      setAirlockActive(true);
+      setInternetEnabled(false);
+      logEntry('system', 'Cloak mode enabled: Airlock activated and internet access disabled');
+    }
+
+    // Check if initial scroll is specified in environment variables
+    const initialScroll = import.meta.env.VITE_INITIAL_SCROLL;
+    if (initialScroll) {
+      logEntry('system', `Loading initial scroll: ${initialScroll}`);
+      // Implementation for loading scroll will be added later
+    }
   }, []);
+
+  // Listen for airlock status changes
+  useEffect(() => {
+    const handleAirlockStatusChange = (event: CustomEvent) => {
+      const { status } = event.detail;
+      setAirlockActive(status === 'active');
+
+      // If airlock is activated, disable internet access
+      if (status === 'active' && internetEnabled) {
+        setInternetEnabled(false);
+        logEntry('system', 'Airlock activated: Internet access automatically disabled');
+      }
+    };
+
+    // Add event listener
+    window.addEventListener(
+      AIRLOCK_EVENTS.AIRLOCK_STATUS_CHANGED,
+      handleAirlockStatusChange as EventListener
+    );
+
+    // Remove event listener on cleanup
+    return () => {
+      window.removeEventListener(
+        AIRLOCK_EVENTS.AIRLOCK_STATUS_CHANGED,
+        handleAirlockStatusChange as EventListener
+      );
+    };
+  }, [internetEnabled]);
 
   // Update last AI response when messages change
   useEffect(() => {
@@ -204,6 +263,12 @@ Special Commands:
   - !clear - Clear the terminal
   - !status - Show current system status
 
+Security Commands:
+  - !airlock on/off - Block/allow all outbound HTTP requests
+  - !encrypt on/off - Enable/disable scroll encryption
+  - !decrypt-scroll <filename> - Decrypt an encrypted scroll
+  - !passphrase <key> - Set encryption passphrase
+
 Web Commands (Internet must be enabled):
   - !recon <url> - Download site HTML and source
   - !fetch-pub <DOI> - Pull metadata for academic publication
@@ -251,12 +316,38 @@ Web Commands (Internet must be enabled):
         saveSessionToFile('json');
         return 'Session saved as JSON file';
 
+      case 'airlock on':
+        activateAirlock();
+        setAirlockActive(true);
+        logEntry('system', 'Airlock activated: All outbound HTTP requests will be blocked');
+        return 'Airlock activated: All outbound HTTP requests will be blocked';
+
+      case 'airlock off':
+        deactivateAirlock();
+        setAirlockActive(false);
+        logEntry('system', 'Airlock deactivated: Outbound HTTP requests are now allowed');
+        return 'Airlock deactivated: Outbound HTTP requests are now allowed';
+
+      case 'encrypt on':
+        toggleEncryption();
+        setEncryptionEnabled(true);
+        logEntry('system', 'Scroll encryption enabled: All saved logs will be encrypted');
+        return 'Scroll encryption enabled: All saved logs will be encrypted';
+
+      case 'encrypt off':
+        toggleEncryption();
+        setEncryptionEnabled(false);
+        logEntry('system', 'Scroll encryption disabled: Logs will be saved in plaintext');
+        return 'Scroll encryption disabled: Logs will be saved in plaintext';
+
       case 'status':
         return `
 R3B3L 4F Status:
 - Internet Access: ${internetEnabled ? 'ENABLED' : 'DISABLED'}
 - Autonomy Mode: ${autonomyMode ? 'ENABLED' : 'DISABLED'}
 - NLP Mode: ${nlpMode ? 'ENABLED' : 'DISABLED'}
+- Airlock: ${airlockActive ? 'ACTIVE (Blocking External Requests)' : 'INACTIVE'}
+- Encryption: ${encryptionEnabled ? 'ENABLED' : 'DISABLED'}
 - Current Mission: ${currentMission}
 - AI Model: r3b3l-4f-godmode (Ollama)
 - Session Active: YES
@@ -282,6 +373,36 @@ R3B3L 4F Status:
         setCurrentMission(missionName);
         logEntry('system', `Mission set to: ${missionName}`);
         return `Mission set to: ${missionName}`;
+      }
+    }
+
+    // Passphrase command
+    if (cmd.startsWith('passphrase ')) {
+      const passphrase = cmd.substring(11).trim();
+      if (!passphrase) {
+        return 'Usage: !passphrase <key>';
+      }
+
+      setPassphrase(passphrase);
+      logEntry('system', 'Encryption passphrase updated');
+      return 'Encryption passphrase updated';
+    }
+
+    // Decrypt scroll command
+    if (cmd.startsWith('decrypt-scroll ')) {
+      const filename = cmd.substring(15).trim();
+      if (!filename) {
+        return 'Usage: !decrypt-scroll <filename>';
+      }
+
+      try {
+        logEntry('system', `Attempting to decrypt scroll: ${filename}`);
+        // Implementation for decrypting scroll will be added later
+        return `Attempting to decrypt scroll: ${filename}\n\nThis feature is not yet implemented.`;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logEntry('error', errorMessage);
+        return `Error decrypting scroll: ${errorMessage}`;
       }
     }
 
@@ -534,9 +655,22 @@ ${contexts.length > 0 ? 'Context samples:\n' + contexts.join('\n\n') : 'No conte
               internetEnabled ? "text-green-500" : "text-gray-500"
             )}
             title={internetEnabled ? "Disable Internet" : "Enable Internet"}
+            disabled={airlockActive}
           >
             {internetEnabled ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
             {internetEnabled ? "ONLINE" : "OFFLINE"}
+          </button>
+
+          <button
+            onClick={() => airlockActive ? deactivateAirlock() : activateAirlock()}
+            className={cn(
+              "flex items-center gap-1 text-xs font-mono",
+              airlockActive ? "text-red-500" : "text-gray-500"
+            )}
+            title={airlockActive ? "Deactivate Airlock" : "Activate Airlock"}
+          >
+            {airlockActive ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+            {airlockActive ? "SEALED" : "OPEN"}
           </button>
 
           <button
@@ -561,6 +695,22 @@ ${contexts.length > 0 ? 'Context samples:\n' + contexts.join('\n\n') : 'No conte
           >
             <Zap className="w-4 h-4" />
             {nlpMode ? "NLP" : "CMD"}
+          </button>
+
+          <button
+            onClick={() => {
+              const newState = !encryptionEnabled;
+              toggleEncryption();
+              setEncryptionEnabled(newState);
+            }}
+            className={cn(
+              "flex items-center gap-1 text-xs font-mono",
+              encryptionEnabled ? "text-blue-500" : "text-gray-500"
+            )}
+            title={encryptionEnabled ? "Disable Encryption" : "Enable Encryption"}
+          >
+            {encryptionEnabled ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+            {encryptionEnabled ? "CRYPT" : "PLAIN"}
           </button>
 
           <button

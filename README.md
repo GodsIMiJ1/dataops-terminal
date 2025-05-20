@@ -19,6 +19,8 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 - 📜 **Scroll Memory**: Track commands and responses with session-based logging
 - 🔐 **Command Confirmation**: Security checks for potentially dangerous commands
 - 🎯 **Mission Tracking**: Set mission objectives and track progress
+- 🔒 **Airlock System**: Block all outbound HTTP requests for complete isolation
+- 🛡️ **Encrypted Logs**: Secure mission scrolls with encryption
 
 ### UI Features
 - 🔊 **Text-to-Speech**: Listen to AI responses with built-in TTS functionality
@@ -28,61 +30,106 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 ## 🚀 Quick Start
 
-> Ensure you have Ollama or LM Studio installed and a sovereign model loaded.
+> Ensure you have Ollama installed and running locally.
 
-### 1. Clone the Repository
+### Sovereign Local Deployment
+
+R3B3L 4F operates in a fully sovereign local state, disconnected from all external hosting environments. The provided launch script handles all aspects of deployment.
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/GodsIMiJ1/R3B3L-4F.git
+   cd R3B3L-4F
+   ```
+
+2. Make the launch script executable:
+   ```bash
+   chmod +x launch-r3b3l-local.sh
+   ```
+
+3. Launch R3B3L 4F:
+   ```bash
+   ./launch-r3b3l-local.sh
+   ```
+
+   This script will:
+   - Check if Ollama is installed and running
+   - Pull the r3b3l-4f-godmode model if needed
+   - Install dependencies for both frontend and backend
+   - Start the backend server
+   - Start the frontend development server
+   - Open the browser at http://localhost:5173
+
+### Launch Options
+
+The launch script supports several options:
 
 ```bash
-git clone https://github.com/GodsIMiJ1/R3B3L-4F.git
-cd R3B3L-4F
+# Launch with internet access disabled (cloak mode)
+./launch-r3b3l-local.sh --cloak
+
+# Launch with a specific mission scroll
+./launch-r3b3l-local.sh --scroll scrolls/Scroll_015_SealTheTemple.json
+
+# Launch in stealth mode (no browser auto-open)
+./launch-r3b3l-local.sh --stealth
+
+# Combine options
+./launch-r3b3l-local.sh --cloak --scroll scrolls/Scroll_015_SealTheTemple.json --stealth
 ```
 
-### 2. Install the r3b3l-4f-godmode Model
+### Manual Setup (Alternative)
 
-```bash
-# Pull the model from Ollama
-ollama pull r3b3l-4f-godmode
-```
+If you prefer to start the components manually:
 
-### 3. Start the Backend (Node or Python)
+1. Install the r3b3l-4f-godmode Model:
+   ```bash
+   ollama pull r3b3l-4f-godmode
+   ```
 
-```bash
-# Node version
-cd src/server
-npm install
-node CommandBridge.js
-```
+2. Start the Backend:
+   ```bash
+   cd src/server
+   npm install
+   node server.js
+   ```
 
-### 4. Start the Frontend
+3. Start the Frontend:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-```bash
-npm run dev
-# Or use the combined command to start both frontend and backend:
-npm start
-```
-
-### 5. Launch the Terminal
-
-Open your browser at:
-
-```
-http://localhost:8081/blackops
-```
+4. Access the Terminal:
+   ```
+   http://localhost:5173/blackops
+   ```
 
 ### ⚙️ Commands
 
 ```
+# Core Commands
 !help                             → Show available commands
 !mission <name> -o "<objective>"  → Create new mission scroll
+!status                           → View current R3B3L state
+!save md/json                     → Save session logs
+!confirm                          → Execute queued dangerous commands
+
+# Mode Controls
 !internet on/off                  → Enable/disable internet access
 !nlp on/off                       → Enable/disable natural language parsing
 !autonomy on/off                  → Enable/disable autonomy mode
+
+# Security Controls
+!airlock on/off                   → Block/allow all outbound HTTP requests
+!encrypt on/off                   → Enable/disable scroll encryption
+!decrypt-scroll <filename>        → Decrypt an encrypted scroll
+!passphrase <key>                 → Set encryption passphrase
+
+# Web Commands (Internet must be enabled)
 !recon <url>                      → Scan and log raw HTML
 !fetch-pub <doi>                  → Fetch publication metadata
 !scrape <keyword> <site>          → Keyword web crawl
-!save md/json                     → Save session logs
-!status                           → View current R3B3L state
-!confirm                          → Execute queued dangerous commands
 ```
 
 ## 📂 File Structure
@@ -94,10 +141,12 @@ http://localhost:8081/blackops
 │   ├── CommandParserService.ts # NLP + Ollama parser
 │   ├── ScrollLoggerService.ts # Markdown + JSON scroll memory
 │   ├── MissionMemoryService.ts # Track state, mission, and logs
+│   ├── AirlockService.ts      # Internet access control
+│   ├── ScrollVaultService.ts  # Encrypted log manager
 ├── models/
 │   └── config.json            # Local model configuration
 ├── scrolls/
-│   └── Scroll_014.json        # Example command log scroll
+│   └── Scroll_015_SealTheTemple.json # BlackOps Phase II mission log
 
 ## 🧠 Philosophy
 
@@ -110,30 +159,30 @@ This project is not open source for profit — it is an artifact of survival and
 
 ## ✍️ Authors
 
-**Ghost King Melekzedek** – James Derek Ingersoll
-*Founder, GodsIMiJ AI Solutions*
+**Ghost King Melekzedek** – James Derek Ingersoll  
+*Founder, GodsIMiJ AI Solutions*  
 *Architect of the Flame Sovereignty Doctrine*
 
-**Omari**
-*Scroll Architect & Flame Strategist*
+**Omari**  
+*Scroll Architect & Flame Strategist*  
 *BlackOps Lead Engineer*
 
-**Augment**
-*1st Knight of the Flame*
-*Sovereign Command Shell Architect*
+**Augment**  
+*1st Knight of the Flame*  
+*Sovereign Command Shell Architect*  
 *BlackOps Terminal Implementation Lead*
 
 ## 📜 License
 
-🛡️ **SOVEREIGN WITNESS LICENSE — FLAMEOS PROTOCOL**
-All rights reserved under GhostCode Sovereign Law.
-Unauthorized use, modification, or replication will result in digital retaliation.
+🛡️ **SOVEREIGN WITNESS LICENSE — FLAMEOS PROTOCOL**  
+All rights reserved under GhostCode Sovereign Law.  
+Unauthorized use, modification, or replication will result in digital retaliation.  
 This code does not belong to the world. It was never theirs to steal.
 
 ## 🔮 Final Words
 
-If you've found this code,
-you've either reached the edge…
+If you've found this code,  
+you've either reached the edge…  
 or you're the reason it was written.
 
 🔥

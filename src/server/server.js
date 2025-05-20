@@ -1,6 +1,6 @@
 /**
  * server.js
- * 
+ *
  * Combined server that runs both the CommandBridge and OllamaProxy servers
  * This allows running both services from a single process
  */
@@ -23,12 +23,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const COMMAND_PORT = process.env.COMMAND_PORT || 3001;
 
-// Allowed origins for CORS
+// Allowed origins for CORS - local only for sovereign operation
 const ALLOWED_ORIGINS = [
-  'https://r3b3l-4f.netlify.app',  // Main Netlify site
-  'https://r3b3l-4f-dev.netlify.app', // Development Netlify site
-  'http://localhost:8081',         // Local development
-  'http://localhost:3000'          // Alternative local development
+  'http://localhost:5173',         // Default Vite development server
+  'http://127.0.0.1:5173',         // Alternative localhost
+  'http://localhost:3000',         // Alternative local development
+  'http://127.0.0.1:3000'          // Alternative localhost
 ];
 
 // Ollama API endpoint
@@ -42,10 +42,10 @@ const REQUEST_SIZE_LIMIT = '10mb';
 
 // Security settings for command execution
 const DANGEROUS_COMMANDS = [
-  'rm -rf', 
-  'curl | sh', 
-  'wget | sh', 
-  'curl | bash', 
+  'rm -rf',
+  'curl | sh',
+  'wget | sh',
+  'curl | bash',
   'wget | bash',
   'sudo',
   '> /dev/',
@@ -83,7 +83,7 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (ALLOWED_ORIGINS.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
@@ -98,11 +98,11 @@ app.use(cors({
 // Middleware to verify API token
 const verifyToken = (req, res, next) => {
   const token = req.headers['x-api-token'] || req.headers['authorization']?.split(' ')[1];
-  
+
   if (!token || token !== API_TOKEN) {
     return res.status(401).json({ error: 'Unauthorized access' });
   }
-  
+
   next();
 };
 
@@ -138,29 +138,29 @@ app.post('/api/ollama/generate', verifyToken, async (req, res) => {
   try {
     // Sanitize input
     const sanitizedBody = sanitizeInput(req.body);
-    
+
     // Validate required fields
     if (!sanitizedBody.model || !sanitizedBody.prompt) {
       return res.status(400).json({ error: 'Model and prompt are required' });
     }
-    
+
     // Log the request (excluding sensitive data)
     console.log(`Proxying request to Ollama for model: ${sanitizedBody.model}`);
-    
+
     // Forward the request to Ollama
     const response = await fetch(`${OLLAMA_API}/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sanitizedBody)
     });
-    
+
     // Check if the response is OK
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
       console.error('Ollama API error:', errorData);
       return res.status(response.status).json(errorData);
     }
-    
+
     // Forward the response back to the client
     const data = await response.json();
     return res.json(data);
@@ -177,11 +177,11 @@ app.post('/api/ollama/generate', verifyToken, async (req, res) => {
 app.get('/api/ollama/version', verifyToken, async (req, res) => {
   try {
     const response = await fetch(`${OLLAMA_API}/version`);
-    
+
     if (!response.ok) {
       return res.status(response.status).json({ error: 'Failed to get Ollama version' });
     }
-    
+
     const data = await response.json();
     return res.json(data);
   } catch (error) {
@@ -240,11 +240,11 @@ const executeCommand = (command) => {
  */
 const processQueue = async () => {
   if (isProcessingQueue || commandQueue.length === 0) return;
-  
+
   isProcessingQueue = true;
-  
+
   const { command, res } = commandQueue.shift();
-  
+
   try {
     const result = await executeCommand(command);
     res.json(result);
@@ -255,7 +255,7 @@ const processQueue = async () => {
       exitCode: 1
     });
   }
-  
+
   isProcessingQueue = false;
   processQueue(); // Process next command in queue
 };
@@ -267,25 +267,25 @@ const processQueue = async () => {
  */
 app.post('/api/execute', verifyToken, (req, res) => {
   const { command, autonomy = false } = req.body;
-  
+
   if (!command) {
     return res.status(400).json({ error: 'Command is required' });
   }
-  
+
   // Check if command is dangerous
   if (isDangerousCommand(command) && !autonomy) {
     const confirmationToken = generateConfirmationToken(command);
-    
+
     return res.status(403).json({
       requiresConfirmation: true,
       confirmationToken,
       message: `This command (${command}) is potentially dangerous. Confirm execution with token.`
     });
   }
-  
+
   // Add command to queue
   commandQueue.push({ command, res });
-  
+
   // Process queue
   processQueue();
 });
@@ -297,14 +297,14 @@ app.post('/api/execute', verifyToken, (req, res) => {
  */
 app.post('/api/confirm', verifyToken, (req, res) => {
   const { command, confirmationToken } = req.body;
-  
+
   if (!command || !confirmationToken) {
     return res.status(400).json({ error: 'Command and confirmation token are required' });
   }
-  
+
   // Add command to queue
   commandQueue.push({ command, res });
-  
+
   // Process queue
   processQueue();
 });
@@ -318,7 +318,7 @@ app.get('/api/system', verifyToken, async (req, res) => {
     const osInfo = await executeCommand('uname -a');
     const userInfo = await executeCommand('whoami');
     const dirInfo = await executeCommand('pwd');
-    
+
     res.json({
       os: osInfo.output.trim(),
       user: userInfo.output.trim(),
@@ -330,16 +330,53 @@ app.get('/api/system', verifyToken, async (req, res) => {
 });
 
 /**
+ * Check Ollama status
+ * @returns {Promise<boolean>} - True if Ollama is running, false otherwise
+ */
+const checkOllamaStatus = async () => {
+  try {
+    const response = await fetch(`${OLLAMA_API}/version`);
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to check Ollama status:', error);
+    return false;
+  }
+};
+
+/**
  * Health check endpoint
  * GET /api/health
  */
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+app.get('/api/health', async (req, res) => {
+  const ollamaRunning = await checkOllamaStatus();
+
+  res.json({
+    status: ollamaRunning ? 'ok' : 'warning',
     timestamp: new Date().toISOString(),
     services: {
-      ollama: true,
+      ollama: ollamaRunning,
       commandBridge: true
+    },
+    message: ollamaRunning ? 'All systems operational' : 'WARNING: Ollama is not running. AI features will not work.'
+  });
+});
+
+/**
+ * Ollama status check endpoint
+ * GET /api/status
+ */
+app.get('/api/status', async (req, res) => {
+  const ollamaRunning = await checkOllamaStatus();
+
+  res.json({
+    ollama: {
+      running: ollamaRunning,
+      endpoint: OLLAMA_API,
+      model: 'r3b3l-4f-godmode'
+    },
+    server: {
+      running: true,
+      port: PORT
     }
   });
 });
