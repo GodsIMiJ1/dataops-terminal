@@ -15,14 +15,31 @@ const ChatInterface: React.FC = () => {
   const { modelStatus } = useSystemMetrics();
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
 
-  // Using OpenAI API
+  // Using Ollama API
   useEffect(() => {
-    // We're using OpenAI API, so we'll just assume it's connected
-    // In a production app, you might want to make a test request to verify
-    setApiConnected(true);
+    // Check if Ollama is running locally
+    const checkOllamaConnection = async () => {
+      try {
+        const response = await fetch('http://localhost:11434/api/version');
+        if (response.ok) {
+          setApiConnected(true);
+          console.log('Ollama is running locally');
+        } else {
+          setApiConnected(false);
+          console.error('Ollama API returned an error');
+        }
+      } catch (error) {
+        setApiConnected(false);
+        console.error('Failed to connect to Ollama:', error);
+      }
+    };
 
-    // No need to check connection periodically for OpenAI
-    return () => {};
+    checkOllamaConnection();
+
+    // Check connection periodically
+    const interval = setInterval(checkOllamaConnection, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   // Auto-speak the latest assistant message
@@ -34,7 +51,7 @@ const ChatInterface: React.FC = () => {
   }, [messages, speak]);
 
   return (
-    <div className="cyber-panel h-full rounded flex flex-col">
+    <div className="cyber-panel min-h-full rounded flex flex-col overflow-hidden">
       <div className="cyber-scanline"></div>
 
       {/* Header */}
@@ -45,17 +62,17 @@ const ChatInterface: React.FC = () => {
         {apiConnected === null ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-            Checking OpenAI API connection...
+            Checking Ollama API connection...
           </div>
         ) : apiConnected ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <Shield className="w-3 h-3 text-green-500" />
-            Connected to OpenAI API
+            Connected to Ollama API (r3b3l-4f-r1)
           </div>
         ) : (
           <div className="text-xs font-mono text-cyber-red flex items-center gap-2">
             <ShieldAlert className="w-3 h-3 animate-pulse" />
-            OpenAI API not connected - using fallback responses
+            Ollama not running - using fallback responses
           </div>
         )}
       </div>

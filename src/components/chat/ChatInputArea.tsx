@@ -10,10 +10,10 @@ interface ChatInputAreaProps {
   isLoading: boolean;
 }
 
-const ChatInputArea: React.FC<ChatInputAreaProps> = ({ 
-  onSendMessage, 
-  onClearMessages, 
-  isLoading 
+const ChatInputArea: React.FC<ChatInputAreaProps> = ({
+  onSendMessage,
+  onClearMessages,
+  isLoading
 }) => {
   const [input, setInput] = useState('');
 
@@ -43,7 +43,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter security command..."
+            placeholder="Enter command to hack the planet..."
             className="w-full bg-cyber-darkgray border border-cyber-red/30 focus:border-cyber-red rounded p-2 font-mono text-sm"
             disabled={isLoading}
           />
@@ -57,12 +57,12 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             </button>
           )}
         </div>
-        
-        <VoiceChat 
-          onSpeechRecognized={handleSpeechRecognized} 
+
+        <VoiceChat
+          onSpeechRecognized={handleSpeechRecognized}
           disabled={isLoading}
         />
-        
+
         <ActionButton
           type="submit"
           disabled={isLoading || !input.trim()}
@@ -70,7 +70,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         >
           Send
         </ActionButton>
-        
+
         <ActionButton
           type="button"
           variant="danger"

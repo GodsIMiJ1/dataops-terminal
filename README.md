@@ -6,7 +6,7 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 ## Features
 
-- 🤖 **AI-Powered Responses**: Connects to OpenAI's GPT-3.5 Turbo for intelligent cybersecurity guidance
+- 🤖 **AI-Powered Responses**: Connects to Ollama for intelligent cybersecurity guidance using the r3b3l-4f-r1 model
 - 🔒 **Security Analysis**: Get expert advice on vulnerabilities, threats, and protection strategies
 - 🎭 **Ethical Hacking Guidance**: Learn about penetration testing and security assessment techniques
 - 🔍 **Digital Protection**: Discover best practices for securing your digital assets
@@ -21,7 +21,7 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 - Node.js (v18 or higher)
 - npm or yarn
-- OpenAI API key
+- Ollama installed locally (https://ollama.ai/)
 
 ### Setup
 
@@ -38,9 +38,10 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
    yarn install
    ```
 
-3. Create a `.env` file in the root directory and add your OpenAI API key:
-   ```
-   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+3. Install the r3b3l-4f-r1 model in Ollama:
+   ```bash
+   ollama pull r3b3l-4f-r1
+   # or create your own model with a Modelfile
    ```
 
 4. Start the development server:
@@ -72,19 +73,20 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 ## API Configuration
 
-R3B3L 4F uses the OpenAI API to generate responses. The API key is configured through environment variables.
+R3B3L 4F uses the Ollama API to generate responses. The API connects to your local Ollama instance.
 
 If you need to modify the API settings:
 
-1. Update your `.env` file with your OpenAI API key:
-   ```
-   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+1. Open `src/hooks/useChatAI.tsx` and update:
+   ```typescript
+   const API_URL = "http://localhost:11434/api/generate";
+   const MODEL = "r3b3l-4f-r1"; // Change to your preferred Ollama model
    ```
 
-2. If you need to change the model or API URL, open `src/hooks/useChatAI.tsx` and update:
-   ```typescript
-   const API_URL = "https://api.openai.com/v1/chat/completions";
-   const MODEL = "gpt-3.5-turbo"; // You can change to a different model
+2. Make sure Ollama is running locally before starting the application:
+   ```bash
+   # Start Ollama service
+   ollama serve
    ```
 
 ## Deployment
@@ -96,9 +98,7 @@ If you need to modify the API settings:
 3. Configure the build settings:
    - Build command: `npm run build` or `yarn build`
    - Publish directory: `dist`
-4. Add your OpenAI API key as an environment variable in the Netlify dashboard:
-   - Go to Site settings > Build & deploy > Environment
-   - Add a variable with key `REACT_APP_OPENAI_API_KEY` and your API key as the value
+4. Note: Since this application now uses Ollama which runs locally, the deployed version will need to connect to a hosted Ollama instance or be modified to use a cloud-based API service.
 5. Deploy your site.
 
 ## Technologies Used
@@ -107,7 +107,7 @@ If you need to modify the API settings:
 - **TypeScript**: Type-safe JavaScript
 - **Tailwind CSS**: Utility-first CSS framework
 - **Shadcn UI**: UI component library
-- **OpenAI API**: AI model for generating responses
+- **Ollama**: Local AI model for generating responses
 - **Lucide Icons**: Icon library
 - **React Router**: Client-side routing
 

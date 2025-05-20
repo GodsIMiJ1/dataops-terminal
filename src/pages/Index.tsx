@@ -6,7 +6,8 @@ import ChatInterface from '@/components/ChatInterface';
 import GlitchText from '@/components/GlitchText';
 import StatusIndicator from '@/components/StatusIndicator';
 import StatusDashboard from '@/components/StatusDashboard';
-import { ShieldAlert, Zap } from 'lucide-react';
+import { ShieldAlert, Zap, Skull } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index: React.FC = () => {
@@ -33,7 +34,10 @@ const Index: React.FC = () => {
               <div className="bg-cyber-red h-full animate-pulse" style={{ width: '75%' }} />
             </div>
             <div className="text-sm font-mono text-cyber-cyan animate-pulse">
-              Initializing secure interface...
+              Bypassing corporate firewalls...
+            </div>
+            <div className="text-xs font-mono text-cyber-red mt-2">
+              <span className="animate-pulse">WARNING:</span> Unauthorized access detected. Activating ghost protocols...
             </div>
           </div>
         </div>
@@ -42,7 +46,7 @@ const Index: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cyber-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-cyber-black text-white relative overflow-auto">
       {/* Matrix background */}
       <DigitalRain />
 
@@ -50,7 +54,7 @@ const Index: React.FC = () => {
       <div className="digital-noise"></div>
 
       {/* Main content */}
-      <div className="container mx-auto py-4 h-screen flex flex-col">
+      <div className="container mx-auto py-4 min-h-screen flex flex-col">
         {/* Header */}
         <header className="flex items-center justify-between mb-4 px-2">
           <GlitchText text="R3B3L 4F" className="text-2xl font-bold text-cyber-red" intense />
@@ -63,6 +67,14 @@ const Index: React.FC = () => {
                 <span className="text-xs font-mono text-cyber-red">LIVE TRUTH TEAM</span>
               </div>
             )}
+            <Link
+              to="/blackops"
+              className="cyber-panel px-3 py-1 rounded-full flex items-center gap-2 bg-cyber-black border-cyber-red hover:bg-cyber-red/20 transition-colors"
+              title="Enter BlackOps Terminal"
+            >
+              <Skull className="w-4 h-4 text-cyber-red" />
+              <span className="text-xs font-mono text-cyber-red">{isMobile ? "BLACKOPS" : "BLACKOPS TERMINAL"}</span>
+            </Link>
           </div>
         </header>
 

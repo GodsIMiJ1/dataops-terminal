@@ -41,9 +41,9 @@
   * {
     @apply border-border selection:bg-cyber-red/30 selection:text-cyber-cyan-bright;
   }
-  
+
   html, body {
-    @apply overflow-hidden;
+    @apply overflow-auto;
   }
 
   body {
@@ -56,11 +56,11 @@
     width: 8px;
     height: 8px;
   }
-  
+
   ::-webkit-scrollbar-track {
     @apply bg-cyber-darkgray;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     @apply bg-cyber-red/70 rounded-full border border-cyber-red-dim animate-pulse;
   }
@@ -75,69 +75,69 @@
   .cyber-panel {
     @apply bg-cyber-darkgray/90 backdrop-blur-sm border border-cyber-red/50 shadow-md shadow-cyber-red/20 relative overflow-hidden;
   }
-  
+
   .cyber-panel::before {
     content: "";
     @apply absolute inset-0 bg-gradient-to-tr from-cyber-red/5 to-cyber-cyan/5 pointer-events-none;
   }
-  
+
   .cyber-panel::after {
     content: "";
     @apply absolute inset-0 bg-[url('/matrix-bg.png')] bg-repeat opacity-5 pointer-events-none;
   }
-  
+
   .cyber-scanline {
     @apply absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-20 h-[20px] animate-scan pointer-events-none;
   }
-  
+
   .cyber-header {
     @apply text-cyber-red font-mono uppercase tracking-wider border-b border-cyber-red/30 pb-1 mb-3 flex items-center;
   }
-  
+
   .cyber-text {
     @apply text-white font-mono tracking-wide;
   }
-  
+
   .cyber-alert {
     @apply border-l-4 border-cyber-red/70 bg-cyber-red/10 px-4 py-2 mb-4;
   }
-  
+
   .matrix-bg {
     @apply fixed inset-0 bg-cyber-black z-[-1] overflow-hidden;
   }
-  
+
   .glitch-wrapper {
     @apply relative inline-block;
   }
-  
+
   .glitch-text {
     @apply relative inline-block;
   }
-  
+
   .glitch-text::before,
   .glitch-text::after {
     @apply content-[attr(data-text)] absolute left-0 top-0 w-full h-full;
   }
-  
+
   .glitch-text::before {
     @apply text-cyber-red left-[2px] text-opacity-70 animate-glitch-slow;
     clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
   }
-  
+
   .glitch-text::after {
     @apply text-cyber-cyan left-[-2px] text-opacity-70 animate-glitch;
     clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
   }
-  
+
   .digital-noise {
-    @apply fixed inset-0 bg-[url('/noise.png')] bg-repeat opacity-[0.03] pointer-events-none z-50 mix-blend-overlay;
+    @apply fixed inset-0 bg-[url('/noise.png')] bg-repeat opacity-[0.03] pointer-events-none z-10 mix-blend-overlay;
   }
 }
 
 #root {
   width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow: auto;
   padding: 0;
   margin: 0;
   max-width: none;

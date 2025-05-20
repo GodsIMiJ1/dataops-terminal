@@ -30,14 +30,21 @@ export const useSystemMetrics = () => {
         }
       }
 
-      // Check OpenAI API connection
+      // Check Ollama API connection
       try {
-        // We're using OpenAI API now, so we'll just assume it's connected
-        // In a production app, you might want to make a test request to verify
-        setModelName('GPT-3.5 Turbo');
-        setModelStatus('idle');
+        // Check if Ollama is running locally
+        const response = await fetch('http://localhost:11434/api/version');
+        if (response.ok) {
+          const data = await response.json();
+          setModelName(`Ollama (r3b3l-4f-r1)`);
+          setModelStatus('idle');
+          console.log('Ollama version:', data.version);
+        } else {
+          setModelStatus('error');
+          console.error('Ollama API returned an error');
+        }
       } catch (err) {
-        console.error("OpenAI API connection error:", err);
+        console.error("Ollama API connection error:", err);
         setModelStatus('error');
       }
 

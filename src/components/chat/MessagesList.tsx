@@ -22,7 +22,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
 
   // Format timestamp
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
@@ -31,12 +31,12 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
   };
 
   return (
-    <div className={`flex-1 w-full overflow-y-auto ${isMobile ? 'h-[calc(100vh-280px)]' : 'h-[calc(100vh-240px)]'}`}>
+    <div className="flex-1 w-full overflow-y-auto max-h-[70vh]">
       <div className="p-4 space-y-4">
-        {messages.map((message) => {
+        {messages.filter(message => message.role !== 'system').map((message) => {
           let messageClass = '';
           let iconComponent = null;
-          
+
           switch (message.role) {
             case 'user':
               messageClass = 'bg-cyber-darkgray border-cyber-cyan/30 ml-auto';
@@ -55,9 +55,9 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
               iconComponent = <AlertTriangle className="w-4 h-4 text-cyber-red" />;
               break;
           }
-          
+
           return (
-            <div 
+            <div
               key={message.id}
               className={`cyber-panel p-3 rounded ${isMobile ? 'max-w-[95%]' : 'max-w-[85%]'} ${messageClass}`}
             >
@@ -78,7 +78,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
           );
         })}
         <div ref={messagesEndRef} />
-        
+
         {isLoading && (
           <div className="flex items-center justify-center gap-2 text-cyber-cyan">
             <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />

@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-type StatusType = 'online' | 'offline' | 'warning' | 'error' | 'processing';
+type StatusType = 'online' | 'offline' | 'warning' | 'error' | 'processing' | 'secure';
 
 interface StatusIndicatorProps {
   status: StatusType;
@@ -22,12 +22,13 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
     offline: 'bg-gray-500',
     warning: 'bg-yellow-500',
     error: 'bg-cyber-red',
-    processing: 'bg-cyber-cyan'
+    processing: 'bg-cyber-cyan',
+    secure: 'bg-purple-500'
   };
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <div 
+      <div
         className={cn(
           "h-2.5 w-2.5 rounded-full",
           statusColors[status],
