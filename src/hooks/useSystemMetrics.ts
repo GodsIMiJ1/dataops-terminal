@@ -36,7 +36,7 @@ export const useSystemMetrics = () => {
         const response = await fetch('http://localhost:11434/api/version');
         if (response.ok) {
           const data = await response.json();
-          setModelName(`Ollama (r3b3l-4f-r1)`);
+          setModelName(`Ollama (r3b3l-4f-godmode)`);
           setModelStatus('idle');
           console.log('Ollama version:', data.version);
         } else {

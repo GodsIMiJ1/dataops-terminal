@@ -19,7 +19,7 @@ interface UseChatAIReturn {
 
 // Ollama API configuration
 const API_URL = "http://localhost:11434/api/generate";
-const MODEL = "r3b3l-4f-r1"; // Your local Ollama model name
+const MODEL = "r3b3l-4f-godmode"; // Your local Ollama model name
 
 // Debug environment variables
 console.log("Environment variables available:", Object.keys(import.meta.env));

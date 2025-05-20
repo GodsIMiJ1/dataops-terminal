@@ -1,6 +1,6 @@
 /**
  * Command Parser Service
- * 
+ *
  * This service handles parsing natural language commands into executable shell commands.
  * It uses the Ollama API to generate command suggestions.
  */
@@ -28,9 +28,9 @@ export const parseNaturalLanguageCommand = async (
   query: string,
   options: CommandParsingOptions = {}
 ): Promise<CommandParsingResult> => {
-  const model = options.model || 'r3b3l-4f-r1';
+  const model = options.model || 'r3b3l-4f-godmode';
   const maxAlternatives = options.maxAlternatives || 3;
-  
+
   try {
     // Call Ollama API to parse the command
     const response = await fetch('http://localhost:11434/api/generate', {
@@ -44,16 +44,16 @@ export const parseNaturalLanguageCommand = async (
         stream: false
       })
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to parse command: ${response.status} ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     return parseOllamaResponse(data.response, query);
   } catch (error) {
     console.error('Error parsing natural language command:', error);
-    
+
     // Fallback to simple parsing
     return fallbackCommandParsing(query);
   }
@@ -64,7 +64,7 @@ export const parseNaturalLanguageCommand = async (
  */
 const generatePrompt = (query: string): string => {
   return `You are R3B3L 4F, a command-line AI assistant. Convert the following natural language query into a bash shell command.
-  
+
 Your response should be in JSON format with the following structure:
 {
   "command": "the shell command",
@@ -88,9 +88,9 @@ const parseOllamaResponse = (response: string, originalQuery: string): CommandPa
     if (!jsonMatch) {
       throw new Error('No JSON found in response');
     }
-    
+
     const parsedJson = JSON.parse(jsonMatch[0]);
-    
+
     return {
       originalQuery,
       parsedCommand: parsedJson.command || '',
@@ -100,7 +100,7 @@ const parseOllamaResponse = (response: string, originalQuery: string): CommandPa
     };
   } catch (error) {
     console.error('Error parsing Ollama response:', error);
-    
+
     // If we can't parse the JSON, try to extract the command directly
     const commandMatch = response.match(/\`\`\`(?:bash|sh)?\s*(.*?)\s*\`\`\`/s);
     if (commandMatch && commandMatch[1]) {
@@ -111,7 +111,7 @@ const parseOllamaResponse = (response: string, originalQuery: string): CommandPa
         confidence: 0.7
       };
     }
-    
+
     return fallbackCommandParsing(originalQuery);
   }
 };
@@ -124,7 +124,7 @@ const fallbackCommandParsing = (query: string): CommandParsingResult => {
   let command = '';
   let explanation = '';
   let confidence = 0.5;
-  
+
   // List files
   if (/list (?:all )?files/i.test(query)) {
     command = 'ls -la';
@@ -167,7 +167,7 @@ const fallbackCommandParsing = (query: string): CommandParsingResult => {
     explanation = 'Could not parse the natural language query';
     confidence = 0.2;
   }
-  
+
   return {
     originalQuery: query,
     parsedCommand: command,

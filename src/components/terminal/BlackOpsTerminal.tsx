@@ -258,7 +258,7 @@ R3B3L 4F Status:
 - Autonomy Mode: ${autonomyMode ? 'ENABLED' : 'DISABLED'}
 - NLP Mode: ${nlpMode ? 'ENABLED' : 'DISABLED'}
 - Current Mission: ${currentMission}
-- AI Model: r3b3l-4f-r1 (Ollama)
+- AI Model: r3b3l-4f-godmode (Ollama)
 - Session Active: YES
 - Backend: ${pendingCommand ? 'CONNECTED' : 'MOCK_EXECUTION_ONLY'}
 `;
