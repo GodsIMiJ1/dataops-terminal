@@ -30,6 +30,12 @@ import {
   setPassphrase,
   processScrollForLoading
 } from '@/services/ScrollVaultService';
+import {
+  performNetworkScan
+} from '@/services/NetworkReconService';
+import {
+  performGitHubRecon
+} from '@/services/GitHubReconService';
 import { cn } from '@/lib/utils';
 
 interface BlackOpsTerminalProps {
@@ -273,6 +279,10 @@ Web Commands (Internet must be enabled):
   - !recon <url> - Download site HTML and source
   - !fetch-pub <DOI> - Pull metadata for academic publication
   - !scrape <keyword> <url> - Start crawl of target site for keyword
+
+Extended Recon Suite:
+  - !net-scan <domain/ip> - Perform DNS/IP scan and analysis
+  - !git-harvest <org/user> - Crawl GitHub repositories and metadata
 `;
 
       case 'internet on':
@@ -452,7 +462,175 @@ R3B3L 4F Status:
       return await handleScrapeCommand(keyword, url);
     }
 
+    // Extended Recon Suite commands
+    if (cmd.startsWith('net-scan ')) {
+      if (!internetEnabled) {
+        return 'Internet access is disabled. Enable with !internet on';
+      }
+
+      const target = cmd.substring(9).trim();
+      if (!target) {
+        return 'Usage: !net-scan <domain/ip>';
+      }
+
+      logEntry('system', `Starting network scan for ${target}`);
+      return await handleNetworkScanCommand(target);
+    }
+
+    if (cmd.startsWith('git-harvest ')) {
+      if (!internetEnabled) {
+        return 'Internet access is disabled. Enable with !internet on';
+      }
+
+      const target = cmd.substring(12).trim();
+      if (!target) {
+        return 'Usage: !git-harvest <org/user>';
+      }
+
+      logEntry('system', `Starting GitHub reconnaissance for ${target}`);
+      return await handleGitHubReconCommand(target);
+    }
+
     return `Unknown special command: ${command}. Type !help for available commands.`;
+  };
+
+  // Handle network scan command
+  const handleNetworkScanCommand = async (target: string): Promise<string> => {
+    try {
+      const result = await performNetworkScan(target);
+
+      // Format DNS results
+      let dnsOutput = '';
+      if (result.dns && result.dns.length > 0) {
+        dnsOutput = '\nDNS Records:';
+        for (const dns of result.dns) {
+          dnsOutput += `\n  ${dns.type} Records for ${dns.hostname}:`;
+          for (const address of dns.addresses) {
+            dnsOutput += `\n    ${address}`;
+          }
+        }
+      }
+
+      // Format WHOIS results
+      let whoisOutput = '';
+      if (result.whois) {
+        whoisOutput = '\nWHOIS Information:';
+        if (result.whois.registrar) {
+          whoisOutput += `\n  Registrar: ${result.whois.registrar}`;
+        }
+        if (result.whois.organization) {
+          whoisOutput += `\n  Organization: ${result.whois.organization}`;
+        }
+        if (result.whois.creationDate) {
+          whoisOutput += `\n  Creation Date: ${new Date(result.whois.creationDate).toLocaleDateString()}`;
+        }
+        if (result.whois.expirationDate) {
+          whoisOutput += `\n  Expiration Date: ${new Date(result.whois.expirationDate).toLocaleDateString()}`;
+        }
+        if (result.whois.nameServers && result.whois.nameServers.length > 0) {
+          whoisOutput += `\n  Name Servers: ${result.whois.nameServers.join(', ')}`;
+        }
+      }
+
+      // Format HTTP headers
+      let headersOutput = '';
+      if (result.headers) {
+        headersOutput = '\nHTTP Headers:';
+        for (const [key, value] of Object.entries(result.headers)) {
+          headersOutput += `\n  ${key}: ${value}`;
+        }
+      }
+
+      // Format the final output
+      return `
+Network Scan Results for ${target}:
+${dnsOutput}
+${whoisOutput}
+${headersOutput}
+
+[Full scan results saved to session log]
+`;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `Error during network scan: ${errorMessage}`;
+    }
+  };
+
+  // Handle GitHub reconnaissance command
+  const handleGitHubReconCommand = async (target: string): Promise<string> => {
+    try {
+      const result = await performGitHubRecon(target);
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      const data = result.data;
+
+      // Format basic information
+      let output = `
+GitHub Reconnaissance Results for ${target}:
+
+Type: ${result.type === 'user' ? 'User' : 'Organization'}
+Name: ${data.name || data.login}
+URL: ${data.html_url}
+`;
+
+      // Add user/org specific information
+      if (result.type === 'user') {
+        const userData = data as any;
+        output += `
+Bio: ${userData.bio || 'N/A'}
+Location: ${userData.location || 'N/A'}
+Email: ${userData.email || 'N/A'}
+Public Repositories: ${userData.public_repos}
+Followers: ${userData.followers}
+Following: ${userData.following}
+Created: ${new Date(userData.created_at).toLocaleDateString()}
+`;
+      } else {
+        const orgData = data as any;
+        output += `
+Description: ${orgData.description || 'N/A'}
+Location: ${orgData.location || 'N/A'}
+Email: ${orgData.email || 'N/A'}
+Public Repositories: ${orgData.public_repos}
+`;
+      }
+
+      // Add repository information
+      if (data.repositories && data.repositories.length > 0) {
+        output += `
+Repositories (${data.repositories.length} total):`;
+
+        // Sort repositories by stars
+        const sortedRepos = [...data.repositories].sort((a, b) => b.stargazers_count - a.stargazers_count);
+
+        // Show top 5 repositories
+        for (let i = 0; i < Math.min(5, sortedRepos.length); i++) {
+          const repo = sortedRepos[i];
+          output += `
+  ${i + 1}. ${repo.name} (${repo.stargazers_count} ⭐)
+     ${repo.description || 'No description'}
+     Language: ${repo.language || 'N/A'}
+     Updated: ${new Date(repo.updated_at).toLocaleDateString()}
+     URL: ${repo.html_url}`;
+        }
+
+        if (sortedRepos.length > 5) {
+          output += `\n\n  ... and ${sortedRepos.length - 5} more repositories`;
+        }
+      }
+
+      output += `\n\n[Full reconnaissance results saved to session log]`;
+
+      return output;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `Error during GitHub reconnaissance: ${errorMessage}`;
+    }
   };
 
   // Handle AI queries

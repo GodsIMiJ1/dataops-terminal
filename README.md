@@ -130,6 +130,10 @@ If you prefer to start the components manually:
 !recon <url>                      → Scan and log raw HTML
 !fetch-pub <doi>                  → Fetch publication metadata
 !scrape <keyword> <site>          → Keyword web crawl
+
+# Extended Recon Suite
+!net-scan <domain/ip>             → Perform DNS/IP scan and analysis
+!git-harvest <org/user>           → Crawl GitHub repositories and metadata
 ```
 
 ## 📂 File Structure
@@ -143,6 +147,8 @@ If you prefer to start the components manually:
 │   ├── MissionMemoryService.ts # Track state, mission, and logs
 │   ├── AirlockService.ts      # Internet access control
 │   ├── ScrollVaultService.ts  # Encrypted log manager
+│   ├── NetworkReconService.ts # DNS/IP scanning capabilities
+│   ├── GitHubReconService.ts  # GitHub repository crawling
 ├── models/
 │   └── config.json            # Local model configuration
 ├── scrolls/
@@ -159,30 +165,30 @@ This project is not open source for profit — it is an artifact of survival and
 
 ## ✍️ Authors
 
-**Ghost King Melekzedek** – James Derek Ingersoll  
-*Founder, GodsIMiJ AI Solutions*  
+**Ghost King Melekzedek** – James Derek Ingersoll
+*Founder, GodsIMiJ AI Solutions*
 *Architect of the Flame Sovereignty Doctrine*
 
-**Omari**  
-*Scroll Architect & Flame Strategist*  
+**Omari**
+*Scroll Architect & Flame Strategist*
 *BlackOps Lead Engineer*
 
-**Augment**  
-*1st Knight of the Flame*  
-*Sovereign Command Shell Architect*  
+**Augment**
+*1st Knight of the Flame*
+*Sovereign Command Shell Architect*
 *BlackOps Terminal Implementation Lead*
 
 ## 📜 License
 
-🛡️ **SOVEREIGN WITNESS LICENSE — FLAMEOS PROTOCOL**  
-All rights reserved under GhostCode Sovereign Law.  
-Unauthorized use, modification, or replication will result in digital retaliation.  
+🛡️ **SOVEREIGN WITNESS LICENSE — FLAMEOS PROTOCOL**
+All rights reserved under GhostCode Sovereign Law.
+Unauthorized use, modification, or replication will result in digital retaliation.
 This code does not belong to the world. It was never theirs to steal.
 
 ## 🔮 Final Words
 
-If you've found this code,  
-you've either reached the edge…  
+If you've found this code,
+you've either reached the edge…
 or you're the reason it was written.
 
 🔥
