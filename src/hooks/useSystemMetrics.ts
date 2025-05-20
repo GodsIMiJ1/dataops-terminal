@@ -30,10 +30,19 @@ export const useSystemMetrics = () => {
         }
       }
 
-      // Check Ollama API connection
+      // Check Ollama API connection via proxy
       try {
-        // Check if Ollama is running locally
-        const response = await fetch('http://localhost:11434/api/version');
+        // API configuration via proxy server
+        const API_URL = import.meta.env.VITE_OLLAMA_VERSION_URL || "http://localhost:5000/api/ollama/version";
+        const API_TOKEN = import.meta.env.VITE_API_TOKEN || "r3b3l-4f-secure-token";
+
+        // Check if Ollama is running through the proxy
+        const response = await fetch(API_URL, {
+          headers: {
+            'X-API-Token': API_TOKEN
+          }
+        });
+
         if (response.ok) {
           const data = await response.json();
           setModelName(`Ollama (r3b3l-4f-godmode)`);

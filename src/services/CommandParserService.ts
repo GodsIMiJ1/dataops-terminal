@@ -31,12 +31,17 @@ export const parseNaturalLanguageCommand = async (
   const model = options.model || 'r3b3l-4f-godmode';
   const maxAlternatives = options.maxAlternatives || 3;
 
+  // Ollama API configuration via proxy server
+  const API_URL = import.meta.env.VITE_OLLAMA_PROXY_URL || "http://localhost:5000/api/ollama/generate";
+  const API_TOKEN = import.meta.env.VITE_API_TOKEN || "r3b3l-4f-secure-token";
+
   try {
     // Call Ollama API to parse the command
-    const response = await fetch('http://localhost:11434/api/generate', {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-API-Token': API_TOKEN
       },
       body: JSON.stringify({
         model,

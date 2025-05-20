@@ -17,9 +17,11 @@ interface UseChatAIReturn {
   clearMessages: () => void;
 }
 
-// Ollama API configuration
-const API_URL = "http://localhost:11434/api/generate";
+// Ollama API configuration via proxy server
+// In production, this should point to your deployed proxy server
+const API_URL = import.meta.env.VITE_OLLAMA_PROXY_URL || "http://localhost:5000/api/ollama/generate";
 const MODEL = "r3b3l-4f-godmode"; // Your local Ollama model name
+const API_TOKEN = import.meta.env.VITE_API_TOKEN || "r3b3l-4f-secure-token";
 
 // Debug environment variables
 console.log("Environment variables available:", Object.keys(import.meta.env));
@@ -84,7 +86,8 @@ export const useChatAI = (): UseChatAIReturn => {
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-API-Token": API_TOKEN
         },
         body: JSON.stringify(requestBody)
       });

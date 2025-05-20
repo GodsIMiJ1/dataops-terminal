@@ -35,9 +35,9 @@ export const executeCommand = async (
   console.log(`Executing command: ${command}`);
   console.log('Options:', options);
 
-  // API endpoint for command execution
-  const API_URL = 'http://localhost:3001/api/execute';
-  const API_TOKEN = 'r3b3l-4f-secure-token'; // Should be in environment variables
+  // API endpoint for command execution via proxy server
+  const API_URL = import.meta.env.VITE_COMMAND_BRIDGE_URL || 'http://localhost:5000/api/execute';
+  const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'r3b3l-4f-secure-token';
 
   try {
     // Call the backend API
@@ -92,8 +92,8 @@ export const confirmCommandExecution = async (
   command: string,
   confirmationToken: string
 ): Promise<CommandExecutionResult> => {
-  const API_URL = 'http://localhost:3001/api/confirm';
-  const API_TOKEN = 'r3b3l-4f-secure-token'; // Should be in environment variables
+  const API_URL = import.meta.env.VITE_COMMAND_CONFIRM_URL || 'http://localhost:5000/api/confirm';
+  const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'r3b3l-4f-secure-token';
 
   try {
     const response = await fetch(API_URL, {
