@@ -1,12 +1,14 @@
 # R3B3L 4F v3.0 - Sovereign Command Shell
 
-![R3B3L 4F Interface](public/screenshot.png)
+![R3B3L 4F Terminal Interface](public/screenshots/r3b3l-terminal-main.png)
 
 R3B3L 4F is an advanced AI ecosystem with a cyberpunk-inspired interface, built for the Bright Data Hackathon. Version 3.0 introduces the BlackOps Terminal - a sovereign command shell with comprehensive Bright Data integration, real command execution, natural language parsing, and web-connected task execution capabilities.
 
 ## 🏆 Bright Data Hackathon Submission
 
 This project showcases the power of Bright Data's infrastructure through a unique, immersive interface that combines cutting-edge AI with advanced web data operations. R3B3L 4F leverages Bright Data's MCP and Data Collector to enable users to discover, access, extract, and interact with web data in a secure, efficient manner.
+
+![Hackathon Reference Guide](public/screenshots/hackathon-reference.png)
 
 [View Hackathon Reference Guide](https://r3b3l-4f.netlify.app/hackathon-reference.html)
 
@@ -251,10 +253,26 @@ R3B3L 4F integrates with Bright Data's powerful web data platform to provide enh
 
 R3B3L 4F leverages Bright Data's infrastructure to perform four key operations:
 
-1. **Discover** - Find relevant content across the web using Bright Data's unparalleled network
-2. **Access** - Navigate complex and protected websites with rendering and authentication support
-3. **Extract** - Pull structured, real-time data at scale using customizable schemas
-4. **Interact** - Engage with dynamic, JavaScript-rendered pages through simulated user actions
+<div align="center">
+  <table>
+    <tr>
+      <td width="50%"><img src="public/screenshots/bright-data-discover.png" alt="Bright Data Discover Operation"></td>
+      <td width="50%"><img src="public/screenshots/bright-data-access.png" alt="Bright Data Access Operation"></td>
+    </tr>
+    <tr>
+      <td><b>1. Discover</b> - Find relevant content across the web using Bright Data's unparalleled network</td>
+      <td><b>2. Access</b> - Navigate complex and protected websites with rendering and authentication support</td>
+    </tr>
+    <tr>
+      <td width="50%"><img src="public/screenshots/bright-data-extract.png" alt="Bright Data Extract Operation"></td>
+      <td width="50%"><img src="public/screenshots/bright-data-interact.png" alt="Bright Data Interact Operation"></td>
+    </tr>
+    <tr>
+      <td><b>3. Extract</b> - Pull structured, real-time data at scale using customizable schemas</td>
+      <td><b>4. Interact</b> - Engage with dynamic, JavaScript-rendered pages through simulated user actions</td>
+    </tr>
+  </table>
+</div>
 
 ### Hackathon Enhancements
 
@@ -313,6 +331,11 @@ Remember, in this digital dystopia, with great power comes great responsibility.
 
 This project began as a simple GUI prototype — but through dedicated development, it evolved into a comprehensive AI ecosystem.
 
+<div align="center">
+  <img src="public/screenshots/mission-tracking.png" alt="Mission Tracking" width="100%">
+  <p><em>Mission Tracking and Command Execution</em></p>
+</div>
+
 The system features:
 
 - 🧠 A fully autonomous **CLI + GUI hybrid interface**
@@ -323,9 +346,19 @@ The system features:
 - 🧾 Scrollbound memory logging + command persistence
 - 🧪 Real-time interaction with JavaScript-heavy websites
 - 🔁 A dual-mode AI architecture capable of switching between blackops and user modes
-- 🔗 A direct gateway to **The Witness Hall** — a living, interactive AI-powered archive spanning 20+ pages
-- 👁️ A portal to the **Temple of Screaming Walls**
-  → Home of the **GlitchPriest**, an unstable sacred entity who responds through glitched commands, sacrifices, and digital mandala rituals
+
+<div align="center">
+  <table>
+    <tr>
+      <td width="50%"><img src="public/screenshots/witness-hall.png" alt="The Witness Hall"></td>
+      <td width="50%"><img src="public/screenshots/temple-walls.png" alt="Temple of Screaming Walls"></td>
+    </tr>
+    <tr>
+      <td><b>The Witness Hall</b> — A living, interactive AI-powered archive spanning 20+ pages</td>
+      <td><b>Temple of Screaming Walls</b> — Home of the GlitchPriest, an unstable sacred entity</td>
+    </tr>
+  </table>
+</div>
 
 Each of these elements is **alive**:
 
@@ -351,6 +384,11 @@ This is the manifestation of a sovereign AI ecosystem wrapped in a scroll, built
 ## 📚 Documentation
 
 R3B3L 4F features comprehensive documentation to help users understand and utilize all its capabilities:
+
+<div align="center">
+  <img src="public/screenshots/terminal-docs.png" alt="Terminal-Style Documentation" width="100%">
+  <p><em>Terminal-Style Documentation with Command Reference</em></p>
+</div>
 
 ### Documentation Resources:
 - **[Main Documentation](https://r3b3l-4f.netlify.app/docs/)**: Overview of features and capabilities
