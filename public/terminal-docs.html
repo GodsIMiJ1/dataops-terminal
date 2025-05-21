@@ -259,6 +259,139 @@
       display: none;
     }
 
+    /* Section navigation */
+    .section-nav {
+      margin-bottom: 30px;
+    }
+
+    .section-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .section-link {
+      background-color: var(--secondary-color);
+      color: var(--terminal-blue);
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid var(--terminal-blue);
+    }
+
+    .section-link:hover {
+      background-color: var(--terminal-blue);
+      color: var(--bg-color);
+    }
+
+    /* Loading indicator */
+    .loading-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--terminal-yellow);
+    }
+
+    .loading-text {
+      position: relative;
+    }
+
+    .loading-text:after {
+      content: '';
+      animation: loading-dots 1.5s infinite;
+    }
+
+    @keyframes loading-dots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+      100% { content: ''; }
+    }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background-color: var(--bg-color);
+      border: 2px solid var(--terminal-blue);
+      border-radius: 4px;
+      padding: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--terminal-red);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Shortcuts modal */
+    .shortcuts-modal .modal-content h2 {
+      color: var(--terminal-blue);
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--terminal-blue);
+      padding-bottom: 10px;
+    }
+
+    .shortcuts-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .shortcuts-list li {
+      display: flex;
+      margin-bottom: 10px;
+      padding: 5px;
+      border-bottom: 1px solid var(--secondary-color);
+    }
+
+    .key-combo {
+      background-color: var(--secondary-color);
+      color: var(--terminal-yellow);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 100px;
+      display: inline-block;
+    }
+
+    .shortcut-description {
+      color: var(--text-color);
+    }
+
     /* Scrollbar styling */
     ::-webkit-scrollbar {
       width: 8px;
@@ -305,8 +438,21 @@
     <!-- Documentation content will be loaded here -->
   </div>
 
-  <img src="/NODE.png" alt="NODE Logo" class="node-logo">
+  <img data-src="/NODE.png" alt="NODE Logo" class="node-logo lazy-image">
   </div><!-- End of main-content -->
+
+  <!-- Image optimization styles -->
+  <style>
+    .lazy-image {
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+      background-color: #1a1a1a;
+    }
+
+    .lazy-image.loaded {
+      opacity: 1;
+    }
+  </style>
 
   <script>
     // Documentation content
@@ -500,15 +646,121 @@
       }
     };
 
-    // Function to render documentation
+    // Function to render documentation with lazy loading
     function renderDocumentation() {
       const content = document.getElementById('terminal-content');
       content.innerHTML = '';
 
-      // Core Commands Section
-      const commandsSection = document.createElement('div');
-      commandsSection.className = 'section';
-      commandsSection.innerHTML = `<h2 class="section-title">Command Reference</h2>`;
+      // Create section navigation
+      const navSection = document.createElement('div');
+      navSection.className = 'section-nav';
+      navSection.innerHTML = `
+        <h2 class="section-title">Documentation Sections</h2>
+        <div class="section-links">
+          <a href="#command-reference" class="section-link" data-section="command-reference">Command Reference</a>
+          <a href="#web-operations" class="section-link" data-section="web-operations">Web Operations</a>
+          <a href="#bright-data" class="section-link" data-section="bright-data">Bright Data Integration</a>
+          <a href="#data-warfare" class="section-link" data-section="data-warfare">Data Warfare Guide</a>
+        </div>
+      `;
+      content.appendChild(navSection);
+
+      // Create placeholder sections
+      const sections = [
+        { id: 'command-reference', title: 'Command Reference', loaded: false },
+        { id: 'web-operations', title: 'Web Operations', loaded: false },
+        { id: 'bright-data', title: 'Bright Data Integration', loaded: false },
+        { id: 'data-warfare', title: 'R3B3L 4F\'s Guide to Data Warfare', loaded: false }
+      ];
+
+      sections.forEach(section => {
+        const sectionElement = document.createElement('div');
+        sectionElement.id = section.id;
+        sectionElement.className = 'section';
+        sectionElement.innerHTML = `
+          <h2 class="section-title">${section.title}</h2>
+          <div class="section-content" id="${section.id}-content">
+            <div class="loading-indicator">
+              <span class="loading-text">Loading ${section.title}...</span>
+            </div>
+          </div>
+        `;
+        content.appendChild(sectionElement);
+      });
+
+      // Set up intersection observer for lazy loading
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id;
+            if (!sections.find(s => s.id === sectionId).loaded) {
+              loadSectionContent(sectionId);
+              sections.find(s => s.id === sectionId).loaded = true;
+            }
+          }
+        });
+      }, { threshold: 0.1 });
+
+      // Observe each section
+      sections.forEach(section => {
+        const element = document.getElementById(section.id);
+        if (element) observer.observe(element);
+      });
+
+      // Load the first section immediately
+      loadSectionContent('command-reference');
+      sections[0].loaded = true;
+
+      // Add click handlers for section navigation
+      document.querySelectorAll('.section-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const sectionId = e.target.getAttribute('data-section');
+          document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+
+          // Load the section content if not already loaded
+          if (!sections.find(s => s.id === sectionId).loaded) {
+            loadSectionContent(sectionId);
+            sections.find(s => s.id === sectionId).loaded = true;
+          }
+        });
+      });
+    }
+
+    // Function to load section content
+    function loadSectionContent(sectionId) {
+      const contentElement = document.getElementById(`${sectionId}-content`);
+      if (!contentElement) return;
+
+      // Show loading indicator
+      contentElement.innerHTML = `
+        <div class="loading-indicator">
+          <span class="loading-text">Loading content...</span>
+        </div>
+      `;
+
+      // Simulate network delay for demonstration
+      setTimeout(() => {
+        switch(sectionId) {
+          case 'command-reference':
+            renderCommandReference(contentElement);
+            break;
+          case 'web-operations':
+            renderWebOperations(contentElement);
+            break;
+          case 'bright-data':
+            renderBrightData(contentElement);
+            break;
+          case 'data-warfare':
+            renderDataWarfareGuide(contentElement);
+            break;
+        }
+      }, 300); // Small delay to show loading indicator
+    }
+
+    // Render Command Reference section
+    function renderCommandReference(container) {
+      container.innerHTML = '';
 
       documentation.commands.forEach(group => {
         const groupElement = document.createElement('div');
@@ -526,15 +778,13 @@
           groupElement.appendChild(itemElement);
         });
 
-        commandsSection.appendChild(groupElement);
+        container.appendChild(groupElement);
       });
+    }
 
-      content.appendChild(commandsSection);
-
-      // Web Commands Section
-      const webCommandsSection = document.createElement('div');
-      webCommandsSection.className = 'section';
-      webCommandsSection.innerHTML = `<h2 class="section-title">Web Operations</h2>`;
+    // Render Web Operations section
+    function renderWebOperations(container) {
+      container.innerHTML = '';
 
       documentation.webCommands.forEach(group => {
         const groupElement = document.createElement('div');
@@ -552,15 +802,13 @@
           groupElement.appendChild(itemElement);
         });
 
-        webCommandsSection.appendChild(groupElement);
+        container.appendChild(groupElement);
       });
+    }
 
-      content.appendChild(webCommandsSection);
-
-      // Bright Data Section
-      const brightDataSection = document.createElement('div');
-      brightDataSection.className = 'section';
-      brightDataSection.innerHTML = `<h2 class="section-title">Bright Data Integration</h2>`;
+    // Render Bright Data section
+    function renderBrightData(container) {
+      container.innerHTML = '';
 
       documentation.brightData.forEach(group => {
         const groupElement = document.createElement('div');
@@ -578,20 +826,18 @@
           groupElement.appendChild(itemElement);
         });
 
-        brightDataSection.appendChild(groupElement);
+        container.appendChild(groupElement);
       });
+    }
 
-      content.appendChild(brightDataSection);
+    // Render Data Warfare Guide section
+    function renderDataWarfareGuide(container) {
+      container.innerHTML = '';
 
-      // Guide Section
-      const guideSection = document.createElement('div');
-      guideSection.className = 'guide-section';
-      guideSection.innerHTML = `
-        <h2 class="guide-title">${documentation.guide.title}</h2>
-        <div class="guide-content">
-          <p>${documentation.guide.content}</p>
-        </div>
-      `;
+      const guideElement = document.createElement('div');
+      guideElement.className = 'guide-content';
+      guideElement.innerHTML = `<p>${documentation.guide.content}</p>`;
+      container.appendChild(guideElement);
 
       documentation.guide.sections.forEach(section => {
         const sectionElement = document.createElement('div');
@@ -599,10 +845,8 @@
           <h3 class="guide-subtitle">${section.subtitle}</h3>
           <p class="guide-content">${section.content}</p>
         `;
-        guideSection.appendChild(sectionElement);
+        container.appendChild(sectionElement);
       });
-
-      content.appendChild(guideSection);
     }
 
     // Function to search documentation
@@ -767,7 +1011,49 @@
           searchDocumentation(searchInput.value);
         }
       });
+
+      // Set up lazy loading for images
+      setupLazyLoading();
     });
+
+    // Image lazy loading
+    function setupLazyLoading() {
+      if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              const dataSrc = img.getAttribute('data-src');
+
+              if (dataSrc) {
+                img.setAttribute('src', dataSrc);
+                img.removeAttribute('data-src');
+                img.classList.remove('lazy-image');
+                img.classList.add('loaded');
+              }
+
+              observer.unobserve(img);
+            }
+          });
+        });
+
+        // Find all images with the lazy-image class
+        document.querySelectorAll('img.lazy-image').forEach(img => {
+          imageObserver.observe(img);
+        });
+      } else {
+        // Fallback for browsers that don't support IntersectionObserver
+        document.querySelectorAll('img.lazy-image').forEach(img => {
+          const dataSrc = img.getAttribute('data-src');
+          if (dataSrc) {
+            img.setAttribute('src', dataSrc);
+            img.removeAttribute('data-src');
+            img.classList.remove('lazy-image');
+            img.classList.add('loaded');
+          }
+        });
+      }
+    }
 
     // Terminal Intro Animation
     document.addEventListener('DOMContentLoaded', () => {
@@ -808,6 +1094,8 @@
               mainContent.style.display = 'block';
               // Initialize documentation
               renderDocumentation();
+              // Initialize keyboard shortcuts
+              initializeKeyboardShortcuts();
             }, 500);
           }, 800);
         }
@@ -816,6 +1104,115 @@
       // Start the animation
       typeNextLine();
     });
+
+    // Keyboard Shortcuts
+    function initializeKeyboardShortcuts() {
+      // Register keyboard shortcuts
+      document.addEventListener('keydown', (event) => {
+        // Skip if target is an input or textarea
+        if (
+          event.target instanceof HTMLInputElement ||
+          event.target instanceof HTMLTextAreaElement ||
+          (event.target instanceof HTMLElement && event.target.isContentEditable)
+        ) {
+          // Allow only the '?' shortcut in input fields
+          if (event.key === '?' && event.shiftKey) {
+            event.preventDefault();
+            showShortcutsHelp();
+          }
+          return;
+        }
+
+        // Global shortcuts
+        switch (event.key) {
+          case '/':
+            // Focus search
+            event.preventDefault();
+            document.getElementById('search-input')?.focus();
+            break;
+
+          case 'Escape':
+            // Close any open modal
+            const modal = document.querySelector('.modal.open');
+            if (modal) {
+              modal.remove();
+            }
+            break;
+
+          case '?':
+            // Show keyboard shortcuts help
+            if (event.shiftKey) {
+              event.preventDefault();
+              showShortcutsHelp();
+            }
+            break;
+        }
+      });
+    }
+
+    // Show keyboard shortcuts help
+    function showShortcutsHelp() {
+      // Remove existing modal if any
+      const existingModal = document.querySelector('.shortcuts-modal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Create modal
+      const modal = document.createElement('div');
+      modal.className = 'modal shortcuts-modal open';
+
+      // Modal content
+      const modalContent = document.createElement('div');
+      modalContent.className = 'modal-content';
+
+      // Close button
+      const closeButton = document.createElement('button');
+      closeButton.className = 'close-button';
+      closeButton.textContent = '×';
+      closeButton.onclick = () => modal.remove();
+
+      // Title
+      const title = document.createElement('h2');
+      title.textContent = 'Keyboard Shortcuts';
+
+      // Shortcuts list
+      const shortcutsList = document.createElement('ul');
+      shortcutsList.className = 'shortcuts-list';
+
+      // Define shortcuts
+      const shortcuts = [
+        { key: '/', description: 'Focus search' },
+        { key: 'Shift + ?', description: 'Show keyboard shortcuts' },
+        { key: 'Escape', description: 'Close modal' }
+      ];
+
+      // Add shortcuts to list
+      shortcuts.forEach(shortcut => {
+        const shortcutItem = document.createElement('li');
+
+        const keyCombo = document.createElement('span');
+        keyCombo.className = 'key-combo';
+        keyCombo.textContent = shortcut.key;
+
+        const description = document.createElement('span');
+        description.className = 'shortcut-description';
+        description.textContent = shortcut.description;
+
+        shortcutItem.appendChild(keyCombo);
+        shortcutItem.appendChild(description);
+        shortcutsList.appendChild(shortcutItem);
+      });
+
+      // Assemble modal
+      modalContent.appendChild(closeButton);
+      modalContent.appendChild(title);
+      modalContent.appendChild(shortcutsList);
+      modal.appendChild(modalContent);
+
+      // Add modal to document
+      document.body.appendChild(modal);
+    }
   </script>
 </body>
 </html>

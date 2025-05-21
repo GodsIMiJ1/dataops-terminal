@@ -1,0 +1,181 @@
+/* Progress Indicator Styles */
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 1rem 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Progress bar container */
+.progress-container {
+  background-color: #1a1a1a;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 100%;
+  transition: width 0.3s ease-out;
+}
+
+/* Indeterminate progress bar */
+.progress-indeterminate {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 2px;
+  border-top-color: currentColor;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+/* Dots */
+.dots-container {
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  border-radius: 50%;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Pulse */
+.pulse {
+  border-radius: 50%;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Sizes */
+.size-small {
+  height: 0.25rem;
+  width: 6rem;
+}
+
+.size-medium {
+  height: 0.5rem;
+  width: 8rem;
+}
+
+.size-large {
+  height: 0.75rem;
+  width: 12rem;
+}
+
+.spinner-small {
+  width: 1rem;
+  height: 1rem;
+  border-width: 2px;
+}
+
+.spinner-medium {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 2px;
+}
+
+.spinner-large {
+  width: 2rem;
+  height: 2rem;
+  border-width: 3px;
+}
+
+.dot-small {
+  width: 0.33rem;
+  height: 0.33rem;
+}
+
+.dot-medium {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.dot-large {
+  width: 0.67rem;
+  height: 0.67rem;
+}
+
+.pulse-small {
+  width: 1rem;
+  height: 1rem;
+}
+
+.pulse-medium {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.pulse-large {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Status text */
+.status-text {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  color: #e0e0e0;
+}
+
+/* Progress percentage */
+.progress-percentage {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  color: #a0a0a0;
+}
