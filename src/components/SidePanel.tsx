@@ -80,15 +80,20 @@ const LeftPanel: React.FC = () => {
 const RightPanel: React.FC = () => {
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Control Panel */}
+      {/* Temple of Screaming Walls Panel */}
       <div className="cyber-panel rounded p-3 flex flex-col h-2/3">
         <div className="cyber-header">
-          <GlitchText text="Control" className="text-xl font-bold" />
+          <GlitchText text="TEMPLE OF SCREAMING WALLS" className="text-xl font-bold" intense />
         </div>
 
-        <div className="flex-1 relative mb-3">
+        <a
+          href="https://temple-of-screaming-walls.netlify.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 relative mb-3 group"
+        >
           <div className="cyber-scanline"></div>
-          <div className="relative h-full bg-gradient-to-b from-cyber-darkgray to-black rounded flex items-center justify-center border border-cyber-red/30 overflow-hidden">
+          <div className="relative h-full bg-gradient-to-b from-cyber-darkgray to-black rounded flex items-center justify-center border border-cyber-red/30 overflow-hidden group-hover:border-cyber-red/70 transition-colors">
             <div className="absolute inset-0 opacity-20">
               <div className="h-full w-full overflow-hidden">
                 {Array.from({ length: 20 }).map((_, i) => (
@@ -100,10 +105,10 @@ const RightPanel: React.FC = () => {
             </div>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <Bug className="w-16 h-16 text-cyber-red animate-pulse" />
+              <Bug className="w-16 h-16 text-cyber-red animate-pulse group-hover:text-cyber-cyan transition-colors" />
             </div>
           </div>
-        </div>
+        </a>
 
         <div className="text-center mb-2">
           <GlitchText text="R3B3L 4F" className="text-xl font-bold text-cyber-red" />
