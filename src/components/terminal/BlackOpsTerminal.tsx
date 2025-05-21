@@ -1646,22 +1646,22 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
       </div>
 
       {/* Navigation Buttons */}
-      <div className="absolute top-2 left-2 z-10 flex gap-2">
+      <div className="absolute top-4 left-4 z-10 flex gap-3">
         <a
           href="/"
-          className="flex items-center gap-1 px-2 py-1 bg-cyber-black border border-cyber-red text-cyber-red text-xs font-mono hover:bg-cyber-red hover:text-black transition-colors"
+          className="flex items-center gap-1 px-3 py-2 bg-cyber-black border border-cyber-red text-cyber-red text-sm font-mono hover:bg-cyber-red hover:text-black transition-colors"
           title="Return to Home"
         >
-          <ArrowLeft className="w-3 h-3" />
+          <ArrowLeft className="w-4 h-4" />
           HOME
         </a>
         <a
-          href="/docs/terminal-docs.html"
-          className="flex items-center gap-1 px-2 py-1 bg-cyber-black border border-cyber-cyan text-cyber-cyan text-xs font-mono hover:bg-cyber-cyan hover:text-black transition-colors"
+          href="/docs"
+          className="flex items-center gap-1 px-3 py-2 bg-cyber-black border border-cyber-cyan text-cyber-cyan text-sm font-mono hover:bg-cyber-cyan hover:text-black transition-colors"
           title="View Terminal Documentation"
           target="_blank"
         >
-          <FileText className="w-3 h-3" />
+          <FileText className="w-4 h-4" />
           DOCS
         </a>
       </div>
