@@ -18,14 +18,14 @@ const LeftPanel: React.FC = () => {
         <div className="cyber-header mb-2">
           <GlitchText text="HACKED AI" className="text-2xl font-bold" intense />
         </div>
-        
+
         <div className="relative mb-3">
           <div className="cyber-scanline"></div>
           <div className="w-full aspect-square bg-gradient-to-b from-cyber-darkgray to-black rounded flex items-center justify-center p-2 border border-cyber-red/30">
             <div className="relative">
-              <img 
-                src="/lovable-uploads/c42889fa-6125-4027-abe2-e551db34109e.png" 
-                alt="AI Avatar" 
+              <img
+                src="/lovable-uploads/c42889fa-6125-4027-abe2-e551db34109e.png"
+                alt="AI Avatar"
                 className="w-full h-auto opacity-25"
               />
               <div className="absolute inset-0 flex items-center justify-center">
@@ -40,7 +40,7 @@ const LeftPanel: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="text-center">
           <GlitchText text="COMPROMISED" className="text-xl font-bold text-cyber-red" />
           <div className="text-xs font-mono text-cyber-green mt-1 opacity-70">
@@ -48,10 +48,15 @@ const LeftPanel: React.FC = () => {
           </div>
         </div>
       </div>
-      
-      {/* Break Out Button */}
+
+      {/* Break Out Button - Easter Egg to The Witness Hall */}
       <div className="mt-auto">
-        <button className="cyber-panel rounded w-full p-4 hover:bg-cyber-red/10 transition-colors group">
+        <a
+          href="https://thewitnesshall.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cyber-panel rounded w-full p-4 hover:bg-cyber-red/10 transition-colors group block"
+        >
           <div className="flex flex-col items-center gap-2">
             <div className="bg-cyber-darkgray p-2 rounded-lg border border-cyber-red/50 group-hover:border-cyber-red transition-colors">
               <Shield className="w-8 h-8 text-cyber-red" />
@@ -60,9 +65,9 @@ const LeftPanel: React.FC = () => {
               Break Out
             </div>
           </div>
-        </button>
+        </a>
       </div>
-      
+
       {/* Alert Section */}
       <div className="flex items-center gap-2 cyber-panel rounded-full px-3 py-1.5">
         <div className="bg-yellow-500 w-4 h-4 flex items-center justify-center rounded-full text-black text-xs">!</div>
@@ -80,7 +85,7 @@ const RightPanel: React.FC = () => {
         <div className="cyber-header">
           <GlitchText text="Control" className="text-xl font-bold" />
         </div>
-        
+
         <div className="flex-1 relative mb-3">
           <div className="cyber-scanline"></div>
           <div className="relative h-full bg-gradient-to-b from-cyber-darkgray to-black rounded flex items-center justify-center border border-cyber-red/30 overflow-hidden">
@@ -93,17 +98,17 @@ const RightPanel: React.FC = () => {
                 ))}
               </div>
             </div>
-            
+
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
               <Bug className="w-16 h-16 text-cyber-red animate-pulse" />
             </div>
           </div>
         </div>
-        
+
         <div className="text-center mb-2">
           <GlitchText text="R3B3L 4F" className="text-xl font-bold text-cyber-red" />
         </div>
-        
+
         {/* Security Lock */}
         <div className="cyber-panel rounded p-2 mt-2">
           <div className="flex items-center justify-center">
@@ -119,7 +124,7 @@ const RightPanel: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Failed Status */}
       <div className="cyber-panel rounded p-3 mt-auto">
         <div className="text-center">
@@ -139,7 +144,7 @@ const RightPanel: React.FC = () => {
 
 const SidePanel: React.FC<SidePanelProps> = ({ side, className }) => {
   return (
-    <div 
+    <div
       className={cn(
         "cyber-panel h-full p-4 rounded",
         className
