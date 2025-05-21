@@ -1,6 +1,6 @@
 /**
  * OpenAIService.ts
- * 
+ *
  * This service provides integration with the OpenAI API for R3B3L 4F.
  * It handles communication with the GPT-4o model for chat functionality.
  */
@@ -8,10 +8,10 @@
 import { MessageType } from '@/hooks/useChatAI';
 import { isAirlockActive } from './AirlockService';
 
-// OpenAI API configuration
-const API_URL = 'https://api.openai.com/v1/chat/completions';
+// OpenAI API configuration via proxy server
+const API_URL = import.meta.env.VITE_OPENAI_PROXY_URL || 'http://localhost:5000/api/openai/chat';
 const MODEL = 'gpt-4o'; // Using GPT-4o as default
-const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'r3b3l-4f-secure-token';
 
 // Types for OpenAI API
 interface OpenAIMessage {
@@ -51,11 +51,11 @@ interface OpenAIResponse {
 }
 
 /**
- * Check if the OpenAI API key is configured
- * @returns True if the API key is configured, false otherwise
+ * Check if the OpenAI API proxy is configured
+ * @returns True if the API proxy is configured, false otherwise
  */
 export const isOpenAIConfigured = (): boolean => {
-  return API_KEY !== '';
+  return API_URL !== '';
 };
 
 /**
@@ -87,7 +87,7 @@ export const getOpenAIResponse = async (messages: MessageType[]): Promise<string
   }
 
   try {
-    console.log("Sending request to OpenAI API with model:", MODEL);
+    console.log("Sending request to OpenAI API via proxy with model:", MODEL);
 
     // Convert messages to OpenAI format
     const openAIMessages = convertToOpenAIMessages(messages);
@@ -104,12 +104,12 @@ export const getOpenAIResponse = async (messages: MessageType[]): Promise<string
       stream: false
     };
 
-    // Make API request to OpenAI
+    // Make API request to OpenAI via our proxy server
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'X-API-Token': API_TOKEN
       },
       body: JSON.stringify(requestBody)
     });

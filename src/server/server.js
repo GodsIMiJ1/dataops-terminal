@@ -1,7 +1,7 @@
 /**
  * server.js
  *
- * Combined server that runs both the CommandBridge and OllamaProxy servers
+ * Combined server that runs the CommandBridge and OpenAI proxy
  * This allows running both services from a single process
  */
 
@@ -31,8 +31,11 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:3000'          // Alternative localhost
 ];
 
-// Ollama API endpoint
-const OLLAMA_API = 'http://localhost:11434/api';
+// OpenAI API endpoint
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+// OpenAI API key (should be environment variable)
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
 // Authentication token (should be environment variable in production)
 const API_TOKEN = process.env.API_TOKEN || 'r3b3l-4f-secure-token';
@@ -128,36 +131,60 @@ app.use((req, res, next) => {
   next();
 });
 
-// ===== OLLAMA PROXY ROUTES =====
+// ===== OPENAI PROXY ROUTES =====
 
 /**
- * Proxy endpoint for Ollama generate API
- * POST /api/ollama/generate
+ * Proxy endpoint for OpenAI chat completions API
+ * POST /api/openai/chat
  */
-app.post('/api/ollama/generate', verifyToken, async (req, res) => {
+app.post('/api/openai/chat', verifyToken, async (req, res) => {
   try {
+    // Check if OpenAI API key is configured
+    if (!OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'OpenAI API key is not configured on the server' });
+    }
+
     // Sanitize input
     const sanitizedBody = sanitizeInput(req.body);
 
     // Validate required fields
-    if (!sanitizedBody.model || !sanitizedBody.prompt) {
-      return res.status(400).json({ error: 'Model and prompt are required' });
+    if (!sanitizedBody.messages || !Array.isArray(sanitizedBody.messages)) {
+      return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Log the request (excluding sensitive data)
-    console.log(`Proxying request to Ollama for model: ${sanitizedBody.model}`);
+    // Prepare request for OpenAI
+    const openaiRequest = {
+      model: sanitizedBody.model || 'gpt-4o',
+      messages: sanitizedBody.messages,
+      temperature: sanitizedBody.temperature || 0.7,
+      max_tokens: sanitizedBody.max_tokens || 2000,
+      top_p: sanitizedBody.top_p || 1,
+      frequency_penalty: sanitizedBody.frequency_penalty || 0,
+      presence_penalty: sanitizedBody.presence_penalty || 0
+    };
 
-    // Forward the request to Ollama
-    const response = await fetch(`${OLLAMA_API}/generate`, {
+    // Log the request (excluding sensitive data)
+    console.log(`Proxying request to OpenAI for model: ${openaiRequest.model}`);
+
+    // Forward the request to OpenAI
+    const response = await fetch(OPENAI_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sanitizedBody)
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify(openaiRequest)
     });
 
     // Check if the response is OK
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      console.error('Ollama API error:', errorData);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { error: 'Unknown error' };
+      }
+      console.error('OpenAI API error:', errorData);
       return res.status(response.status).json(errorData);
     }
 
@@ -166,26 +193,6 @@ app.post('/api/ollama/generate', verifyToken, async (req, res) => {
     return res.json(data);
   } catch (error) {
     console.error('Proxy error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-/**
- * Proxy endpoint for Ollama API version check
- * GET /api/ollama/version
- */
-app.get('/api/ollama/version', verifyToken, async (req, res) => {
-  try {
-    const response = await fetch(`${OLLAMA_API}/version`);
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: 'Failed to get Ollama version' });
-    }
-
-    const data = await response.json();
-    return res.json(data);
-  } catch (error) {
-    console.error('Version check error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -330,17 +337,11 @@ app.get('/api/system', verifyToken, async (req, res) => {
 });
 
 /**
- * Check Ollama status
- * @returns {Promise<boolean>} - True if Ollama is running, false otherwise
+ * Check OpenAI API status
+ * @returns {Promise<boolean>} - True if OpenAI API key is configured, false otherwise
  */
-const checkOllamaStatus = async () => {
-  try {
-    const response = await fetch(`${OLLAMA_API}/version`);
-    return response.ok;
-  } catch (error) {
-    console.error('Failed to check Ollama status:', error);
-    return false;
-  }
+const checkOpenAIStatus = async () => {
+  return Boolean(OPENAI_API_KEY);
 };
 
 /**
@@ -348,31 +349,31 @@ const checkOllamaStatus = async () => {
  * GET /api/health
  */
 app.get('/api/health', async (req, res) => {
-  const ollamaRunning = await checkOllamaStatus();
+  const openaiConfigured = await checkOpenAIStatus();
 
   res.json({
-    status: ollamaRunning ? 'ok' : 'warning',
+    status: openaiConfigured ? 'ok' : 'warning',
     timestamp: new Date().toISOString(),
     services: {
-      ollama: ollamaRunning,
+      openai: openaiConfigured,
       commandBridge: true
     },
-    message: ollamaRunning ? 'All systems operational' : 'WARNING: Ollama is not running. AI features will not work.'
+    message: openaiConfigured ? 'All systems operational' : 'WARNING: OpenAI API key is not configured. AI features will not work.'
   });
 });
 
 /**
- * Ollama status check endpoint
+ * API status check endpoint
  * GET /api/status
  */
 app.get('/api/status', async (req, res) => {
-  const ollamaRunning = await checkOllamaStatus();
+  const openaiConfigured = await checkOpenAIStatus();
 
   res.json({
-    ollama: {
-      running: ollamaRunning,
-      endpoint: OLLAMA_API,
-      model: 'r3b3l-4f-godmode'
+    openai: {
+      configured: openaiConfigured,
+      endpoint: OPENAI_API_URL,
+      model: 'gpt-4o'
     },
     server: {
       running: true,
@@ -384,7 +385,8 @@ app.get('/api/status', async (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`R3B3L 4F Server running on port ${PORT}`);
-  console.log(`Proxying Ollama requests to ${OLLAMA_API}`);
+  console.log(`Proxying OpenAI requests to ${OPENAI_API_URL}`);
+  console.log(`OpenAI API key configured: ${Boolean(OPENAI_API_KEY)}`);
   console.log(`Command execution bridge active`);
   console.log(`Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
 });
