@@ -284,6 +284,7 @@ Extended Recon Suite:
   - !net-scan <domain/ip> - Perform DNS/IP scan and analysis
   - !git-harvest <org/user> - Crawl GitHub repositories and metadata
   - !scan --doi "DOI" [--output filename.json] - Scan academic paper metadata with threat detection
+  - !science-scan --query "search terms" [--limit N] [--output filename.json] - Search Science.org for research articles
 `;
 
       case 'internet on':
@@ -514,6 +515,34 @@ R3B3L 4F Status:
 
       logEntry('system', `Scanning DOI: ${doi}...`);
       return await handleDoiScanCommand(doi, outputFile);
+    }
+
+    // Science.org Scanner command
+    if (cmd.startsWith('science-scan ')) {
+      if (!internetEnabled) {
+        return 'Internet access is disabled. Enable with !internet on';
+      }
+
+      const args = cmd.substring(13).trim();
+
+      // Parse query
+      const queryMatch = args.match(/--query\s+"([^"]+)"/);
+      const query = queryMatch ? queryMatch[1] : null;
+
+      // Parse limit
+      const limitMatch = args.match(/--limit\s+(\d+)/);
+      const limit = limitMatch ? parseInt(limitMatch[1], 10) : 5;
+
+      // Parse Output File
+      const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+      const outputFile = outputMatch ? outputMatch[1] : null;
+
+      if (!query) {
+        return "❌ Query not detected. Format: !science-scan --query \"your search query\"";
+      }
+
+      logEntry('system', `Scanning Science.org for: ${query}...`);
+      return await handleScienceScanCommand(query, limit, outputFile);
     }
 
     return `Unknown special command: ${command}. Type !help for available commands.`;
@@ -884,6 +913,73 @@ ${contexts.length > 0 ? 'Context samples:\n' + contexts.join('\n\n') : 'No conte
       const errorMessage = error instanceof Error ? error.message : String(error);
       logEntry('error', errorMessage);
       return `❌ Error scanning DOI: ${errorMessage}`;
+    }
+  };
+
+  // Handle Science.org scan command
+  const handleScienceScanCommand = async (query: string, limit: number, outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `🔍 Scanning Science.org for: ${query}...`);
+
+      // Call the Netlify function
+      const response = await fetch("/.netlify/functions/scrapeScienceOrg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, limit }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Format the response
+      let summary = `
+📊 Science.org Scan Results for "${query}":
+📈 Found ${data.count} articles
+      `.trim();
+
+      // Add article summaries
+      if (data.articles && data.articles.length > 0) {
+        summary += '\n\n';
+
+        data.articles.forEach((article, index) => {
+          summary += `
+${index + 1}. 📄 ${article.title}
+   🧬 Authors: ${article.authors || 'N/A'}
+   📚 Journal: ${article.journal || 'N/A'}
+   📅 Date: ${article.publicationDate || 'N/A'}
+   ⚠️ Threat Level: ${article.flameDetected}
+   🔗 ${article.url || 'No URL available'}
+          `.trim() + '\n\n';
+        });
+      } else {
+        summary += '\n\nNo articles found matching your query.';
+      }
+
+      // Log the full data
+      logEntry('response', `Science.org Scan Results for "${query}":\n${JSON.stringify(data, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = outputFile;
+        a.click();
+
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error scanning Science.org: ${errorMessage}`;
     }
   };
 
