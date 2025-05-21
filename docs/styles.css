@@ -24,7 +24,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
     url('/FlameOS.png');
   background-size: cover;
@@ -192,6 +192,52 @@ p {
   margin-top: 30px;
 }
 
+.hackathon-enhancements {
+  margin-top: 40px;
+  border: 1px solid var(--terminal-yellow);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.hackathon-enhancements h3 {
+  background-color: var(--terminal-yellow);
+  color: var(--bg-color);
+  padding: 15px;
+  margin-bottom: 0;
+}
+
+.hackathon-enhancements ul {
+  padding: 20px;
+  background-color: rgba(255, 170, 0, 0.1);
+  list-style-position: inside;
+}
+
+.hackathon-enhancements li {
+  margin-bottom: 10px;
+}
+
+.hackathon-enhancements p {
+  padding: 0 20px 20px 20px;
+  background-color: rgba(255, 170, 0, 0.1);
+  margin-bottom: 0;
+}
+
+.hackathon-link {
+  color: var(--terminal-yellow);
+  text-decoration: none;
+  border: 1px solid var(--terminal-yellow);
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.hackathon-link:hover {
+  background-color: var(--terminal-yellow);
+  color: var(--bg-color);
+}
+
 .data-warfare-guide {
   margin-top: 40px;
   border: 1px solid var(--terminal-red);
@@ -239,16 +285,16 @@ footer {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   nav ul {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .command-row {
     grid-template-columns: 1fr;
   }
-  
+
   .command {
     border-bottom: 1px solid var(--card-border);
   }
