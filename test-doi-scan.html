@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOI Scanner Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #111;
+            color: #0f0;
+        }
+        h1 {
+            color: #f00;
+            text-align: center;
+        }
+        .container {
+            border: 1px solid #f00;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            background-color: #222;
+            color: #0f0;
+            border: 1px solid #f00;
+        }
+        button {
+            cursor: pointer;
+            background-color: #300;
+        }
+        button:hover {
+            background-color: #500;
+        }
+        pre {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .result {
+            margin-top: 20px;
+            border: 1px dashed #f00;
+            padding: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>R3B3L 4F DOI Scanner Test</h1>
+    
+    <div class="container">
+        <h2>Test DOI Scanner Function</h2>
+        <input type="text" id="doiInput" placeholder="Enter DOI (e.g., 10.1126/sciadv.adu9368)" value="10.1126/sciadv.adu9368">
+        <button id="scanButton">Scan DOI</button>
+        
+        <div class="result" id="resultContainer">
+            <h3>Result:</h3>
+            <pre id="resultOutput"></pre>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('scanButton').addEventListener('click', async () => {
+            const doi = document.getElementById('doiInput').value.trim();
+            const resultContainer = document.getElementById('resultContainer');
+            const resultOutput = document.getElementById('resultOutput');
+            
+            if (!doi) {
+                alert('Please enter a DOI');
+                return;
+            }
+            
+            resultOutput.textContent = 'Scanning DOI...';
+            resultContainer.style.display = 'block';
+            
+            try {
+                const response = await fetch('/.netlify/functions/doiScan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ doi })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Format the result
+                const formattedResult = JSON.stringify(data, null, 2);
+                resultOutput.textContent = formattedResult;
+                
+                // Add summary at the top
+                const summary = `
+📄 Title: ${data.title}
+🧬 Authors: ${data.authors?.join(", ")}
+📚 Journal: ${data.journal}
+📅 Date: ${data.date}
+🏛️ Publisher: ${data.publisher}
+⚠️ Threat Level: ${data.flameDetected}
+                `.trim();
+                
+                resultOutput.textContent = summary + '\n\n' + formattedResult;
+                
+            } catch (error) {
+                resultOutput.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
