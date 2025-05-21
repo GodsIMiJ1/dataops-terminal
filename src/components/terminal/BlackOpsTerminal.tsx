@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key } from 'lucide-react';
+import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key, ArrowLeft } from 'lucide-react';
 import TerminalComponent from './TerminalComponent';
 import { executeAndFormatCommand, confirmCommandExecution } from '@/services/CommandExecutionService';
 import { parseNaturalLanguageCommand } from '@/services/CommandParserService';
@@ -1627,9 +1627,21 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
         )}
       </div>
 
-      {/* NODE Sigil Watermark - More subtle */}
-      <div className="absolute bottom-1 right-2 opacity-20 pointer-events-none">
-        <div className="text-xs font-mono text-cyber-red">GhostCode NODE</div>
+      {/* NODE Sigil Watermark */}
+      <div className="absolute bottom-2 right-2 opacity-30 pointer-events-none">
+        <img src="/NODE.png" alt="NODE" className="w-16 h-16" />
+      </div>
+
+      {/* Home/Back Button */}
+      <div className="absolute top-2 left-2 z-10">
+        <a
+          href="/"
+          className="flex items-center gap-1 px-2 py-1 bg-cyber-black border border-cyber-red text-cyber-red text-xs font-mono hover:bg-cyber-red hover:text-black transition-colors"
+          title="Return to Home"
+        >
+          <ArrowLeft className="w-3 h-3" />
+          HOME
+        </a>
       </div>
     </div>
   );
