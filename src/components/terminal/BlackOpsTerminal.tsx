@@ -1656,7 +1656,7 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
           HOME
         </a>
         <a
-          href="/docs/terminal.html"
+          href="/docs/terminal-docs.html"
           className="flex items-center gap-1 px-2 py-1 bg-cyber-black border border-cyber-cyan text-cyber-cyan text-xs font-mono hover:bg-cyber-cyan hover:text-black transition-colors"
           title="View Terminal Documentation"
           target="_blank"

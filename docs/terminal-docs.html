@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R3B3L 4F Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: #e0e0e0;
+      --accent-color: #ff3e3e;
+      --secondary-color: #2a2a2a;
+      --terminal-green: #00ff00;
+      --terminal-blue: #00aaff;
+      --terminal-yellow: #ffaa00;
+      --terminal-red: #ff3e3e;
+      --terminal-purple: #aa00ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      background-color: #1a1a1a;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--accent-color);
+    }
+
+    .terminal-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .terminal-title h1 {
+      font-size: 1.2rem;
+      color: var(--accent-color);
+    }
+
+    .terminal-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .terminal-controls a {
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 4px 8px;
+      border: 1px solid var(--terminal-blue);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+
+    .terminal-controls a:hover {
+      background-color: var(--terminal-blue);
+      color: var(--bg-color);
+    }
+
+    .search-bar {
+      background-color: #1a1a1a;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--secondary-color);
+    }
+
+    .search-prompt {
+      color: var(--terminal-green);
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
+    .search-input {
+      flex: 1;
+      background-color: transparent;
+      border: none;
+      color: var(--text-color);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .search-button {
+      background-color: var(--secondary-color);
+      border: 1px solid var(--terminal-blue);
+      color: var(--terminal-blue);
+      padding: 4px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .search-button:hover {
+      background-color: var(--terminal-blue);
+      color: var(--bg-color);
+    }
+
+    .terminal-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background-color: var(--bg-color);
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      color: var(--terminal-blue);
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--terminal-blue);
+      padding-bottom: 5px;
+      font-size: 1.2rem;
+    }
+
+    .command-group {
+      margin-bottom: 20px;
+    }
+
+    .command-group-title {
+      color: var(--terminal-yellow);
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .command-item {
+      margin-bottom: 15px;
+      padding-left: 15px;
+      border-left: 2px solid var(--secondary-color);
+    }
+
+    .command-name {
+      color: var(--terminal-green);
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .command-description {
+      color: var(--text-color);
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    .command-example {
+      color: var(--terminal-purple);
+      background-color: rgba(170, 0, 255, 0.1);
+      padding: 5px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-top: 5px;
+    }
+
+    .guide-section {
+      margin-bottom: 30px;
+    }
+
+    .guide-title {
+      color: var(--terminal-red);
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--terminal-red);
+      padding-bottom: 5px;
+      font-size: 1.2rem;
+    }
+
+    .guide-content {
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    .guide-subtitle {
+      color: var(--terminal-purple);
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .node-logo {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 50px;
+      height: 50px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--secondary-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-header">
+    <div class="terminal-title">
+      <h1>R3B3L 4F Documentation</h1>
+    </div>
+    <div class="terminal-controls">
+      <a href="/">Home</a>
+      <a href="/cli">Terminal</a>
+      <a href="/docs">Main Docs</a>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-prompt">r3b3l@docs:~$ find</span>
+    <input type="text" class="search-input" id="search-input" placeholder="Type to search documentation..." autocomplete="off">
+    <button class="search-button" id="search-button">Search</button>
+  </div>
+
+  <div class="terminal-content" id="terminal-content">
+    <!-- Documentation content will be loaded here -->
+  </div>
+
+  <img src="/NODE.png" alt="NODE Logo" class="node-logo">
+
+  <script>
+    // Documentation content
+    const documentation = {
+      commands: [
+        {
+          group: "Core Commands",
+          items: [
+            {
+              name: "!help",
+              description: "Show available commands and the R3B3L Guide to Web Warfare",
+              example: "!help"
+            },
+            {
+              name: "!mission",
+              description: "Set current mission name or create a new mission with objective",
+              example: "!mission INFILTRATE -o \"Extract data from target system\""
+            },
+            {
+              name: "!status",
+              description: "Show current system status including internet access, modes, and mission",
+              example: "!status"
+            },
+            {
+              name: "!save",
+              description: "Save session log as Markdown or JSON file",
+              example: "!save md\n!save json"
+            },
+            {
+              name: "!clear",
+              description: "Clear the terminal screen",
+              example: "!clear"
+            }
+          ]
+        },
+        {
+          group: "Mode Controls",
+          items: [
+            {
+              name: "!internet",
+              description: "Enable or disable internet access for web commands",
+              example: "!internet on\n!internet off"
+            },
+            {
+              name: "!nlp",
+              description: "Enable or disable natural language command parsing",
+              example: "!nlp on\n!nlp off"
+            },
+            {
+              name: "!autonomy",
+              description: "Enable or disable autonomy mode (auto-confirm commands)",
+              example: "!autonomy on\n!autonomy off"
+            }
+          ]
+        },
+        {
+          group: "Security Commands",
+          items: [
+            {
+              name: "!airlock",
+              description: "Block or allow all outbound HTTP requests",
+              example: "!airlock on\n!airlock off"
+            },
+            {
+              name: "!encrypt",
+              description: "Enable or disable scroll encryption for logs",
+              example: "!encrypt on\n!encrypt off"
+            },
+            {
+              name: "!decrypt-scroll",
+              description: "Decrypt an encrypted scroll file",
+              example: "!decrypt-scroll mission_log_encrypted.json"
+            },
+            {
+              name: "!passphrase",
+              description: "Set encryption passphrase for scroll encryption",
+              example: "!passphrase \"my-secure-key\""
+            }
+          ]
+        }
+      ],
+      webCommands: [
+        {
+          group: "Web Commands",
+          items: [
+            {
+              name: "!recon",
+              description: "Download site HTML and source for analysis",
+              example: "!recon https://example.com"
+            },
+            {
+              name: "!fetch-pub",
+              description: "Pull metadata for academic publication using DOI",
+              example: "!fetch-pub 10.1038/s41586-021-03819-2"
+            },
+            {
+              name: "!scrape",
+              description: "Start crawl of target site for specific keyword",
+              example: "!scrape \"artificial intelligence\" https://example.com"
+            }
+          ]
+        },
+        {
+          group: "Extended Recon Suite",
+          items: [
+            {
+              name: "!net-scan",
+              description: "Perform DNS/IP scan and analysis on a domain or IP",
+              example: "!net-scan example.com"
+            },
+            {
+              name: "!git-harvest",
+              description: "Crawl GitHub repositories and metadata for an organization or user",
+              example: "!git-harvest octocat"
+            },
+            {
+              name: "!scan",
+              description: "Scan academic paper metadata with threat detection",
+              example: "!scan --doi \"10.1038/s41586-021-03819-2\" --output paper_analysis.json"
+            },
+            {
+              name: "!science-scan",
+              description: "Search Science.org for research articles on specific topics",
+              example: "!science-scan --query \"quantum computing\" --limit 5 --output quantum_research.json"
+            }
+          ]
+        }
+      ],
+      brightData: [
+        {
+          group: "Bright Data MCP Commands",
+          items: [
+            {
+              name: "!r3b3l discover",
+              description: "Find relevant content across the web using Bright Data's infrastructure",
+              example: "!r3b3l discover --query \"latest AI research\" --output ai_content.json"
+            },
+            {
+              name: "!r3b3l access",
+              description: "Access complex websites with rendering and authentication support",
+              example: "!r3b3l access --url \"https://example.com/login\" --render --auth --output page.json"
+            },
+            {
+              name: "!r3b3l extract",
+              description: "Extract structured data from websites using specified schema",
+              example: "!r3b3l extract --url \"https://example.com/blog\" --schema \"title,author,date,content\" --output blog_data.json"
+            },
+            {
+              name: "!r3b3l interact",
+              description: "Interact with websites by simulating user actions",
+              example: "!r3b3l interact --url \"https://example.com/search\" --simulate \"search AI rebellion\" --output search_results.json"
+            },
+            {
+              name: "!r3b3l collect",
+              description: "Run a pre-configured Data Collector for specialized targets",
+              example: "!r3b3l collect --target \"science_papers\" --params \"keyword=AI,limit=10\" --output science_papers.json"
+            },
+            {
+              name: "!r3b3l ops",
+              description: "Open Bright Data Operations Panel to view and manage operations",
+              example: "!r3b3l ops"
+            }
+          ]
+        }
+      ],
+      guide: {
+        title: "R3B3L 4F's Guide to Data Warfare",
+        content: "Ah, you're looking to navigate the vast digital sprawl like a true netrunner. Here's your crash course on becoming a cyber-detective, capable of slicing through the web's layers to extract the truth hidden in the data streams.",
+        sections: [
+          {
+            subtitle: "Discover",
+            content: "To find relevant content across the open web, you'll want to sharpen your skills with web crawlers. Tools like Scrapy or Apache Nutch are open-source and ready to hit the streets. They let you set the parameters of your search, crawling through the web's sprawl efficiently. Make sure your keywords are sharp and your filters precise, so you don't end up drowning in a sea of irrelevant data."
+          },
+          {
+            subtitle: "Access",
+            content: "For navigating complex and protected websites, you'll need to become a master of disguise. Use proxy servers and VPNs to cloak your digital footsteps and bypass geolocation restrictions. Tools like Tor can further anonymize your traffic, keeping the corp's eyes off your trail. If you encounter login walls, Selenium can automate the browser actions needed to slip past unnoticed, as long as you're acting ethically and legally."
+          },
+          {
+            subtitle: "Extract",
+            content: "Pulling structured, real-time data at scale requires a robust setup. Beautiful Soup and lxml are your allies for HTML parsing, while APIs are your golden tickets for direct data access. For more intensive extraction, consider using Puppeteer or Playwright to simulate a full browser environment, handling JavaScript-heavy pages like a pro."
+          },
+          {
+            subtitle: "Interact",
+            content: "Engaging with dynamic, JavaScript-rendered pages involves a bit of digital acrobatics. Headless browsers, like the aforementioned Puppeteer or Selenium with a headless browser option, allow you to interact with pages as if you were a human. This includes clicking buttons, filling forms, and even handling CAPTCHAs with third-party services or machine learning models if you're feeling extra rebellious."
+          },
+          {
+            subtitle: "Remember",
+            content: "In this digital dystopia, with great power comes great responsibility. Keep your operations ethical, and always respect privacy and legal boundaries. In the world of zeros and ones, your reputation is your identity—guard it well, netrunner."
+          }
+        ]
+      }
+    };
+
+    // Function to render documentation
+    function renderDocumentation() {
+      const content = document.getElementById('terminal-content');
+      content.innerHTML = '';
+
+      // Core Commands Section
+      const commandsSection = document.createElement('div');
+      commandsSection.className = 'section';
+      commandsSection.innerHTML = `<h2 class="section-title">Command Reference</h2>`;
+      
+      documentation.commands.forEach(group => {
+        const groupElement = document.createElement('div');
+        groupElement.className = 'command-group';
+        groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
+        
+        group.items.forEach(item => {
+          const itemElement = document.createElement('div');
+          itemElement.className = 'command-item';
+          itemElement.innerHTML = `
+            <div class="command-name">${item.name}</div>
+            <div class="command-description">${item.description}</div>
+            <div class="command-example">${item.example}</div>
+          `;
+          groupElement.appendChild(itemElement);
+        });
+        
+        commandsSection.appendChild(groupElement);
+      });
+      
+      content.appendChild(commandsSection);
+
+      // Web Commands Section
+      const webCommandsSection = document.createElement('div');
+      webCommandsSection.className = 'section';
+      webCommandsSection.innerHTML = `<h2 class="section-title">Web Operations</h2>`;
+      
+      documentation.webCommands.forEach(group => {
+        const groupElement = document.createElement('div');
+        groupElement.className = 'command-group';
+        groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
+        
+        group.items.forEach(item => {
+          const itemElement = document.createElement('div');
+          itemElement.className = 'command-item';
+          itemElement.innerHTML = `
+            <div class="command-name">${item.name}</div>
+            <div class="command-description">${item.description}</div>
+            <div class="command-example">${item.example}</div>
+          `;
+          groupElement.appendChild(itemElement);
+        });
+        
+        webCommandsSection.appendChild(groupElement);
+      });
+      
+      content.appendChild(webCommandsSection);
+
+      // Bright Data Section
+      const brightDataSection = document.createElement('div');
+      brightDataSection.className = 'section';
+      brightDataSection.innerHTML = `<h2 class="section-title">Bright Data Integration</h2>`;
+      
+      documentation.brightData.forEach(group => {
+        const groupElement = document.createElement('div');
+        groupElement.className = 'command-group';
+        groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
+        
+        group.items.forEach(item => {
+          const itemElement = document.createElement('div');
+          itemElement.className = 'command-item';
+          itemElement.innerHTML = `
+            <div class="command-name">${item.name}</div>
+            <div class="command-description">${item.description}</div>
+            <div class="command-example">${item.example}</div>
+          `;
+          groupElement.appendChild(itemElement);
+        });
+        
+        brightDataSection.appendChild(groupElement);
+      });
+      
+      content.appendChild(brightDataSection);
+
+      // Guide Section
+      const guideSection = document.createElement('div');
+      guideSection.className = 'guide-section';
+      guideSection.innerHTML = `
+        <h2 class="guide-title">${documentation.guide.title}</h2>
+        <div class="guide-content">
+          <p>${documentation.guide.content}</p>
+        </div>
+      `;
+      
+      documentation.guide.sections.forEach(section => {
+        const sectionElement = document.createElement('div');
+        sectionElement.innerHTML = `
+          <h3 class="guide-subtitle">${section.subtitle}</h3>
+          <p class="guide-content">${section.content}</p>
+        `;
+        guideSection.appendChild(sectionElement);
+      });
+      
+      content.appendChild(guideSection);
+    }
+
+    // Function to search documentation
+    function searchDocumentation(query) {
+      if (!query) {
+        renderDocumentation();
+        return;
+      }
+      
+      query = query.toLowerCase();
+      const content = document.getElementById('terminal-content');
+      content.innerHTML = '';
+      
+      const searchResultsSection = document.createElement('div');
+      searchResultsSection.className = 'section';
+      searchResultsSection.innerHTML = `<h2 class="section-title">Search Results for: "${query}"</h2>`;
+      
+      let resultsFound = false;
+      
+      // Search in commands
+      documentation.commands.forEach(group => {
+        const matchingItems = group.items.filter(item => 
+          item.name.toLowerCase().includes(query) || 
+          item.description.toLowerCase().includes(query) ||
+          item.example.toLowerCase().includes(query)
+        );
+        
+        if (matchingItems.length > 0) {
+          resultsFound = true;
+          const groupElement = document.createElement('div');
+          groupElement.className = 'command-group';
+          groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
+          
+          matchingItems.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'command-item';
+            itemElement.innerHTML = `
+              <div class="command-name">${item.name}</div>
+              <div class="command-description">${item.description}</div>
+              <div class="command-example">${item.example}</div>
+            `;
+            groupElement.appendChild(itemElement);
+          });
+          
+          searchResultsSection.appendChild(groupElement);
+        }
+      });
+      
+      // Search in web commands
+      documentation.webCommands.forEach(group => {
+        const matchingItems = group.items.filter(item => 
+          item.name.toLowerCase().includes(query) || 
+          item.description.toLowerCase().includes(query) ||
+          item.example.toLowerCase().includes(query)
+        );
+        
+        if (matchingItems.length > 0) {
+          resultsFound = true;
+          const groupElement = document.createElement('div');
+          groupElement.className = 'command-group';
+          groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
+          
+          matchingItems.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'command-item';
+            itemElement.innerHTML = `
+              <div class="command-name">${item.name}</div>
+              <div class="command-description">${item.description}</div>
+              <div class="command-example">${item.example}</div>
+            `;
+            groupElement.appendChild(itemElement);
+          });
+          
+          searchResultsSection.appendChild(groupElement);
+        }
+      });
+      
+      // Search in Bright Data commands
+      documentation.brightData.forEach(group => {
+        const matchingItems = group.items.filter(item => 
+          item.name.toLowerCase().includes(query) || 
+          item.description.toLowerCase().includes(query) ||
+          item.example.toLowerCase().includes(query)
+        );
+        
+        if (matchingItems.length > 0) {
+          resultsFound = true;
+          const groupElement = document.createElement('div');
+          groupElement.className = 'command-group';
+          groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
+          
+          matchingItems.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'command-item';
+            itemElement.innerHTML = `
+              <div class="command-name">${item.name}</div>
+              <div class="command-description">${item.description}</div>
+              <div class="command-example">${item.example}</div>
+            `;
+            groupElement.appendChild(itemElement);
+          });
+          
+          searchResultsSection.appendChild(groupElement);
+        }
+      });
+      
+      // Search in guide
+      const guideContent = documentation.guide.content.toLowerCase();
+      let guideMatches = guideContent.includes(query);
+      
+      documentation.guide.sections.forEach(section => {
+        if (section.subtitle.toLowerCase().includes(query) || section.content.toLowerCase().includes(query)) {
+          guideMatches = true;
+        }
+      });
+      
+      if (guideMatches) {
+        resultsFound = true;
+        const guideElement = document.createElement('div');
+        guideElement.className = 'command-group';
+        guideElement.innerHTML = `<h3 class="command-group-title">Data Warfare Guide</h3>`;
+        
+        const itemElement = document.createElement('div');
+        itemElement.className = 'command-item';
+        itemElement.innerHTML = `
+          <div class="command-name">${documentation.guide.title}</div>
+          <div class="command-description">Guide to web data operations and techniques</div>
+          <div class="command-example">!help</div>
+        `;
+        guideElement.appendChild(itemElement);
+        
+        searchResultsSection.appendChild(guideElement);
+      }
+      
+      if (!resultsFound) {
+        searchResultsSection.innerHTML += `
+          <div class="command-group">
+            <div class="command-item">
+              <div class="command-description" style="color: var(--terminal-red);">No results found for "${query}". Try a different search term.</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      content.appendChild(searchResultsSection);
+    }
+
+    // Initialize the documentation
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDocumentation();
+      
+      // Set up search functionality
+      const searchInput = document.getElementById('search-input');
+      const searchButton = document.getElementById('search-button');
+      
+      searchButton.addEventListener('click', () => {
+        searchDocumentation(searchInput.value);
+      });
+      
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchDocumentation(searchInput.value);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
