@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science.org Scanner Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #111;
+            color: #0f0;
+        }
+        h1 {
+            color: #f00;
+            text-align: center;
+        }
+        .container {
+            border: 1px solid #f00;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        input, button, select {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            background-color: #222;
+            color: #0f0;
+            border: 1px solid #f00;
+        }
+        button {
+            cursor: pointer;
+            background-color: #300;
+        }
+        button:hover {
+            background-color: #500;
+        }
+        pre {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .result {
+            margin-top: 20px;
+            border: 1px dashed #f00;
+            padding: 10px;
+            display: none;
+        }
+        .article {
+            border-bottom: 1px dashed #f00;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+        .article h3 {
+            color: #0f0;
+            margin-top: 0;
+        }
+        .article-meta {
+            font-size: 0.9em;
+            color: #0f0;
+            opacity: 0.8;
+        }
+        .threat-level {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .threat-low {
+            background-color: #060;
+        }
+        .threat-moderate {
+            background-color: #660;
+        }
+        .threat-high {
+            background-color: #630;
+        }
+        .threat-critical {
+            background-color: #600;
+        }
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #f00;
+        }
+    </style>
+</head>
+<body>
+    <h1>R3B3L 4F Science.org Scanner Test</h1>
+    
+    <div class="container">
+        <h2>Test Science.org Scanner Function</h2>
+        <input type="text" id="queryInput" placeholder="Enter search query (e.g., CRISPR gene editing)" value="CRISPR gene editing">
+        
+        <div style="display: flex; gap: 10px; margin: 10px 0;">
+            <div style="flex: 1;">
+                <label for="limitSelect">Result Limit:</label>
+                <select id="limitSelect">
+                    <option value="5">5 results</option>
+                    <option value="10" selected>10 results</option>
+                    <option value="15">15 results</option>
+                    <option value="20">20 results</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label for="saveOutput">Save Output:</label>
+                <input type="checkbox" id="saveOutput" style="width: auto;">
+            </div>
+        </div>
+        
+        <button id="scanButton">Scan Science.org</button>
+        
+        <div class="result" id="resultContainer">
+            <h3>Results:</h3>
+            <div id="resultSummary"></div>
+            <div id="articlesList"></div>
+            <pre id="resultOutput"></pre>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('scanButton').addEventListener('click', async () => {
+            const query = document.getElementById('queryInput').value.trim();
+            const limit = parseInt(document.getElementById('limitSelect').value);
+            const saveOutput = document.getElementById('saveOutput').checked;
+            
+            const resultContainer = document.getElementById('resultContainer');
+            const resultSummary = document.getElementById('resultSummary');
+            const articlesList = document.getElementById('articlesList');
+            const resultOutput = document.getElementById('resultOutput');
+            
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+            
+            // Show loading state
+            resultContainer.style.display = 'block';
+            resultSummary.innerHTML = '<div class="loading">Scanning Science.org...</div>';
+            articlesList.innerHTML = '';
+            resultOutput.textContent = '';
+            
+            try {
+                const response = await fetch('/.netlify/functions/scrapeScienceOrg', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query, limit })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Display summary
+                resultSummary.innerHTML = `
+                    <h3>Science.org Scan Results</h3>
+                    <p>Query: "${query}"</p>
+                    <p>Found ${data.count} articles</p>
+                `;
+                
+                // Display articles
+                if (data.articles && data.articles.length > 0) {
+                    articlesList.innerHTML = '';
+                    
+                    data.articles.forEach((article, index) => {
+                        const threatClass = 
+                            article.flameDetected === 'CRITICAL' ? 'threat-critical' :
+                            article.flameDetected === 'HIGH' ? 'threat-high' :
+                            article.flameDetected === 'MODERATE' ? 'threat-moderate' :
+                            'threat-low';
+                        
+                        const articleElement = document.createElement('div');
+                        articleElement.className = 'article';
+                        articleElement.innerHTML = `
+                            <h3>${index + 1}. ${article.title}</h3>
+                            <div class="article-meta">
+                                <div>Authors: ${article.authors || 'N/A'}</div>
+                                <div>Journal: ${article.journal || 'N/A'}</div>
+                                <div>Date: ${article.publicationDate || 'N/A'}</div>
+                                <div>Threat Level: <span class="threat-level ${threatClass}">${article.flameDetected}</span></div>
+                                ${article.doi ? `<div>DOI: ${article.doi}</div>` : ''}
+                                ${article.url ? `<div>URL: <a href="${article.url}" target="_blank" style="color: #0f0;">${article.url}</a></div>` : ''}
+                            </div>
+                            ${article.abstract ? `<div class="article-abstract"><p>${article.abstract}</p></div>` : ''}
+                        `;
+                        
+                        articlesList.appendChild(articleElement);
+                    });
+                } else {
+                    articlesList.innerHTML = '<p>No articles found matching your query.</p>';
+                }
+                
+                // Display raw data
+                resultOutput.textContent = JSON.stringify(data, null, 2);
+                
+                // Save output if requested
+                if (saveOutput) {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], {
+                        type: 'application/json'
+                    });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `science-scan-${query.replace(/\s+/g, '-')}.json`;
+                    a.click();
+                }
+                
+            } catch (error) {
+                resultSummary.innerHTML = `<div style="color: #f00;">Error: ${error.message}</div>`;
+                articlesList.innerHTML = '';
+                resultOutput.textContent = '';
+            }
+        });
+    </script>
+</body>
+</html>
