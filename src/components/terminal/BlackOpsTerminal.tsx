@@ -283,6 +283,7 @@ Web Commands (Internet must be enabled):
 Extended Recon Suite:
   - !net-scan <domain/ip> - Perform DNS/IP scan and analysis
   - !git-harvest <org/user> - Crawl GitHub repositories and metadata
+  - !scan --doi "DOI" [--output filename.json] - Scan academic paper metadata with threat detection
 `;
 
       case 'internet on':
@@ -489,6 +490,30 @@ R3B3L 4F Status:
 
       logEntry('system', `Starting GitHub reconnaissance for ${target}`);
       return await handleGitHubReconCommand(target);
+    }
+
+    // DOI Scanner command
+    if (cmd.startsWith('scan ')) {
+      if (!internetEnabled) {
+        return 'Internet access is disabled. Enable with !internet on';
+      }
+
+      const args = cmd.substring(5).trim();
+
+      // Parse DOI
+      const doiMatch = args.match(/--doi\s+"([^"]+)"/);
+      const doi = doiMatch ? doiMatch[1] : null;
+
+      // Parse Output File
+      const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+      const outputFile = outputMatch ? outputMatch[1] : null;
+
+      if (!doi) {
+        return "❌ DOI not detected. Format: !scan --doi \"your-doi-here\"";
+      }
+
+      logEntry('system', `Scanning DOI: ${doi}...`);
+      return await handleDoiScanCommand(doi, outputFile);
     }
 
     return `Unknown special command: ${command}. Type !help for available commands.`;
@@ -806,6 +831,59 @@ ${contexts.length > 0 ? 'Context samples:\n' + contexts.join('\n\n') : 'No conte
       const errorMessage = error instanceof Error ? error.message : String(error);
       logEntry('error', errorMessage);
       return `Error during scrape: ${errorMessage}`;
+    }
+  };
+
+  // Handle DOI scan command
+  const handleDoiScanCommand = async (doi: string, outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `🔍 Scanning DOI: ${doi}...`);
+
+      // Call the Netlify function
+      const response = await fetch("/.netlify/functions/doiScan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ doi }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Format the response
+      const summary = `
+📄 Title: ${data.title}
+🧬 Authors: ${data.authors?.join(", ")}
+📚 Journal: ${data.journal}
+📅 Date: ${data.date}
+🏛️ Publisher: ${data.publisher}
+⚠️ Threat Level: ${data.flameDetected}
+      `.trim();
+
+      // Log the full data
+      logEntry('response', `DOI Scan Results for ${doi}:\n${JSON.stringify(data, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = outputFile;
+        a.click();
+
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error scanning DOI: ${errorMessage}`;
     }
   };
 
