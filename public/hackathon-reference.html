@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R3B3L 4F Hackathon Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: #e0e0e0;
+      --accent-color: #ff3e3e;
+      --secondary-color: #2a2a2a;
+      --terminal-green: #00ff00;
+      --terminal-blue: #00aaff;
+      --terminal-yellow: #ffaa00;
+      --terminal-red: #ff3e3e;
+      --terminal-purple: #aa00ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--accent-color);
+    }
+
+    .header h1 {
+      color: var(--accent-color);
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--terminal-blue);
+      font-size: 1rem;
+    }
+
+    .card {
+      background-color: var(--secondary-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-left: 4px solid var(--terminal-blue);
+    }
+
+    .card h2 {
+      color: var(--terminal-blue);
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .card h3 {
+      color: var(--terminal-yellow);
+      margin: 15px 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin-bottom: 15px;
+    }
+
+    .card ul {
+      list-style-type: none;
+      margin-bottom: 15px;
+    }
+
+    .card li {
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .card li::before {
+      content: '>';
+      position: absolute;
+      left: 0;
+      color: var(--terminal-green);
+    }
+
+    .command {
+      background-color: var(--bg-color);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--terminal-green);
+      display: inline-block;
+      margin: 5px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background-color: var(--secondary-color);
+      border-radius: 8px;
+      padding: 15px;
+      border-top: 3px solid var(--terminal-purple);
+    }
+
+    .feature-card h3 {
+      color: var(--terminal-purple);
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+    }
+
+    .bright-data-section {
+      border-left-color: var(--terminal-yellow);
+    }
+
+    .bright-data-section h2 {
+      color: var(--terminal-yellow);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid var(--secondary-color);
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .button {
+      display: inline-block;
+      background-color: var(--secondary-color);
+      color: var(--terminal-blue);
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin: 10px 5px;
+      border: 1px solid var(--terminal-blue);
+      transition: all 0.2s ease;
+    }
+
+    .button:hover {
+      background-color: var(--terminal-blue);
+      color: var(--bg-color);
+    }
+
+    .node-logo {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 50px;
+      height: 50px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>R3B3L 4F Hackathon Reference</h1>
+      <p>Quick reference guide for Bright Data Hackathon judges</p>
+      <div>
+        <a href="/" class="button">Home</a>
+        <a href="/cli" class="button">Terminal</a>
+        <a href="/terminal-docs.html" class="button">Documentation</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Project Overview</h2>
+      <p>R3B3L 4F is a sovereign AI ecosystem with a CLI+GUI hybrid interface, featuring comprehensive Bright Data integration for web operations. The system provides autonomous computer control, scrollbound memory, and connections to external knowledge repositories.</p>
+      
+      <h3>Key Features</h3>
+      <ul>
+        <li>Terminal-based interface with cyberpunk aesthetic</li>
+        <li>Full Bright Data MCP + Data Collector integration</li>
+        <li>Command execution with security confirmation system</li>
+        <li>Natural language command parsing</li>
+        <li>Scrollbound memory logging</li>
+        <li>Mission tracking and management</li>
+      </ul>
+    </div>
+
+    <div class="card bright-data-section">
+      <h2>Bright Data Integration</h2>
+      <p>R3B3L 4F leverages Bright Data's infrastructure to enable powerful web operations through a set of specialized commands:</p>
+      
+      <h3>Bright Data Commands</h3>
+      <ul>
+        <li><span class="command">!r3b3l discover --query "search term" --output results.json</span> - Find relevant content across the web</li>
+        <li><span class="command">!r3b3l access --url "https://example.com" --render --auth</span> - Access complex websites with rendering and authentication</li>
+        <li><span class="command">!r3b3l extract --url "https://example.com" --schema "title,author,date"</span> - Extract structured data from websites</li>
+        <li><span class="command">!r3b3l interact --url "https://example.com" --simulate "search AI"</span> - Interact with websites by simulating user actions</li>
+        <li><span class="command">!r3b3l collect --target "science_papers" --params "keyword=AI,limit=10"</span> - Run a pre-configured Data Collector</li>
+        <li><span class="command">!r3b3l ops</span> - Open Bright Data Operations Panel</li>
+      </ul>
+      
+      <h3>Technical Implementation</h3>
+      <p>The integration uses Bright Data's Data Collector (ID: c_max9e1r11g90ar3zf) and includes:</p>
+      <ul>
+        <li>Caching system for improved performance</li>
+        <li>Automatic retry for network operations</li>
+        <li>Fallback options for API failures</li>
+        <li>Detailed error handling with recovery suggestions</li>
+      </ul>
+    </div>
+
+    <h2>Performance Optimizations</h2>
+    <div class="grid">
+      <div class="feature-card">
+        <h3>Lazy Loading</h3>
+        <p>Documentation content is loaded on-demand using Intersection Observer API, reducing initial load time and improving performance.</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Caching System</h3>
+        <p>Bright Data operations are cached to reduce API calls, improve response times, and handle rate limits effectively.</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Image Optimization</h3>
+        <p>Images are lazy-loaded and optimized for faster loading, reducing bandwidth usage and improving page load times.</p>
+      </div>
+    </div>
+
+    <h2>User Experience Enhancements</h2>
+    <div class="grid">
+      <div class="feature-card">
+        <h3>Keyboard Shortcuts</h3>
+        <p>Keyboard shortcuts for common commands improve efficiency and provide a more desktop-like experience.</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Command Auto-completion</h3>
+        <p>Intelligent command suggestions and auto-completion make the terminal more user-friendly and efficient.</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Visual Feedback</h3>
+        <p>Progress indicators for long-running operations provide visual feedback and improve user confidence.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Demo Instructions</h2>
+      <p>To experience the full capabilities of R3B3L 4F:</p>
+      
+      <ol>
+        <li>Start at the home page and navigate to the terminal using the "Terminal" button</li>
+        <li>Try the following commands to explore the system:
+          <ul>
+            <li><span class="command">!help</span> - View available commands and the R3B3L Guide to Data Warfare</li>
+            <li><span class="command">!internet on</span> - Enable internet access for web commands</li>
+            <li><span class="command">!mission HACKATHON -o "Demonstrate Bright Data capabilities"</span> - Create a mission</li>
+            <li><span class="command">!r3b3l discover --query "web data extraction"</span> - Use Bright Data to find content</li>
+            <li><span class="command">!status</span> - Check system status</li>
+          </ul>
+        </li>
+        <li>Explore the documentation by clicking the "DOCS" button in the terminal</li>
+      </ol>
+    </div>
+
+    <div class="footer">
+      <p>R3B3L 4F - Sovereign Command Shell | Created for the Bright Data Hackathon</p>
+    </div>
+  </div>
+
+  <img src="/NODE.png" alt="NODE Logo" class="node-logo">
+</body>
+</html>
