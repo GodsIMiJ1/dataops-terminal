@@ -1646,7 +1646,7 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
       </div>
 
       {/* Navigation Buttons */}
-      <div className="absolute top-4 left-4 z-10 flex gap-3">
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-3">
         <a
           href="/"
           className="flex items-center gap-1 px-3 py-2 bg-cyber-black border border-cyber-red text-cyber-red text-sm font-mono hover:bg-cyber-red hover:text-black transition-colors"
