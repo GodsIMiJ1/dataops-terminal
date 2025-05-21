@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key, ArrowLeft } from 'lucide-react';
+import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key, ArrowLeft, FileText } from 'lucide-react';
 import TerminalComponent from './TerminalComponent';
 import { executeAndFormatCommand, confirmCommandExecution } from '@/services/CommandExecutionService';
 import { parseNaturalLanguageCommand } from '@/services/CommandParserService';
@@ -1645,8 +1645,8 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
         <img src="/NODE.png" alt="NODE" className="w-16 h-16" />
       </div>
 
-      {/* Home/Back Button */}
-      <div className="absolute top-2 left-2 z-10">
+      {/* Navigation Buttons */}
+      <div className="absolute top-2 left-2 z-10 flex gap-2">
         <a
           href="/"
           className="flex items-center gap-1 px-2 py-1 bg-cyber-black border border-cyber-red text-cyber-red text-xs font-mono hover:bg-cyber-red hover:text-black transition-colors"
@@ -1654,6 +1654,15 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
         >
           <ArrowLeft className="w-3 h-3" />
           HOME
+        </a>
+        <a
+          href="/docs"
+          className="flex items-center gap-1 px-2 py-1 bg-cyber-black border border-cyber-cyan text-cyber-cyan text-xs font-mono hover:bg-cyber-cyan hover:text-black transition-colors"
+          title="View Documentation"
+          target="_blank"
+        >
+          <FileText className="w-3 h-3" />
+          DOCS
         </a>
       </div>
     </div>
