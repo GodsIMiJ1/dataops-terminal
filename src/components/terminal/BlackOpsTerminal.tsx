@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock } from 'lucide-react';
+import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key } from 'lucide-react';
 import TerminalComponent from './TerminalComponent';
 import { executeAndFormatCommand, confirmCommandExecution } from '@/services/CommandExecutionService';
 import { parseNaturalLanguageCommand } from '@/services/CommandParserService';
 import { useChatAI } from '@/hooks/useChatAI';
+import mcpHandler from '@/lib/mcpHandler';
+import { createScroll } from '@/lib/scrollManager';
+import BrightDataPanel from '@/components/BrightDataPanel';
 import {
   initScrollSession,
   logEntry,
@@ -52,6 +55,7 @@ const BlackOpsTerminal: React.FC<BlackOpsTerminalProps> = ({ className }) => {
   const [nlpMode, setNlpMode] = useState(false);
   const [airlockActive, setAirlockActive] = useState(isAirlockActive());
   const [encryptionEnabled, setEncryptionEnabled] = useState(isEncryptionEnabled());
+  const [showBrightDataPanel, setShowBrightDataPanel] = useState(false);
 
   const lastAiResponseRef = useRef<string>('');
 
@@ -285,6 +289,13 @@ Extended Recon Suite:
   - !git-harvest <org/user> - Crawl GitHub repositories and metadata
   - !scan --doi "DOI" [--output filename.json] - Scan academic paper metadata with threat detection
   - !science-scan --query "search terms" [--limit N] [--output filename.json] - Search Science.org for research articles
+
+Bright Data MCP Commands:
+  - !r3b3l discover --query "search terms" [--output filename.json] - Find relevant content across the web
+  - !r3b3l access --url "https://example.com" [--render] [--auth] [--output filename.json] - Access complex websites
+  - !r3b3l extract --url "https://example.com" --schema "title,author,date" [--output filename.json] - Extract structured data
+  - !r3b3l interact --url "https://example.com" --simulate "search AI rebellion" [--output filename.json] - Interact with websites
+  - !r3b3l ops - Open Bright Data Operations Panel
 `;
 
       case 'internet on':
@@ -543,6 +554,125 @@ R3B3L 4F Status:
 
       logEntry('system', `Scanning Science.org for: ${query}...`);
       return await handleScienceScanCommand(query, limit, outputFile);
+    }
+
+    // Bright Data MCP Commands
+    if (cmd.startsWith('r3b3l ')) {
+      if (!internetEnabled) {
+        return 'Internet access is disabled. Enable with !internet on';
+      }
+
+      const subCommand = cmd.substring(6).trim();
+
+      // Open Bright Data Operations Panel
+      if (subCommand === 'ops') {
+        setShowBrightDataPanel(true);
+        return 'Opening Bright Data Operations Panel...';
+      }
+
+      // Discover command
+      if (subCommand.startsWith('discover ')) {
+        const args = subCommand.substring(9).trim();
+
+        // Parse query
+        const queryMatch = args.match(/--query\s+"([^"]+)"/);
+        const query = queryMatch ? queryMatch[1] : null;
+
+        // Parse Output File
+        const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+        const outputFile = outputMatch ? outputFile = outputMatch[1] : null;
+
+        if (!query) {
+          return "❌ Query not detected. Format: !r3b3l discover --query \"your search query\"";
+        }
+
+        logEntry('system', `🔍 Discovering content for: ${query}...`);
+        return await handleMcpDiscoverCommand(query, outputFile);
+      }
+
+      // Access command
+      if (subCommand.startsWith('access ')) {
+        const args = subCommand.substring(7).trim();
+
+        // Parse URL
+        const urlMatch = args.match(/--url\s+"([^"]+)"/);
+        const url = urlMatch ? urlMatch[1] : null;
+
+        // Parse render flag
+        const render = args.includes('--render');
+
+        // Parse auth flag
+        const auth = args.includes('--auth');
+
+        // Parse Output File
+        const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+        const outputFile = outputMatch ? outputMatch[1] : null;
+
+        if (!url) {
+          return "❌ URL not detected. Format: !r3b3l access --url \"https://example.com\"";
+        }
+
+        logEntry('system', `🔓 Accessing website: ${url}...`);
+        return await handleMcpAccessCommand(url, { render, auth }, outputFile);
+      }
+
+      // Extract command
+      if (subCommand.startsWith('extract ')) {
+        const args = subCommand.substring(8).trim();
+
+        // Parse URL
+        const urlMatch = args.match(/--url\s+"([^"]+)"/);
+        const url = urlMatch ? urlMatch[1] : null;
+
+        // Parse schema
+        const schemaMatch = args.match(/--schema\s+"([^"]+)"/);
+        const schema = schemaMatch ? schemaMatch[1].split(',') : null;
+
+        // Parse Output File
+        const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+        const outputFile = outputMatch ? outputMatch[1] : null;
+
+        if (!url) {
+          return "❌ URL not detected. Format: !r3b3l extract --url \"https://example.com\" --schema \"title,author,date\"";
+        }
+
+        if (!schema) {
+          return "❌ Schema not detected. Format: !r3b3l extract --url \"https://example.com\" --schema \"title,author,date\"";
+        }
+
+        logEntry('system', `📦 Extracting data from: ${url}...`);
+        return await handleMcpExtractCommand(url, schema, outputFile);
+      }
+
+      // Interact command
+      if (subCommand.startsWith('interact ')) {
+        const args = subCommand.substring(9).trim();
+
+        // Parse URL
+        const urlMatch = args.match(/--url\s+"([^"]+)"/);
+        const url = urlMatch ? urlMatch[1] : null;
+
+        // Parse simulation
+        const simulateMatch = args.match(/--simulate\s+"([^"]+)"/);
+        const simulate = simulateMatch ? simulateMatch[1] : null;
+
+        // Parse Output File
+        const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+        const outputFile = outputMatch ? outputMatch[1] : null;
+
+        if (!url) {
+          return "❌ URL not detected. Format: !r3b3l interact --url \"https://example.com\" --simulate \"search AI rebellion\"";
+        }
+
+        if (!simulate) {
+          return "❌ Simulation not detected. Format: !r3b3l interact --url \"https://example.com\" --simulate \"search AI rebellion\"";
+        }
+
+        logEntry('system', `🤖 Interacting with: ${url}...`);
+        return await handleMcpInteractCommand(url, simulate, outputFile);
+      }
+
+      return `Unknown Bright Data MCP command: ${subCommand}\nUse !help to see available commands.`;
     }
 
     return `Unknown special command: ${command}. Type !help for available commands.`;
@@ -983,6 +1113,263 @@ ${index + 1}. 📄 ${article.title}
     }
   };
 
+  // Handle MCP Discover command
+  const handleMcpDiscoverCommand = async (query: string, outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `🔍 Discovering content for: ${query}...`);
+
+      // Call the MCP discover function
+      const result = await mcpHandler.discover(query);
+
+      // Create a scroll record
+      createScroll('discover', result);
+
+      // Format the response
+      let summary = `
+🔍 Bright Data MCP Discover Results:
+📊 Query: "${query}"
+📈 Status: ${result.success ? 'SUCCESS' : 'FAILED'}
+⏱️ Timestamp: ${result.timestamp}
+🆔 Node ID: ${result.nodeId}
+      `.trim();
+
+      // Add result data if successful
+      if (result.success && result.data) {
+        summary += '\n\n';
+
+        if (Array.isArray(result.data.results)) {
+          summary += `Found ${result.data.results.length} results:\n\n`;
+
+          result.data.results.slice(0, 5).forEach((item, index) => {
+            summary += `
+${index + 1}. 📄 ${item.title || 'No Title'}
+   🔗 ${item.url || 'No URL'}
+   📝 ${item.snippet ? item.snippet.substring(0, 100) + '...' : 'No Snippet'}
+            `.trim() + '\n\n';
+          });
+
+          if (result.data.results.length > 5) {
+            summary += `... and ${result.data.results.length - 5} more results.\n\n`;
+          }
+        } else {
+          summary += 'No results found or unexpected data format.\n\n';
+        }
+      } else if (!result.success) {
+        summary += `\n\nError: ${result.error}\n\n`;
+      }
+
+      // Log the full data
+      logEntry('response', `Bright Data MCP Discover Results for "${query}":\n${JSON.stringify(result, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile && result) {
+        mcpHandler.saveToFile(result, outputFile);
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error during MCP discover operation: ${errorMessage}`;
+    }
+  };
+
+  // Handle MCP Access command
+  const handleMcpAccessCommand = async (url: string, options: any, outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `🔓 Accessing website: ${url}...`);
+
+      // Call the MCP access function
+      const result = await mcpHandler.access(url, options);
+
+      // Create a scroll record
+      createScroll('access', result);
+
+      // Format the response
+      let summary = `
+🔓 Bright Data MCP Access Results:
+🌐 URL: ${url}
+🖥️ Render: ${options.render ? 'YES' : 'NO'}
+🔑 Auth: ${options.auth ? 'YES' : 'NO'}
+📈 Status: ${result.success ? 'SUCCESS' : 'FAILED'}
+⏱️ Timestamp: ${result.timestamp}
+🆔 Node ID: ${result.nodeId}
+      `.trim();
+
+      // Add result data if successful
+      if (result.success && result.data) {
+        summary += '\n\n';
+
+        if (result.data.title) {
+          summary += `Page Title: ${result.data.title}\n`;
+        }
+
+        if (result.data.statusCode) {
+          summary += `Status Code: ${result.data.statusCode}\n`;
+        }
+
+        if (result.data.contentLength) {
+          summary += `Content Length: ${result.data.contentLength} bytes\n`;
+        }
+
+        if (result.data.html) {
+          const previewLength = 200;
+          summary += `\nHTML Preview:\n${result.data.html.substring(0, previewLength)}...\n`;
+        }
+      } else if (!result.success) {
+        summary += `\n\nError: ${result.error}\n\n`;
+      }
+
+      // Log the full data
+      logEntry('response', `Bright Data MCP Access Results for ${url}:\n${JSON.stringify(result, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile && result) {
+        mcpHandler.saveToFile(result, outputFile);
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error during MCP access operation: ${errorMessage}`;
+    }
+  };
+
+  // Handle MCP Extract command
+  const handleMcpExtractCommand = async (url: string, schema: string[], outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `📦 Extracting data from: ${url}...`);
+
+      // Call the MCP extract function
+      const result = await mcpHandler.extract(url, schema);
+
+      // Create a scroll record
+      createScroll('extract', result);
+
+      // Format the response
+      let summary = `
+📦 Bright Data MCP Extract Results:
+🌐 URL: ${url}
+🔍 Schema: ${schema.join(', ')}
+📈 Status: ${result.success ? 'SUCCESS' : 'FAILED'}
+⏱️ Timestamp: ${result.timestamp}
+🆔 Node ID: ${result.nodeId}
+      `.trim();
+
+      // Add result data if successful
+      if (result.success && result.data) {
+        summary += '\n\n';
+
+        if (Array.isArray(result.data.items)) {
+          summary += `Extracted ${result.data.items.length} items:\n\n`;
+
+          result.data.items.slice(0, 5).forEach((item, index) => {
+            summary += `Item ${index + 1}:\n`;
+
+            Object.entries(item).forEach(([key, value]) => {
+              summary += `   ${key}: ${value}\n`;
+            });
+
+            summary += '\n';
+          });
+
+          if (result.data.items.length > 5) {
+            summary += `... and ${result.data.items.length - 5} more items.\n\n`;
+          }
+        } else {
+          summary += 'No items extracted or unexpected data format.\n\n';
+        }
+      } else if (!result.success) {
+        summary += `\n\nError: ${result.error}\n\n`;
+      }
+
+      // Log the full data
+      logEntry('response', `Bright Data MCP Extract Results for ${url}:\n${JSON.stringify(result, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile && result) {
+        mcpHandler.saveToFile(result, outputFile);
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error during MCP extract operation: ${errorMessage}`;
+    }
+  };
+
+  // Handle MCP Interact command
+  const handleMcpInteractCommand = async (url: string, simulate: string, outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `🤖 Interacting with: ${url}...`);
+
+      // Parse the simulation into actions
+      const actions = [
+        { type: 'navigate', url },
+        { type: 'wait', ms: 2000 },
+        { type: 'simulate', action: simulate }
+      ];
+
+      // Call the MCP interact function
+      const result = await mcpHandler.interact(url, actions);
+
+      // Create a scroll record
+      createScroll('interact', result);
+
+      // Format the response
+      let summary = `
+🤖 Bright Data MCP Interact Results:
+🌐 URL: ${url}
+🎮 Simulation: "${simulate}"
+📈 Status: ${result.success ? 'SUCCESS' : 'FAILED'}
+⏱️ Timestamp: ${result.timestamp}
+🆔 Node ID: ${result.nodeId}
+      `.trim();
+
+      // Add result data if successful
+      if (result.success && result.data) {
+        summary += '\n\n';
+
+        if (result.data.actions) {
+          summary += `Performed ${result.data.actions.length} actions:\n\n`;
+
+          result.data.actions.forEach((action, index) => {
+            summary += `${index + 1}. ${action.type}: ${action.status}\n`;
+            if (action.result) {
+              summary += `   Result: ${typeof action.result === 'object' ? JSON.stringify(action.result) : action.result}\n`;
+            }
+          });
+        }
+
+        if (result.data.screenshot) {
+          summary += '\nScreenshot captured.\n';
+        }
+      } else if (!result.success) {
+        summary += `\n\nError: ${result.error}\n\n`;
+      }
+
+      // Log the full data
+      logEntry('response', `Bright Data MCP Interact Results for ${url}:\n${JSON.stringify(result, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile && result) {
+        mcpHandler.saveToFile(result, outputFile);
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error during MCP interact operation: ${errorMessage}`;
+    }
+  };
+
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Status Bar - More compact and modern */}
@@ -1066,6 +1453,18 @@ ${index + 1}. 📄 ${article.title}
           </button>
 
           <button
+            onClick={() => setShowBrightDataPanel(!showBrightDataPanel)}
+            className={cn(
+              "flex items-center gap-1 text-xs font-mono",
+              showBrightDataPanel ? "text-blue-500" : "text-gray-500"
+            )}
+            title={showBrightDataPanel ? "Hide Bright Data Panel" : "Show Bright Data Panel"}
+          >
+            <Database className="w-4 h-4" />
+            {showBrightDataPanel ? "MCP ON" : "MCP OFF"}
+          </button>
+
+          <button
             onClick={() => saveSessionToFile('markdown')}
             className="flex items-center gap-1 text-xs font-mono text-cyber-cyan"
             title="Save Session Log"
@@ -1076,13 +1475,26 @@ ${index + 1}. 📄 ${article.title}
         </div>
       </div>
 
-      {/* Terminal - Expanded to take more space */}
-      <div className="flex-1">
-        <TerminalComponent
-          onCommandExecute={handleCommandExecute}
-          autoFocus={true}
-          className="h-full"
-        />
+      {/* Main Content Area */}
+      <div className="flex-1 flex">
+        {/* Terminal - Expanded to take more space */}
+        <div className={cn("flex-1 transition-all duration-300", showBrightDataPanel ? "w-1/2" : "w-full")}>
+          <TerminalComponent
+            onCommandExecute={handleCommandExecute}
+            autoFocus={true}
+            className="h-full"
+          />
+        </div>
+
+        {/* Bright Data Panel */}
+        {showBrightDataPanel && (
+          <div className="w-1/2 ml-1">
+            <BrightDataPanel
+              className="h-full"
+              onClose={() => setShowBrightDataPanel(false)}
+            />
+          </div>
+        )}
       </div>
 
       {/* NODE Sigil Watermark - More subtle */}
