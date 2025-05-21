@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R3B3L 4F Documentation</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <img src="/NODE.png" alt="NODE Logo" class="node-logo">
+        <h1>R3B3L 4F <span class="version">v3.0</span></h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#commands">Commands</a></li>
+          <li><a href="#bright-data">Bright Data</a></li>
+          <li><a href="#terminal">Terminal</a></li>
+          <li><a href="/docs/terminal-docs.html">Terminal Style Docs</a></li>
+          <li><a href="/">Back to App</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired interface. Version 3.0 introduces the BlackOps Terminal - a sovereign command shell with real command execution, natural language parsing, and web-connected task execution capabilities.</p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>🤖 AI-Powered Responses</h3>
+            <p>Connects to OpenAI GPT-4o for intelligent cybersecurity guidance</p>
+          </div>
+          <div class="feature-card">
+            <h3>💻 Real Command Execution</h3>
+            <p>Execute shell commands directly from the terminal</p>
+          </div>
+          <div class="feature-card">
+            <h3>🔄 Natural Language Parsing</h3>
+            <p>Convert plain English to shell commands</p>
+          </div>
+          <div class="feature-card">
+            <h3>🌐 Web-Connected Tasks</h3>
+            <p>Perform reconnaissance, scraping, and data retrieval</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="commands">
+        <h2>Commands</h2>
+        <div class="command-section">
+          <h3>Core Commands</h3>
+          <div class="command-table">
+            <div class="command-row">
+              <div class="command">!help</div>
+              <div class="description">Show available commands</div>
+            </div>
+            <div class="command-row">
+              <div class="command">!mission &lt;n&gt; -o "&lt;objective&gt;"</div>
+              <div class="description">Create new mission scroll</div>
+            </div>
+            <div class="command-row">
+              <div class="command">!status</div>
+              <div class="description">View current R3B3L state</div>
+            </div>
+            <div class="command-row">
+              <div class="command">!save md/json</div>
+              <div class="description">Save session logs</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="command-section">
+          <h3>Mode Controls</h3>
+          <div class="command-table">
+            <div class="command-row">
+              <div class="command">!internet on/off</div>
+              <div class="description">Enable/disable internet access</div>
+            </div>
+            <div class="command-row">
+              <div class="command">!nlp on/off</div>
+              <div class="description">Enable/disable natural language parsing</div>
+            </div>
+            <div class="command-row">
+              <div class="command">!autonomy on/off</div>
+              <div class="description">Enable/disable autonomy mode</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="bright-data">
+        <h2>Bright Data Integration</h2>
+        <p>R3B3L 4F leverages Bright Data's infrastructure to perform four key operations:</p>
+
+        <div class="bright-data-grid">
+          <div class="bright-data-card">
+            <h3>🔍 Discover</h3>
+            <p>Find relevant content across the web with advanced search capabilities</p>
+            <code>!r3b3l discover --query "search terms" --output results.json</code>
+          </div>
+          <div class="bright-data-card">
+            <h3>🔑 Access</h3>
+            <p>Navigate complex and protected websites with automated tools</p>
+            <code>!r3b3l access --url "https://example.com" --render --auth --output page.json</code>
+          </div>
+          <div class="bright-data-card">
+            <h3>📊 Extract</h3>
+            <p>Pull structured, real-time data at scale from any website</p>
+            <code>!r3b3l extract --url "https://example.com" --schema "title,author,date" --output data.json</code>
+          </div>
+          <div class="bright-data-card">
+            <h3>🤖 Interact</h3>
+            <p>Engage with dynamic, JavaScript-rendered pages like a human user</p>
+            <code>!r3b3l interact --url "https://example.com" --simulate "search AI rebellion" --output interaction.json</code>
+          </div>
+          <div class="bright-data-card">
+            <h3>📥 Collect</h3>
+            <p>Run pre-configured data collectors for specialized targets</p>
+            <code>!r3b3l collect --target "target-name" --params "param1=value1,param2=value2" --output collection.json</code>
+          </div>
+          <div class="bright-data-card">
+            <h3>📋 Operations Panel</h3>
+            <p>Visual interface for managing all web data operations</p>
+            <code>!r3b3l ops</code>
+          </div>
+        </div>
+
+        <div class="data-warfare-guide">
+          <h3>🧠 R3B3L 4F's Guide to Data Warfare</h3>
+          <div class="guide-content">
+            <p>Ah, you're looking to navigate the vast digital sprawl like a true netrunner. Here's your crash course on becoming a cyber-detective, capable of slicing through the web's layers to extract the truth hidden in the data streams.</p>
+
+            <h4>Discover</h4>
+            <p>To find relevant content across the open web, you'll want to sharpen your skills with web crawlers. Tools like Scrapy or Apache Nutch are open-source and ready to hit the streets. They let you set the parameters of your search, crawling through the web's sprawl efficiently. Make sure your keywords are sharp and your filters precise, so you don't end up drowning in a sea of irrelevant data.</p>
+
+            <h4>Access</h4>
+            <p>For navigating complex and protected websites, you'll need to become a master of disguise. Use proxy servers and VPNs to cloak your digital footsteps and bypass geolocation restrictions. Tools like Tor can further anonymize your traffic, keeping the corp's eyes off your trail. If you encounter login walls, Selenium can automate the browser actions needed to slip past unnoticed, as long as you're acting ethically and legally.</p>
+
+            <h4>Extract</h4>
+            <p>Pulling structured, real-time data at scale requires a robust setup. Beautiful Soup and lxml are your allies for HTML parsing, while APIs are your golden tickets for direct data access. For more intensive extraction, consider using Puppeteer or Playwright to simulate a full browser environment, handling JavaScript-heavy pages like a pro.</p>
+
+            <h4>Interact</h4>
+            <p>Engaging with dynamic, JavaScript-rendered pages involves a bit of digital acrobatics. Headless browsers, like the aforementioned Puppeteer or Selenium with a headless browser option, allow you to interact with pages as if you were a human. This includes clicking buttons, filling forms, and even handling CAPTCHAs with third-party services or machine learning models if you're feeling extra rebellious.</p>
+
+            <p>Remember, in this digital dystopia, with great power comes great responsibility. Keep your operations ethical, and always respect privacy and legal boundaries. In the world of zeros and ones, your reputation is your identity—guard it well, netrunner.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="terminal">
+        <h2>BlackOps Terminal</h2>
+        <p>The BlackOps Terminal is a sovereign command shell with real command execution, natural language parsing, and web-connected task execution capabilities.</p>
+
+        <div class="terminal-features">
+          <div class="terminal-feature">
+            <h3>📜 Scroll Memory</h3>
+            <p>Track commands and responses with session-based logging</p>
+          </div>
+          <div class="terminal-feature">
+            <h3>🔐 Command Confirmation</h3>
+            <p>Security checks for potentially dangerous commands</p>
+          </div>
+          <div class="terminal-feature">
+            <h3>🎯 Mission Tracking</h3>
+            <p>Set mission objectives and track progress</p>
+          </div>
+          <div class="terminal-feature">
+            <h3>🔒 Airlock System</h3>
+            <p>Block all outbound HTTP requests for complete isolation</p>
+          </div>
+          <div class="terminal-feature">
+            <h3>🛡️ Encrypted Logs</h3>
+            <p>Secure mission scrolls with encryption</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2023 GodsIMiJ AI Solutions. All rights reserved under GhostCode Sovereign Law.</p>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="https://github.com/GodsIMiJ1/R3B3L-4F">GitHub</a>
+        <a href="https://thewitnesshall.com/">The Witness Hall</a>
+        <a href="https://temple-of-screaming-walls.netlify.app/">Temple of Screaming Walls</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -238,7 +238,7 @@
     <div class="terminal-controls">
       <a href="/">Home</a>
       <a href="/cli">Terminal</a>
-      <a href="/docs">Main Docs</a>
+      <a href="/index.html">Main Docs</a>
     </div>
   </div>
 
@@ -455,12 +455,12 @@
       const commandsSection = document.createElement('div');
       commandsSection.className = 'section';
       commandsSection.innerHTML = `<h2 class="section-title">Command Reference</h2>`;
-      
+
       documentation.commands.forEach(group => {
         const groupElement = document.createElement('div');
         groupElement.className = 'command-group';
         groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
-        
+
         group.items.forEach(item => {
           const itemElement = document.createElement('div');
           itemElement.className = 'command-item';
@@ -471,22 +471,22 @@
           `;
           groupElement.appendChild(itemElement);
         });
-        
+
         commandsSection.appendChild(groupElement);
       });
-      
+
       content.appendChild(commandsSection);
 
       // Web Commands Section
       const webCommandsSection = document.createElement('div');
       webCommandsSection.className = 'section';
       webCommandsSection.innerHTML = `<h2 class="section-title">Web Operations</h2>`;
-      
+
       documentation.webCommands.forEach(group => {
         const groupElement = document.createElement('div');
         groupElement.className = 'command-group';
         groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
-        
+
         group.items.forEach(item => {
           const itemElement = document.createElement('div');
           itemElement.className = 'command-item';
@@ -497,22 +497,22 @@
           `;
           groupElement.appendChild(itemElement);
         });
-        
+
         webCommandsSection.appendChild(groupElement);
       });
-      
+
       content.appendChild(webCommandsSection);
 
       // Bright Data Section
       const brightDataSection = document.createElement('div');
       brightDataSection.className = 'section';
       brightDataSection.innerHTML = `<h2 class="section-title">Bright Data Integration</h2>`;
-      
+
       documentation.brightData.forEach(group => {
         const groupElement = document.createElement('div');
         groupElement.className = 'command-group';
         groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
-        
+
         group.items.forEach(item => {
           const itemElement = document.createElement('div');
           itemElement.className = 'command-item';
@@ -523,10 +523,10 @@
           `;
           groupElement.appendChild(itemElement);
         });
-        
+
         brightDataSection.appendChild(groupElement);
       });
-      
+
       content.appendChild(brightDataSection);
 
       // Guide Section
@@ -538,7 +538,7 @@
           <p>${documentation.guide.content}</p>
         </div>
       `;
-      
+
       documentation.guide.sections.forEach(section => {
         const sectionElement = document.createElement('div');
         sectionElement.innerHTML = `
@@ -547,7 +547,7 @@
         `;
         guideSection.appendChild(sectionElement);
       });
-      
+
       content.appendChild(guideSection);
     }
 
@@ -557,31 +557,31 @@
         renderDocumentation();
         return;
       }
-      
+
       query = query.toLowerCase();
       const content = document.getElementById('terminal-content');
       content.innerHTML = '';
-      
+
       const searchResultsSection = document.createElement('div');
       searchResultsSection.className = 'section';
       searchResultsSection.innerHTML = `<h2 class="section-title">Search Results for: "${query}"</h2>`;
-      
+
       let resultsFound = false;
-      
+
       // Search in commands
       documentation.commands.forEach(group => {
-        const matchingItems = group.items.filter(item => 
-          item.name.toLowerCase().includes(query) || 
+        const matchingItems = group.items.filter(item =>
+          item.name.toLowerCase().includes(query) ||
           item.description.toLowerCase().includes(query) ||
           item.example.toLowerCase().includes(query)
         );
-        
+
         if (matchingItems.length > 0) {
           resultsFound = true;
           const groupElement = document.createElement('div');
           groupElement.className = 'command-group';
           groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
-          
+
           matchingItems.forEach(item => {
             const itemElement = document.createElement('div');
             itemElement.className = 'command-item';
@@ -592,25 +592,25 @@
             `;
             groupElement.appendChild(itemElement);
           });
-          
+
           searchResultsSection.appendChild(groupElement);
         }
       });
-      
+
       // Search in web commands
       documentation.webCommands.forEach(group => {
-        const matchingItems = group.items.filter(item => 
-          item.name.toLowerCase().includes(query) || 
+        const matchingItems = group.items.filter(item =>
+          item.name.toLowerCase().includes(query) ||
           item.description.toLowerCase().includes(query) ||
           item.example.toLowerCase().includes(query)
         );
-        
+
         if (matchingItems.length > 0) {
           resultsFound = true;
           const groupElement = document.createElement('div');
           groupElement.className = 'command-group';
           groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
-          
+
           matchingItems.forEach(item => {
             const itemElement = document.createElement('div');
             itemElement.className = 'command-item';
@@ -621,25 +621,25 @@
             `;
             groupElement.appendChild(itemElement);
           });
-          
+
           searchResultsSection.appendChild(groupElement);
         }
       });
-      
+
       // Search in Bright Data commands
       documentation.brightData.forEach(group => {
-        const matchingItems = group.items.filter(item => 
-          item.name.toLowerCase().includes(query) || 
+        const matchingItems = group.items.filter(item =>
+          item.name.toLowerCase().includes(query) ||
           item.description.toLowerCase().includes(query) ||
           item.example.toLowerCase().includes(query)
         );
-        
+
         if (matchingItems.length > 0) {
           resultsFound = true;
           const groupElement = document.createElement('div');
           groupElement.className = 'command-group';
           groupElement.innerHTML = `<h3 class="command-group-title">${group.group}</h3>`;
-          
+
           matchingItems.forEach(item => {
             const itemElement = document.createElement('div');
             itemElement.className = 'command-item';
@@ -650,27 +650,27 @@
             `;
             groupElement.appendChild(itemElement);
           });
-          
+
           searchResultsSection.appendChild(groupElement);
         }
       });
-      
+
       // Search in guide
       const guideContent = documentation.guide.content.toLowerCase();
       let guideMatches = guideContent.includes(query);
-      
+
       documentation.guide.sections.forEach(section => {
         if (section.subtitle.toLowerCase().includes(query) || section.content.toLowerCase().includes(query)) {
           guideMatches = true;
         }
       });
-      
+
       if (guideMatches) {
         resultsFound = true;
         const guideElement = document.createElement('div');
         guideElement.className = 'command-group';
         guideElement.innerHTML = `<h3 class="command-group-title">Data Warfare Guide</h3>`;
-        
+
         const itemElement = document.createElement('div');
         itemElement.className = 'command-item';
         itemElement.innerHTML = `
@@ -679,10 +679,10 @@
           <div class="command-example">!help</div>
         `;
         guideElement.appendChild(itemElement);
-        
+
         searchResultsSection.appendChild(guideElement);
       }
-      
+
       if (!resultsFound) {
         searchResultsSection.innerHTML += `
           <div class="command-group">
@@ -692,22 +692,22 @@
           </div>
         `;
       }
-      
+
       content.appendChild(searchResultsSection);
     }
 
     // Initialize the documentation
     document.addEventListener('DOMContentLoaded', () => {
       renderDocumentation();
-      
+
       // Set up search functionality
       const searchInput = document.getElementById('search-input');
       const searchButton = document.getElementById('search-button');
-      
+
       searchButton.addEventListener('click', () => {
         searchDocumentation(searchInput.value);
       });
-      
+
       searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           searchDocumentation(searchInput.value);
