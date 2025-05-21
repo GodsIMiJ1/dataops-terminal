@@ -1,0 +1,37 @@
+# Netlify configuration for R3B3L 4F v2
+# This file configures the Netlify deployment settings
+
+[build]
+  # Build command
+  command = "npm run build"
+  
+  # Directory to publish (output of the build)
+  publish = "dist"
+  
+  # Base directory
+  base = "/"
+
+# Environment variables that should be set in the Netlify dashboard:
+# - VITE_OPENAI_API_KEY: Your OpenAI API key
+# - VITE_SUPABASE_URL: Your Supabase project URL
+# - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key
+
+# Node.js version
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirects
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers to improve security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.openai.com https://*.supabase.co; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:;"
