@@ -1,6 +1,6 @@
 /**
  * AirlockService.ts
- * 
+ *
  * This service manages internet access for R3B3L 4F.
  * It provides functions to enable/disable internet access and check the current status.
  * When the airlock is active, all outbound HTTP requests are blocked.
@@ -25,9 +25,9 @@ export interface AirlockConfig {
 
 // Default configuration
 const DEFAULT_CONFIG: AirlockConfig = {
-  defaultStatus: 'active', // Airlock is active by default (internet blocked)
-  logRequests: true,       // Log all requests
-  allowLocalRequests: true // Allow requests to localhost
+  defaultStatus: 'inactive', // Airlock is inactive by default (internet allowed) for hackathon
+  logRequests: true,         // Log all requests
+  allowLocalRequests: true   // Allow requests to localhost
 };
 
 // Store for the original fetch function
@@ -46,23 +46,23 @@ let config: AirlockConfig = DEFAULT_CONFIG;
 export const initAirlock = (initialConfig: Partial<AirlockConfig> = {}): void => {
   // Merge default config with provided config
   config = { ...DEFAULT_CONFIG, ...initialConfig };
-  
+
   // Set initial status
   airlockStatus = config.defaultStatus;
-  
+
   // Store original fetch function if not already stored
   if (!originalFetch && typeof window !== 'undefined') {
     originalFetch = window.fetch;
   }
-  
+
   // Apply airlock if it should be active by default
   if (airlockStatus === 'active') {
     activateAirlock();
   }
-  
+
   // Log initialization
   console.log(`Airlock initialized with status: ${airlockStatus}`);
-  
+
   // Dispatch event
   dispatchAirlockEvent(airlockStatus);
 };
@@ -72,35 +72,35 @@ export const initAirlock = (initialConfig: Partial<AirlockConfig> = {}): void =>
  */
 export const activateAirlock = (): void => {
   if (typeof window === 'undefined') return;
-  
+
   // Only proceed if we have the original fetch
   if (!originalFetch) {
     originalFetch = window.fetch;
   }
-  
+
   // Replace fetch with our controlled version
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     // Get the URL from the input
     const url = typeof input === 'string' ? input : input.url;
-    
+
     // Check if this is a local request
-    const isLocalRequest = url.startsWith('http://localhost') || 
+    const isLocalRequest = url.startsWith('http://localhost') ||
                           url.startsWith('http://127.0.0.1') ||
                           url.startsWith('/');
-    
+
     // Log the request if configured to do so
     if (config.logRequests) {
       console.log(`Airlock: Request to ${url} ${isLocalRequest ? '(local)' : '(external)'}`);
     }
-    
+
     // Allow local requests if configured to do so
     if (isLocalRequest && config.allowLocalRequests) {
       return originalFetch(input, init);
     }
-    
+
     // Block external requests
     console.warn(`Airlock: Blocked request to ${url}`);
-    
+
     // Return a mock response
     return new Response(JSON.stringify({
       error: 'Airlock active: Internet access is disabled',
@@ -113,13 +113,13 @@ export const activateAirlock = (): void => {
       }
     });
   };
-  
+
   // Update status
   airlockStatus = 'active';
-  
+
   // Dispatch event
   dispatchAirlockEvent(airlockStatus);
-  
+
   console.log('Airlock activated: Internet access is now blocked');
 };
 
@@ -128,18 +128,18 @@ export const activateAirlock = (): void => {
  */
 export const deactivateAirlock = (): void => {
   if (typeof window === 'undefined') return;
-  
+
   // Restore original fetch if we have it
   if (originalFetch) {
     window.fetch = originalFetch;
   }
-  
+
   // Update status
   airlockStatus = 'inactive';
-  
+
   // Dispatch event
   dispatchAirlockEvent(airlockStatus);
-  
+
   console.log('Airlock deactivated: Internet access is now allowed');
 };
 
@@ -153,7 +153,7 @@ export const toggleAirlock = (): AirlockStatus => {
   } else {
     activateAirlock();
   }
-  
+
   return airlockStatus;
 };
 
@@ -188,17 +188,17 @@ export const updateAirlockConfig = (newConfig: Partial<AirlockConfig>): void => 
  */
 const dispatchAirlockEvent = (status: AirlockStatus): void => {
   if (typeof window === 'undefined') return;
-  
+
   // Dispatch status changed event
   window.dispatchEvent(new CustomEvent(AIRLOCK_EVENTS.AIRLOCK_STATUS_CHANGED, {
     detail: { status }
   }));
-  
+
   // Dispatch specific event based on status
-  const eventName = status === 'active' 
-    ? AIRLOCK_EVENTS.AIRLOCK_ACTIVATED 
+  const eventName = status === 'active'
+    ? AIRLOCK_EVENTS.AIRLOCK_ACTIVATED
     : AIRLOCK_EVENTS.AIRLOCK_DEACTIVATED;
-  
+
   window.dispatchEvent(new CustomEvent(eventName, {
     detail: { status }
   }));

@@ -1,17 +1,17 @@
 /**
  * OpenAIService.ts
  *
- * This service provides integration with the OpenAI API for R3B3L 4F.
+ * This service provides direct integration with the OpenAI API for R3B3L 4F.
  * It handles communication with the GPT-4o model for chat functionality.
  */
 
 import { MessageType } from '@/hooks/useChatAI';
 import { isAirlockActive } from './AirlockService';
 
-// OpenAI API configuration via proxy server
-const API_URL = import.meta.env.VITE_OPENAI_PROXY_URL || 'http://localhost:5000/api/openai/chat';
+// OpenAI API configuration - direct integration
+const API_URL = 'https://api.openai.com/v1/chat/completions';
 const MODEL = 'gpt-4o'; // Using GPT-4o as default
-const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'r3b3l-4f-secure-token';
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
 // Types for OpenAI API
 interface OpenAIMessage {
@@ -51,11 +51,11 @@ interface OpenAIResponse {
 }
 
 /**
- * Check if the OpenAI API proxy is configured
- * @returns True if the API proxy is configured, false otherwise
+ * Check if the OpenAI API key is configured
+ * @returns True if the API key is configured, false otherwise
  */
 export const isOpenAIConfigured = (): boolean => {
-  return API_URL !== '';
+  return API_KEY !== '';
 };
 
 /**
@@ -87,7 +87,7 @@ export const getOpenAIResponse = async (messages: MessageType[]): Promise<string
   }
 
   try {
-    console.log("Sending request to OpenAI API via proxy with model:", MODEL);
+    console.log("Sending request directly to OpenAI API with model:", MODEL);
 
     // Convert messages to OpenAI format
     const openAIMessages = convertToOpenAIMessages(messages);
@@ -104,12 +104,12 @@ export const getOpenAIResponse = async (messages: MessageType[]): Promise<string
       stream: false
     };
 
-    // Make API request to OpenAI via our proxy server
+    // Make direct API request to OpenAI
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Token': API_TOKEN
+        'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify(requestBody)
     });
@@ -129,7 +129,7 @@ export const getOpenAIResponse = async (messages: MessageType[]): Promise<string
 
     try {
       const data: OpenAIResponse = await response.json();
-      console.log("API Response data:", data);
+      console.log("API Response received successfully");
 
       // OpenAI returns the response in data.choices[0].message.content
       return data.choices[0].message.content;
