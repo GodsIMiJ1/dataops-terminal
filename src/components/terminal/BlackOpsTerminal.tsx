@@ -251,7 +251,19 @@ Executing: ${parsedResult.parsedCommand}
 
     switch (cmd) {
       case 'help':
-        return `
+        try {
+          // Fetch the help content from the commands directory
+          const response = await fetch('/commands/!help.md');
+          if (!response.ok) {
+            throw new Error(`Failed to load help file: ${response.status}`);
+          }
+
+          const helpContent = await response.text();
+          return helpContent;
+        } catch (error) {
+          console.error('Error loading help file:', error);
+          // Fallback to basic help if file can't be loaded
+          return `
 R3B3L 4F BlackOps Terminal Help:
 
 System Commands:
@@ -298,6 +310,7 @@ Bright Data MCP Commands:
   - !r3b3l collect --target "target-name" [--params "param1=value1,param2=value2"] [--output filename.json] - Run a Data Collector
   - !r3b3l ops - Open Bright Data Operations Panel
 `;
+        }
 
       case 'internet on':
         setInternetEnabled(true);

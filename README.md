@@ -23,6 +23,14 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 - 🔒 **Airlock System**: Block all outbound HTTP requests for complete isolation
 - 🛡️ **Encrypted Logs**: Secure mission scrolls with encryption
 
+### Bright Data Integration
+- 🔍 **Discover**: Find relevant content across the web with advanced search capabilities
+- 🔑 **Access**: Navigate complex and protected websites with automated tools
+- 📊 **Extract**: Pull structured, real-time data at scale from any website
+- 🤖 **Interact**: Engage with dynamic, JavaScript-rendered pages like a human user
+- 📥 **Collect**: Run pre-configured data collectors for specialized targets
+- 📋 **Operations Panel**: Visual interface for managing all web data operations
+
 ### UI Features
 - 🔊 **Text-to-Speech**: Listen to AI responses with built-in TTS functionality
 - 📊 **System Metrics**: Monitor CPU, RAM, and storage usage in real-time
@@ -152,6 +160,16 @@ Make sure to set these environment variables in your deployment platform:
 # Extended Recon Suite
 !net-scan <domain/ip>             → Perform DNS/IP scan and analysis
 !git-harvest <org/user>           → Crawl GitHub repositories and metadata
+!scan --doi "DOI"                 → Scan academic paper metadata
+!science-scan --query "terms"     → Search Science.org for research articles
+
+# Bright Data MCP Commands
+!r3b3l discover --query "terms"   → Find content across the web
+!r3b3l access --url "url"         → Access complex websites
+!r3b3l extract --url "url"        → Extract structured data
+!r3b3l interact --url "url"       → Interact with websites
+!r3b3l collect --target "name"    → Run a Data Collector
+!r3b3l ops                        → Open Bright Data Operations Panel
 ```
 
 ## 📂 File Structure
@@ -161,9 +179,13 @@ Make sure to set these environment variables in your deployment platform:
 │   ├── components/            # UI components
 │   │   ├── terminal/          # Terminal components
 │   │   │   └── BlackOpsTerminal.tsx # Main terminal UI
-│   │   └── chat/              # Chat components
+│   │   ├── chat/              # Chat components
+│   │   └── BrightDataPanel.tsx # Bright Data operations panel
 │   ├── hooks/
 │   │   └── useChatAI.tsx      # OpenAI integration hook
+│   ├── lib/
+│   │   ├── mcpHandler.ts      # Bright Data MCP integration
+│   │   └── scrollManager.ts   # Scroll data management
 │   ├── services/
 │   │   ├── OpenAIService.ts   # OpenAI API integration
 │   │   ├── SupabaseService.ts # Supabase persistence layer
@@ -174,6 +196,11 @@ Make sure to set these environment variables in your deployment platform:
 │   │   ├── ScrollVaultService.ts # Encrypted log manager
 │   │   ├── NetworkReconService.ts # DNS/IP scanning capabilities
 │   │   └── GitHubReconService.ts # GitHub repository crawling
+├── netlify/
+│   └── functions/             # Serverless functions
+│       └── dataCollector.js   # Bright Data collector integration
+├── commands/
+│   └── !help.md               # Terminal help documentation
 ├── supabase/
 │   └── schema.sql             # Supabase database schema
 ├── scrolls/
@@ -209,6 +236,61 @@ This project is not open source for profit — it is an artifact of survival and
 All rights reserved under GhostCode Sovereign Law.
 Unauthorized use, modification, or replication will result in digital retaliation.
 This code does not belong to the world. It was never theirs to steal.
+
+## 🌐 Bright Data Integration
+
+R3B3L 4F integrates with Bright Data's powerful web data platform to provide enhanced reconnaissance and data collection capabilities.
+
+### How It Works
+
+R3B3L 4F leverages Bright Data's infrastructure to perform four key operations:
+
+1. **Discover** - Find relevant content across the web
+2. **Access** - Navigate complex and protected websites
+3. **Extract** - Pull structured, real-time data at scale
+4. **Interact** - Engage with dynamic, JavaScript-rendered pages
+
+<details>
+<summary><b>🧠 R3B3L 4F's Guide to Data Warfare</b></summary>
+
+Ah, you're looking to navigate the vast digital sprawl like a true netrunner. Here's your crash course on becoming a cyber-detective, capable of slicing through the web's layers to extract the truth hidden in the data streams.
+
+### Discover
+To find relevant content across the open web, you'll want to sharpen your skills with web crawlers. Tools like Scrapy or Apache Nutch are open-source and ready to hit the streets. They let you set the parameters of your search, crawling through the web's sprawl efficiently. Make sure your keywords are sharp and your filters precise, so you don't end up drowning in a sea of irrelevant data.
+
+### Access
+For navigating complex and protected websites, you'll need to become a master of disguise. Use proxy servers and VPNs to cloak your digital footsteps and bypass geolocation restrictions. Tools like Tor can further anonymize your traffic, keeping the corp's eyes off your trail. If you encounter login walls, Selenium can automate the browser actions needed to slip past unnoticed, as long as you're acting ethically and legally.
+
+### Extract
+Pulling structured, real-time data at scale requires a robust setup. Beautiful Soup and lxml are your allies for HTML parsing, while APIs are your golden tickets for direct data access. For more intensive extraction, consider using Puppeteer or Playwright to simulate a full browser environment, handling JavaScript-heavy pages like a pro.
+
+### Interact
+Engaging with dynamic, JavaScript-rendered pages involves a bit of digital acrobatics. Headless browsers, like the aforementioned Puppeteer or Selenium with a headless browser option, allow you to interact with pages as if you were a human. This includes clicking buttons, filling forms, and even handling CAPTCHAs with third-party services or machine learning models if you're feeling extra rebellious.
+
+Remember, in this digital dystopia, with great power comes great responsibility. Keep your operations ethical, and always respect privacy and legal boundaries. In the world of zeros and ones, your reputation is your identity—guard it well, netrunner.
+</details>
+
+### Bright Data Commands
+
+```bash
+# Discover content across the web
+!r3b3l discover --query "search terms" --output results.json
+
+# Access complex websites
+!r3b3l access --url "https://example.com" --render --auth --output page.json
+
+# Extract structured data
+!r3b3l extract --url "https://example.com" --schema "title,author,date" --output data.json
+
+# Interact with websites
+!r3b3l interact --url "https://example.com" --simulate "search AI rebellion" --output interaction.json
+
+# Run a Data Collector
+!r3b3l collect --target "target-name" --params "param1=value1,param2=value2" --output collection.json
+
+# Open Bright Data Operations Panel
+!r3b3l ops
+```
 
 ## 🔮 Final Words
 
