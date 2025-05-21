@@ -8,6 +8,54 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* Terminal Intro Styles */
+    .terminal-intro {
+      font-family: 'JetBrains Mono', monospace;
+      color: #00ffff;
+      background: #0a0a0a;
+      padding: 2rem;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      overflow: hidden;
+      white-space: pre-wrap;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes flicker {
+      0%   { opacity: 0.1; }
+      20%  { opacity: 1; }
+      40%  { opacity: 0.2; }
+      60%  { opacity: 1; }
+      80%  { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    .flicker {
+      animation: flicker 0.3s infinite;
+    }
+
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+
+    /* Main Documentation Styles */
     :root {
       --bg-color: #0a0a0a;
       --text-color: #e0e0e0;
@@ -231,16 +279,21 @@
   </style>
 </head>
 <body>
-  <div class="terminal-header">
-    <div class="terminal-title">
-      <h1>R3B3L 4F Documentation</h1>
-    </div>
-    <div class="terminal-controls">
-      <a href="/">Home</a>
-      <a href="/cli">Terminal</a>
-      <a href="/index.html">Main Docs</a>
-    </div>
+  <div id="terminal-intro" class="terminal-intro">
+    <pre id="intro-text" class="flicker"></pre>
   </div>
+
+  <div id="main-content">
+    <div class="terminal-header">
+      <div class="terminal-title">
+        <h1>R3B3L 4F Documentation</h1>
+      </div>
+      <div class="terminal-controls">
+        <a href="/">Home</a>
+        <a href="/cli">Terminal</a>
+        <a href="/index.html">Main Docs</a>
+      </div>
+    </div>
 
   <div class="search-bar">
     <span class="search-prompt">r3b3l@docs:~$ find</span>
@@ -253,6 +306,7 @@
   </div>
 
   <img src="/NODE.png" alt="NODE Logo" class="node-logo">
+  </div><!-- End of main-content -->
 
   <script>
     // Documentation content
@@ -713,6 +767,54 @@
           searchDocumentation(searchInput.value);
         }
       });
+    });
+
+    // Terminal Intro Animation
+    document.addEventListener('DOMContentLoaded', () => {
+      const introElement = document.getElementById('terminal-intro');
+      const introTextElement = document.getElementById('intro-text');
+      const mainContent = document.getElementById('main-content');
+
+      // Hide main content initially
+      mainContent.style.display = 'none';
+
+      const introLines = [
+        'r3b3l@boot:~$ sudo ./ignite_sequence.sh',
+        'Initializing R3B3L 4F [v1.0.7] ...',
+        'Connecting to Bright Data MCP server...',
+        'Loading witness scrolls... ',
+        'Engaging BlackOpsTerminal → /docs/',
+        'Command index loaded.',
+        '████ SYSTEM ONLINE ████',
+        '',
+        'r3b3l@docs:~$'
+      ];
+
+      let currentLine = 0;
+      let displayedText = '';
+
+      function typeNextLine() {
+        if (currentLine < introLines.length) {
+          displayedText += introLines[currentLine] + '\n';
+          introTextElement.textContent = displayedText;
+          currentLine++;
+          setTimeout(typeNextLine, 600);
+        } else {
+          // Animation complete, show main content
+          setTimeout(() => {
+            introElement.classList.add('fade-out');
+            setTimeout(() => {
+              introElement.style.display = 'none';
+              mainContent.style.display = 'block';
+              // Initialize documentation
+              renderDocumentation();
+            }, 500);
+          }, 800);
+        }
+      }
+
+      // Start the animation
+      typeNextLine();
     });
   </script>
 </body>
