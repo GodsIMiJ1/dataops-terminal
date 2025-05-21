@@ -8,38 +8,46 @@ import MessagesList from './chat/MessagesList';
 import SecurityAlert from './chat/SecurityAlert';
 import ChatInputArea from './chat/ChatInputArea';
 import { Shield, ShieldAlert } from 'lucide-react';
+import { isOpenAIConfigured } from '@/services/OpenAIService';
+import { isSupabaseConfigured } from '@/services/SupabaseService';
 
 const ChatInterface: React.FC = () => {
   const { messages, isLoading, sendMessage, clearMessages, error } = useChatAI();
   const { speak, isSpeaking } = usePlayAI();
   const { modelStatus } = useSystemMetrics();
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+  const [persistenceEnabled, setPersistenceEnabled] = useState<boolean>(false);
 
-  // Using Ollama API
+  // Check OpenAI API configuration
   useEffect(() => {
-    // Check if Ollama is running locally
-    const checkOllamaConnection = async () => {
-      try {
-        const response = await fetch('http://localhost:11434/api/version');
-        if (response.ok) {
-          setApiConnected(true);
-          console.log('Ollama is running locally');
-        } else {
-          setApiConnected(false);
-          console.error('Ollama API returned an error');
-        }
-      } catch (error) {
-        setApiConnected(false);
-        console.error('Failed to connect to Ollama:', error);
+    const checkOpenAIConnection = () => {
+      const isConfigured = isOpenAIConfigured();
+      setApiConnected(isConfigured);
+
+      if (isConfigured) {
+        console.log('OpenAI API is configured');
+      } else {
+        console.error('OpenAI API key is not configured');
       }
     };
 
-    checkOllamaConnection();
+    checkOpenAIConnection();
+  }, []);
 
-    // Check connection periodically
-    const interval = setInterval(checkOllamaConnection, 30000); // Check every 30 seconds
+  // Check Supabase configuration
+  useEffect(() => {
+    const checkSupabaseConnection = () => {
+      const isConfigured = isSupabaseConfigured();
+      setPersistenceEnabled(isConfigured);
 
-    return () => clearInterval(interval);
+      if (isConfigured) {
+        console.log('Supabase is configured for persistence');
+      } else {
+        console.error('Supabase is not configured for persistence');
+      }
+    };
+
+    checkSupabaseConnection();
   }, []);
 
   // Auto-speak the latest assistant message
@@ -62,17 +70,22 @@ const ChatInterface: React.FC = () => {
         {apiConnected === null ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-            Checking Ollama API connection...
+            Checking OpenAI API configuration...
           </div>
         ) : apiConnected ? (
           <div className="text-xs font-mono text-cyber-cyan flex items-center gap-2">
             <Shield className="w-3 h-3 text-green-500" />
-            Connected to Ollama API (r3b3l-4f-r1)
+            Connected to OpenAI API (GPT-4o)
+            {persistenceEnabled && (
+              <span className="ml-2 text-xs font-mono text-cyber-green">
+                • Device Persistence Enabled
+              </span>
+            )}
           </div>
         ) : (
           <div className="text-xs font-mono text-cyber-red flex items-center gap-2">
             <ShieldAlert className="w-3 h-3 animate-pulse" />
-            Ollama not running - using fallback responses
+            OpenAI API not configured - using fallback responses
           </div>
         )}
       </div>

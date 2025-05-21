@@ -7,10 +7,11 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 ## Features
 
 ### Core Features
-- 🤖 **AI-Powered Responses**: Connects to Ollama for intelligent cybersecurity guidance using the r3b3l-4f-godmode model
+- 🤖 **AI-Powered Responses**: Connects to OpenAI GPT-4o for intelligent cybersecurity guidance
 - 🔒 **Security Analysis**: Get expert advice on vulnerabilities, threats, and protection strategies
 - 🎭 **Ethical Hacking Guidance**: Learn about penetration testing and security assessment techniques
 - 🔍 **Digital Protection**: Discover best practices for securing your digital assets
+- 💾 **Device Persistence**: Anonymous chat history storage using device ID with Supabase
 
 ### BlackOps Terminal (v3.0)
 - 💻 **Real Command Execution**: Execute shell commands directly from the terminal
@@ -30,11 +31,9 @@ R3B3L 4F is an advanced cybersecurity AI assistant with a cyberpunk-inspired int
 
 ## 🚀 Quick Start
 
-> Ensure you have Ollama installed and running locally.
+> You'll need an OpenAI API key for GPT-4o access and optionally a Supabase account for persistence.
 
-### Sovereign Local Deployment
-
-R3B3L 4F operates in a fully sovereign local state, disconnected from all external hosting environments. The provided launch script handles all aspects of deployment.
+### Configuration
 
 1. Clone the repository:
    ```bash
@@ -42,23 +41,37 @@ R3B3L 4F operates in a fully sovereign local state, disconnected from all extern
    cd R3B3L-4F
    ```
 
-2. Make the launch script executable:
+2. Create a `.env` file from the example:
    ```bash
-   chmod +x launch-r3b3l-local.sh
+   cp .env.example .env
    ```
 
-3. Launch R3B3L 4F:
-   ```bash
-   ./launch-r3b3l-local.sh
+3. Add your OpenAI API key to the `.env` file:
+   ```
+   VITE_OPENAI_API_KEY=your-openai-api-key-here
    ```
 
-   This script will:
-   - Check if Ollama is installed and running
-   - Pull the r3b3l-4f-godmode model if needed
-   - Install dependencies for both frontend and backend
-   - Start the backend server
-   - Start the frontend development server
-   - Open the browser at http://localhost:5173
+4. (Optional) For chat persistence, set up Supabase:
+   - Create a free Supabase account at https://supabase.com
+   - Create a new project
+   - Run the SQL from `supabase/schema.sql` in the SQL Editor
+   - Add your Supabase URL and anon key to the `.env` file:
+   ```
+   VITE_SUPABASE_URL=your-supabase-url-here
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
+   ```
+
+5. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+6. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+7. Open your browser at http://localhost:5173
 
 ### Launch Options
 
@@ -78,32 +91,37 @@ The launch script supports several options:
 ./launch-r3b3l-local.sh --cloak --scroll scrolls/Scroll_015_SealTheTemple.json --stealth
 ```
 
-### Manual Setup (Alternative)
+### Deployment Options
 
-If you prefer to start the components manually:
+#### Local Development
 
-1. Install the r3b3l-4f-godmode Model:
-   ```bash
-   ollama pull r3b3l-4f-godmode
-   ```
+For local development, simply run:
+```bash
+npm run dev
+```
 
-2. Start the Backend:
-   ```bash
-   cd src/server
-   npm install
-   node server.js
-   ```
+#### Production Build
 
-3. Start the Frontend:
-   ```bash
-   npm install
-   npm run dev
-   ```
+To create a production build:
+```bash
+npm run build
+```
 
-4. Access the Terminal:
-   ```
-   http://localhost:5173/blackops
-   ```
+This will create a `dist` directory with optimized files ready for deployment.
+
+#### Netlify Deployment
+
+1. Connect your GitHub repository to Netlify
+2. Set the build command to `npm run build`
+3. Set the publish directory to `dist`
+4. Add your environment variables (OpenAI API key and Supabase credentials) in the Netlify dashboard
+
+#### Environment Variables
+
+Make sure to set these environment variables in your deployment platform:
+- `VITE_OPENAI_API_KEY`: Your OpenAI API key
+- `VITE_SUPABASE_URL`: Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous key
 
 ### ⚙️ Commands
 
@@ -139,18 +157,25 @@ If you prefer to start the components manually:
 ## 📂 File Structure
 
 /r3b3l-af-terminal/
-├── core/
-│   ├── r3b3l.tsx              # BlackOps Terminal UI
-│   ├── CommandBridge.js       # Secure Bash command execution backend
-│   ├── CommandParserService.ts # NLP + Ollama parser
-│   ├── ScrollLoggerService.ts # Markdown + JSON scroll memory
-│   ├── MissionMemoryService.ts # Track state, mission, and logs
-│   ├── AirlockService.ts      # Internet access control
-│   ├── ScrollVaultService.ts  # Encrypted log manager
-│   ├── NetworkReconService.ts # DNS/IP scanning capabilities
-│   ├── GitHubReconService.ts  # GitHub repository crawling
-├── models/
-│   └── config.json            # Local model configuration
+├── src/
+│   ├── components/            # UI components
+│   │   ├── terminal/          # Terminal components
+│   │   │   └── BlackOpsTerminal.tsx # Main terminal UI
+│   │   └── chat/              # Chat components
+│   ├── hooks/
+│   │   └── useChatAI.tsx      # OpenAI integration hook
+│   ├── services/
+│   │   ├── OpenAIService.ts   # OpenAI API integration
+│   │   ├── SupabaseService.ts # Supabase persistence layer
+│   │   ├── CommandParserService.ts # NLP command parser
+│   │   ├── ScrollLoggerService.ts # Markdown + JSON scroll memory
+│   │   ├── MissionMemoryService.ts # Track state, mission, and logs
+│   │   ├── AirlockService.ts  # Internet access control
+│   │   ├── ScrollVaultService.ts # Encrypted log manager
+│   │   ├── NetworkReconService.ts # DNS/IP scanning capabilities
+│   │   └── GitHubReconService.ts # GitHub repository crawling
+├── supabase/
+│   └── schema.sql             # Supabase database schema
 ├── scrolls/
 │   └── Scroll_015_SealTheTemple.json # BlackOps Phase II mission log
 
