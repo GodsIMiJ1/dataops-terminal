@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Scroll, getAllScrolls } from '@/lib/scrollManager';
-import { Search, Key, Database, Zap, Clock, Download, Trash } from 'lucide-react';
+import { Search, Key, Database, Zap, Clock, Download, Trash, FileDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BrightDataPanelProps {
@@ -35,13 +35,15 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
         return <Database className="w-4 h-4 text-green-500" />;
       case 'interact':
         return <Zap className="w-4 h-4 text-purple-500" />;
+      case 'collect':
+        return <Download className="w-4 h-4 text-red-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const filteredScrolls = filter === 'all' 
-    ? scrolls 
+  const filteredScrolls = filter === 'all'
+    ? scrolls
     : scrolls.filter(scroll => scroll.operation === filter);
 
   const handleExport = () => {
@@ -51,8 +53,8 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = selectedScroll 
-      ? `r3b3l-${selectedScroll.operation}-${selectedScroll.id}.json` 
+    a.download = selectedScroll
+      ? `r3b3l-${selectedScroll.operation}-${selectedScroll.id}.json`
       : 'r3b3l-scrolls.json';
     document.body.appendChild(a);
     a.click();
@@ -63,7 +65,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
   return (
     <div className={cn('cyber-panel rounded flex flex-col h-full', className)}>
       <div className="cyber-scanline"></div>
-      
+
       {/* Panel Header */}
       <div className="p-2 border-b border-cyber-red/30 flex items-center justify-between bg-gradient-to-r from-cyber-black to-gray-900">
         <div className="flex items-center gap-2">
@@ -76,14 +78,14 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
           <span className="text-sm font-mono text-cyber-red">Bright Data OPS — MCP Server</span>
         </div>
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={handleExport}
             className="text-gray-400 hover:text-cyber-cyan transition-colors"
             title="Export Scrolls"
           >
             <Download className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => setScrolls([])}
             className="text-gray-400 hover:text-cyber-red transition-colors"
             title="Clear Scrolls"
@@ -92,10 +94,10 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
           </button>
         </div>
       </div>
-      
+
       {/* Filter Tabs */}
       <div className="flex border-b border-cyber-red/30">
-        <button 
+        <button
           className={cn(
             "flex-1 py-1 text-xs font-mono",
             filter === 'all' ? "bg-cyber-red/20 text-cyber-red" : "text-gray-400 hover:text-cyber-red"
@@ -104,7 +106,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
         >
           ALL
         </button>
-        <button 
+        <button
           className={cn(
             "flex-1 py-1 text-xs font-mono",
             filter === 'discover' ? "bg-blue-500/20 text-blue-500" : "text-gray-400 hover:text-blue-500"
@@ -113,7 +115,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
         >
           DISCOVER
         </button>
-        <button 
+        <button
           className={cn(
             "flex-1 py-1 text-xs font-mono",
             filter === 'access' ? "bg-yellow-500/20 text-yellow-500" : "text-gray-400 hover:text-yellow-500"
@@ -122,7 +124,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
         >
           ACCESS
         </button>
-        <button 
+        <button
           className={cn(
             "flex-1 py-1 text-xs font-mono",
             filter === 'extract' ? "bg-green-500/20 text-green-500" : "text-gray-400 hover:text-green-500"
@@ -131,7 +133,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
         >
           EXTRACT
         </button>
-        <button 
+        <button
           className={cn(
             "flex-1 py-1 text-xs font-mono",
             filter === 'interact' ? "bg-purple-500/20 text-purple-500" : "text-gray-400 hover:text-purple-500"
@@ -140,8 +142,17 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
         >
           INTERACT
         </button>
+        <button
+          className={cn(
+            "flex-1 py-1 text-xs font-mono",
+            filter === 'collect' ? "bg-red-500/20 text-red-500" : "text-gray-400 hover:text-red-500"
+          )}
+          onClick={() => setFilter('collect')}
+        >
+          COLLECT
+        </button>
       </div>
-      
+
       {/* Panel Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Scrolls List */}
@@ -152,7 +163,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
             </div>
           ) : (
             filteredScrolls.map(scroll => (
-              <div 
+              <div
                 key={scroll.id}
                 className={cn(
                   "p-2 border-b border-cyber-red/10 cursor-pointer hover:bg-cyber-black/50",
@@ -171,7 +182,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
             ))
           )}
         </div>
-        
+
         {/* Scroll Details */}
         <div className="flex-1 overflow-y-auto p-2 bg-cyber-black/30">
           {selectedScroll ? (
@@ -193,7 +204,7 @@ const BrightDataPanel: React.FC<BrightDataPanelProps> = ({ className, onClose })
                   Node: {selectedScroll.nodeId}
                 </div>
               </div>
-              
+
               <div className="border-t border-cyber-red/30 pt-2 mt-2">
                 <h4 className="text-xs font-mono mb-2 text-cyber-red">DATA PAYLOAD:</h4>
                 <pre className="text-xs font-mono bg-cyber-black/50 p-2 rounded overflow-x-auto whitespace-pre-wrap">

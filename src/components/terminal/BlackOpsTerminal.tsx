@@ -295,6 +295,7 @@ Bright Data MCP Commands:
   - !r3b3l access --url "https://example.com" [--render] [--auth] [--output filename.json] - Access complex websites
   - !r3b3l extract --url "https://example.com" --schema "title,author,date" [--output filename.json] - Extract structured data
   - !r3b3l interact --url "https://example.com" --simulate "search AI rebellion" [--output filename.json] - Interact with websites
+  - !r3b3l collect --target "target-name" [--params "param1=value1,param2=value2"] [--output filename.json] - Run a Data Collector
   - !r3b3l ops - Open Bright Data Operations Panel
 `;
 
@@ -670,6 +671,41 @@ R3B3L 4F Status:
 
         logEntry('system', `🤖 Interacting with: ${url}...`);
         return await handleMcpInteractCommand(url, simulate, outputFile);
+      }
+
+      // Data Collector command
+      if (subCommand.startsWith('collect ')) {
+        const args = subCommand.substring(8).trim();
+
+        // Parse target
+        const targetMatch = args.match(/--target\s+"([^"]+)"/);
+        const target = targetMatch ? targetMatch[1] : null;
+
+        // Parse params
+        const paramsMatch = args.match(/--params\s+"([^"]+)"/);
+        const paramsStr = paramsMatch ? paramsMatch[1] : '';
+
+        // Parse Output File
+        const outputMatch = args.match(/--output\s+([\w\-_\.]+\.json)/);
+        const outputFile = outputMatch ? outputMatch[1] : null;
+
+        if (!target) {
+          return "❌ Target not detected. Format: !r3b3l collect --target \"target-name\" [--params \"param1=value1,param2=value2\"]";
+        }
+
+        // Parse params string into object
+        const params = {};
+        if (paramsStr) {
+          paramsStr.split(',').forEach(param => {
+            const [key, value] = param.split('=');
+            if (key && value) {
+              params[key.trim()] = value.trim();
+            }
+          });
+        }
+
+        logEntry('system', `📊 Running Data Collector: ${target}...`);
+        return await handleDataCollectorCommand(target, params, outputFile);
       }
 
       return `Unknown Bright Data MCP command: ${subCommand}\nUse !help to see available commands.`;
@@ -1367,6 +1403,100 @@ ${index + 1}. 📄 ${item.title || 'No Title'}
       const errorMessage = error instanceof Error ? error.message : String(error);
       logEntry('error', errorMessage);
       return `❌ Error during MCP interact operation: ${errorMessage}`;
+    }
+  };
+
+  // Handle Data Collector command
+  const handleDataCollectorCommand = async (target: string, params: any, outputFile: string | null): Promise<string> => {
+    try {
+      logEntry('system', `📊 Running Data Collector: ${target}...`);
+
+      // Call the Data Collector function
+      const response = await fetch("/.netlify/functions/dataCollector", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: 'collect',
+          params: {
+            target,
+            ...params
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Create a scroll record
+      createScroll('collect', result);
+
+      // Format the response
+      let summary = `
+📊 Bright Data Collector Results:
+🎯 Target: ${target}
+📈 Status: ${result.status?.status || 'UNKNOWN'}
+⏱️ Job ID: ${result.job_id}
+      `.trim();
+
+      // Add result data if successful
+      if (result.status?.status === 'completed' && result.results) {
+        summary += '\n\n';
+
+        if (Array.isArray(result.results)) {
+          summary += `Collected ${result.results.length} items:\n\n`;
+
+          result.results.slice(0, 5).forEach((item, index) => {
+            summary += `Item ${index + 1}:\n`;
+
+            Object.entries(item).forEach(([key, value]) => {
+              if (typeof value === 'string' && value.length > 100) {
+                summary += `   ${key}: ${value.substring(0, 100)}...\n`;
+              } else {
+                summary += `   ${key}: ${value}\n`;
+              }
+            });
+
+            summary += '\n';
+          });
+
+          if (result.results.length > 5) {
+            summary += `... and ${result.results.length - 5} more items.\n\n`;
+          }
+        } else {
+          summary += 'No items collected or unexpected data format.\n\n';
+        }
+      } else {
+        summary += `\n\nStatus: ${result.status?.status || 'UNKNOWN'}\n`;
+        if (result.message) {
+          summary += `Message: ${result.message}\n`;
+        }
+      }
+
+      // Log the full data
+      logEntry('response', `Bright Data Collector Results for ${target}:\n${JSON.stringify(result, null, 2)}`);
+
+      // Save output if requested
+      if (outputFile && result) {
+        const blob = new Blob([JSON.stringify(result, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = outputFile;
+        a.click();
+
+        return `${summary}\n\n✅ Saved to ${outputFile}`;
+      }
+
+      return summary;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logEntry('error', errorMessage);
+      return `❌ Error during Data Collector operation: ${errorMessage}`;
     }
   };
 
