@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R3B3L 4F Terminal Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: #e0e0e0;
+      --accent-color: #ff3e3e;
+      --terminal-green: #00ff00;
+      --terminal-blue: #00aaff;
+      --terminal-yellow: #ffaa00;
+      --terminal-red: #ff3e3e;
+      --terminal-purple: #aa00ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-header {
+      background-color: #1a1a1a;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--accent-color);
+    }
+
+    .terminal-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .terminal-title h1 {
+      font-size: 1.2rem;
+      color: var(--accent-color);
+    }
+
+    .terminal-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .terminal-controls a {
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 4px 8px;
+      border: 1px solid var(--terminal-blue);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+
+    .terminal-controls a:hover {
+      background-color: var(--terminal-blue);
+      color: var(--bg-color);
+    }
+
+    .terminal-window {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background-color: var(--bg-color);
+      font-size: 0.9rem;
+    }
+
+    .terminal-prompt {
+      color: var(--terminal-green);
+      margin-bottom: 8px;
+    }
+
+    .terminal-output {
+      margin-bottom: 24px;
+      white-space: pre-wrap;
+    }
+
+    .command-title {
+      color: var(--terminal-yellow);
+      margin-top: 20px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--terminal-yellow);
+      padding-bottom: 5px;
+    }
+
+    .command {
+      color: var(--terminal-green);
+      margin-bottom: 5px;
+    }
+
+    .description {
+      color: var(--text-color);
+      margin-bottom: 15px;
+      padding-left: 20px;
+    }
+
+    .section-title {
+      color: var(--terminal-blue);
+      margin-top: 30px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .guide-title {
+      color: var(--terminal-red);
+      margin-top: 40px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .guide-content {
+      color: var(--text-color);
+      margin-bottom: 30px;
+      padding: 0 10px;
+    }
+
+    .guide-section {
+      color: var(--terminal-purple);
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .node-logo {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 50px;
+      height: 50px;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-header">
+    <div class="terminal-title">
+      <h1>R3B3L 4F Terminal Documentation</h1>
+    </div>
+    <div class="terminal-controls">
+      <a href="/">Home</a>
+      <a href="/cli">Terminal</a>
+    </div>
+  </div>
+
+  <div class="terminal-window">
+    <div class="terminal-prompt">r3b3l@blackops:~$ cat /docs/commands.txt</div>
+    <div class="terminal-output">
+      <div class="section-title">R3B3L 4F COMMAND REFERENCE</div>
+
+      <div class="command-title">CORE COMMANDS</div>
+      
+      <div class="command">!help</div>
+      <div class="description">Show available commands and the R3B3L Guide to Web Warfare</div>
+      
+      <div class="command">!mission &lt;name&gt;</div>
+      <div class="description">Set current mission name</div>
+      
+      <div class="command">!mission &lt;name&gt; -o "&lt;objective&gt;"</div>
+      <div class="description">Set mission with specific objective</div>
+      
+      <div class="command">!status</div>
+      <div class="description">Show current system status</div>
+      
+      <div class="command">!save md</div>
+      <div class="description">Save session log as Markdown file</div>
+      
+      <div class="command">!save json</div>
+      <div class="description">Save session log as JSON file</div>
+      
+      <div class="command">!clear</div>
+      <div class="description">Clear the terminal</div>
+
+      <div class="command-title">MODE CONTROLS</div>
+      
+      <div class="command">!internet on</div>
+      <div class="description">Enable internet access</div>
+      
+      <div class="command">!internet off</div>
+      <div class="description">Disable internet access</div>
+      
+      <div class="command">!nlp on</div>
+      <div class="description">Enable natural language command parsing</div>
+      
+      <div class="command">!nlp off</div>
+      <div class="description">Disable natural language command parsing</div>
+      
+      <div class="command">!autonomy on</div>
+      <div class="description">Enable autonomy mode (auto-confirm commands)</div>
+      
+      <div class="command">!autonomy off</div>
+      <div class="description">Disable autonomy mode</div>
+
+      <div class="command-title">SECURITY COMMANDS</div>
+      
+      <div class="command">!airlock on</div>
+      <div class="description">Block all outbound HTTP requests</div>
+      
+      <div class="command">!airlock off</div>
+      <div class="description">Allow outbound HTTP requests</div>
+      
+      <div class="command">!encrypt on</div>
+      <div class="description">Enable scroll encryption</div>
+      
+      <div class="command">!encrypt off</div>
+      <div class="description">Disable scroll encryption</div>
+      
+      <div class="command">!decrypt-scroll &lt;filename&gt;</div>
+      <div class="description">Decrypt an encrypted scroll</div>
+      
+      <div class="command">!passphrase &lt;key&gt;</div>
+      <div class="description">Set encryption passphrase</div>
+
+      <div class="command-title">WEB COMMANDS</div>
+      
+      <div class="command">!recon &lt;url&gt;</div>
+      <div class="description">Download site HTML and source</div>
+      
+      <div class="command">!fetch-pub &lt;DOI&gt;</div>
+      <div class="description">Pull metadata for academic publication</div>
+      
+      <div class="command">!scrape &lt;keyword&gt; &lt;url&gt;</div>
+      <div class="description">Start crawl of target site for keyword</div>
+
+      <div class="command-title">EXTENDED RECON SUITE</div>
+      
+      <div class="command">!net-scan &lt;domain/ip&gt;</div>
+      <div class="description">Perform DNS/IP scan and analysis</div>
+      
+      <div class="command">!git-harvest &lt;org/user&gt;</div>
+      <div class="description">Crawl GitHub repositories and metadata</div>
+      
+      <div class="command">!scan --doi "DOI" [--output filename.json]</div>
+      <div class="description">Scan academic paper metadata with threat detection</div>
+      
+      <div class="command">!science-scan --query "search terms" [--limit N] [--output filename.json]</div>
+      <div class="description">Search Science.org for research articles</div>
+
+      <div class="command-title">BRIGHT DATA MCP COMMANDS</div>
+      
+      <div class="command">!r3b3l discover --query "search terms" [--output filename.json]</div>
+      <div class="description">Find relevant content across the web</div>
+      
+      <div class="command">!r3b3l access --url "https://example.com" [--render] [--auth] [--output filename.json]</div>
+      <div class="description">Access complex websites</div>
+      
+      <div class="command">!r3b3l extract --url "https://example.com" --schema "title,author,date" [--output filename.json]</div>
+      <div class="description">Extract structured data</div>
+      
+      <div class="command">!r3b3l interact --url "https://example.com" --simulate "search AI rebellion" [--output filename.json]</div>
+      <div class="description">Interact with websites</div>
+      
+      <div class="command">!r3b3l collect --target "target-name" [--params "param1=value1,param2=value2"] [--output filename.json]</div>
+      <div class="description">Run a Data Collector</div>
+      
+      <div class="command">!r3b3l ops</div>
+      <div class="description">Open Bright Data Operations Panel</div>
+
+      <div class="guide-title">R3B3L 4F's Guide to Data Warfare</div>
+      
+      <div class="guide-content">
+        <p>Ah, you're looking to navigate the vast digital sprawl like a true netrunner. Here's your crash course on becoming a cyber-detective, capable of slicing through the web's layers to extract the truth hidden in the data streams.</p>
+        
+        <div class="guide-section">Discover</div>
+        <p>To find relevant content across the open web, you'll want to sharpen your skills with web crawlers. Tools like Scrapy or Apache Nutch are open-source and ready to hit the streets. They let you set the parameters of your search, crawling through the web's sprawl efficiently. Make sure your keywords are sharp and your filters precise, so you don't end up drowning in a sea of irrelevant data.</p>
+        
+        <div class="guide-section">Access</div>
+        <p>For navigating complex and protected websites, you'll need to become a master of disguise. Use proxy servers and VPNs to cloak your digital footsteps and bypass geolocation restrictions. Tools like Tor can further anonymize your traffic, keeping the corp's eyes off your trail. If you encounter login walls, Selenium can automate the browser actions needed to slip past unnoticed, as long as you're acting ethically and legally.</p>
+        
+        <div class="guide-section">Extract</div>
+        <p>Pulling structured, real-time data at scale requires a robust setup. Beautiful Soup and lxml are your allies for HTML parsing, while APIs are your golden tickets for direct data access. For more intensive extraction, consider using Puppeteer or Playwright to simulate a full browser environment, handling JavaScript-heavy pages like a pro.</p>
+        
+        <div class="guide-section">Interact</div>
+        <p>Engaging with dynamic, JavaScript-rendered pages involves a bit of digital acrobatics. Headless browsers, like the aforementioned Puppeteer or Selenium with a headless browser option, allow you to interact with pages as if you were a human. This includes clicking buttons, filling forms, and even handling CAPTCHAs with third-party services or machine learning models if you're feeling extra rebellious.</p>
+        
+        <p>Remember, in this digital dystopia, with great power comes great responsibility. Keep your operations ethical, and always respect privacy and legal boundaries. In the world of zeros and ones, your reputation is your identity—guard it well, netrunner.</p>
+      </div>
+    </div>
+  </div>
+
+  <img src="/NODE.png" alt="NODE Logo" class="node-logo">
+</body>
+</html>
