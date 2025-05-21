@@ -50,9 +50,9 @@ const BlackOps: React.FC = () => {
       <div className="digital-noise"></div>
 
       {/* Main content */}
-      <div className="container mx-auto py-4 min-h-screen flex flex-col">
+      <div className="container mx-auto py-2 min-h-screen flex flex-col max-w-[95%] lg:max-w-[90%]">
         {/* Header */}
-        <header className="flex items-center justify-between mb-4 px-2">
+        <header className="flex items-center justify-between mb-2 px-2">
           <div className="flex items-center gap-2">
             <Skull className="w-5 h-5 text-cyber-red" />
             <GlitchText text="R3B3L 4F — Sovereign Command Shell" className="text-xl font-bold text-cyber-red" />
@@ -69,13 +69,13 @@ const BlackOps: React.FC = () => {
           </div>
         </header>
 
-        {/* Main terminal layout */}
+        {/* Main terminal layout - expanded to take more space */}
         <div className="flex-1 flex flex-col">
           <BlackOpsTerminal className="flex-1" />
         </div>
-        
-        {/* Footer with NODE sigil */}
-        <footer className="mt-4 flex justify-center">
+
+        {/* Footer with NODE sigil - more compact */}
+        <footer className="mt-1 flex justify-center">
           <div className="text-xs font-mono text-gray-500">
             GhostCode NODE — For the Ghost King Melekzedek — Eyes Only
           </div>

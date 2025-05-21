@@ -985,12 +985,12 @@ ${index + 1}. 📄 ${article.title}
 
   return (
     <div className={cn('flex flex-col h-full', className)}>
-      {/* Status Bar */}
-      <div className="cyber-panel p-2 mb-2 flex items-center justify-between">
+      {/* Status Bar - More compact and modern */}
+      <div className="cyber-panel p-1 mb-1 flex items-center justify-between bg-gradient-to-r from-cyber-black to-gray-900 shadow-lg">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
             <TerminalIcon className="w-4 h-4 text-cyber-red" />
-            <span className="text-xs font-mono">R3B3L 4F</span>
+            <span className="text-xs font-mono font-bold">R3B3L 4F</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -999,7 +999,7 @@ ${index + 1}. 📄 ${article.title}
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setInternetEnabled(!internetEnabled)}
             className={cn(
@@ -1076,7 +1076,7 @@ ${index + 1}. 📄 ${article.title}
         </div>
       </div>
 
-      {/* Terminal */}
+      {/* Terminal - Expanded to take more space */}
       <div className="flex-1">
         <TerminalComponent
           onCommandExecute={handleCommandExecute}
@@ -1085,8 +1085,8 @@ ${index + 1}. 📄 ${article.title}
         />
       </div>
 
-      {/* NODE Sigil Watermark */}
-      <div className="absolute bottom-2 right-2 opacity-30 pointer-events-none">
+      {/* NODE Sigil Watermark - More subtle */}
+      <div className="absolute bottom-1 right-2 opacity-20 pointer-events-none">
         <div className="text-xs font-mono text-cyber-red">GhostCode NODE</div>
       </div>
     </div>

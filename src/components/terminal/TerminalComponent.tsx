@@ -30,7 +30,7 @@ const TerminalComponent: React.FC<TerminalProps> = ({
   const [isExecuting, setIsExecuting] = useState(false);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  
+
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -58,26 +58,26 @@ const TerminalComponent: React.FC<TerminalProps> = ({
       content: command,
       type: 'input',
     };
-    
+
     setHistory(prev => [...prev, newCommandLine]);
-    
+
     // Add to command history for up/down navigation
     setCommandHistory(prev => [command, ...prev]);
     setHistoryIndex(-1);
-    
+
     setIsExecuting(true);
-    
+
     try {
       if (onCommandExecute) {
         const result = await onCommandExecute(command);
-        
+
         // Add result to history
         const outputLine: TerminalLine = {
           id: `output-${Date.now()}`,
           content: result,
           type: 'output',
         };
-        
+
         setHistory(prev => [...prev, outputLine]);
       }
     } catch (error) {
@@ -87,7 +87,7 @@ const TerminalComponent: React.FC<TerminalProps> = ({
         content: error instanceof Error ? error.message : String(error),
         type: 'error',
       };
-      
+
       setHistory(prev => [...prev, errorLine]);
     } finally {
       setIsExecuting(false);
@@ -122,33 +122,45 @@ const TerminalComponent: React.FC<TerminalProps> = ({
   };
 
   return (
-    <div className={cn('cyber-panel rounded flex flex-col h-full', className)}>
+    <div className={cn('cyber-panel rounded flex flex-col h-full shadow-lg', className)}>
       <div className="cyber-scanline"></div>
-      
-      {/* Terminal Header */}
-      <div className="p-2 border-b border-cyber-red/30 flex items-center justify-between">
+
+      {/* Terminal Header - GNOME-style with window controls */}
+      <div className="p-2 border-b border-cyber-red/30 flex items-center justify-between bg-gradient-to-r from-cyber-black to-gray-900">
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 mr-2">
+            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer" title="Close"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 cursor-pointer" title="Minimize"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer" title="Maximize"></div>
+          </div>
           <TerminalIcon className="w-4 h-4 text-cyber-red" />
           <span className="text-sm font-mono text-cyber-red">R3B3L 4F — Sovereign Command Shell</span>
         </div>
-        <button 
-          onClick={clearTerminal}
-          className="text-gray-400 hover:text-cyber-red transition-colors"
-          title="Clear Terminal"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={clearTerminal}
+            className="text-gray-400 hover:text-cyber-red transition-colors"
+            title="Clear Terminal"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-      
-      {/* Terminal Output */}
-      <div 
+
+      {/* Terminal Output - Increased font size and improved spacing */}
+      <div
         ref={terminalRef}
-        className="flex-1 overflow-y-auto p-2 font-mono text-sm bg-cyber-black/80"
+        className="flex-1 overflow-y-auto p-3 font-mono text-base bg-cyber-black/90"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.3) 1px, transparent 1px)',
+          backgroundSize: '100% 4px',
+          textShadow: '0 0 2px rgba(0, 255, 255, 0.3)'
+        }}
       >
         {history.map((line) => {
           let lineClass = '';
           let icon = null;
-          
+
           switch (line.type) {
             case 'input':
               lineClass = 'text-cyber-cyan';
@@ -166,18 +178,18 @@ const TerminalComponent: React.FC<TerminalProps> = ({
               icon = <Cpu className="w-3 h-3 text-yellow-500" />;
               break;
           }
-          
+
           return (
-            <div key={line.id} className="mb-1">
+            <div key={line.id} className="mb-2">
               {line.type === 'input' ? (
                 <div className="flex items-start">
-                  <span className="text-cyber-red mr-1">$</span>
-                  <span className={lineClass}>{line.content}</span>
+                  <span className="text-cyber-red mr-2 font-bold">$</span>
+                  <span className={cn(lineClass, 'font-bold')}>{line.content}</span>
                 </div>
               ) : (
                 <div className="flex items-start">
-                  {icon && <span className="mr-1 mt-1">{icon}</span>}
-                  <pre className={cn('whitespace-pre-wrap break-all', lineClass)}>
+                  {icon && <span className="mr-2 mt-1">{icon}</span>}
+                  <pre className={cn('whitespace-pre-wrap break-all leading-relaxed', lineClass)}>
                     {line.content}
                   </pre>
                 </div>
@@ -185,21 +197,21 @@ const TerminalComponent: React.FC<TerminalProps> = ({
             </div>
           );
         })}
-        
+
         {isExecuting && (
-          <div className="flex items-center gap-2 text-cyber-cyan">
+          <div className="flex items-center gap-2 text-cyber-cyan my-2">
             <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
             <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
             <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
           </div>
         )}
       </div>
-      
-      {/* Terminal Input */}
+
+      {/* Terminal Input - Enhanced with better styling */}
       {!readOnly && (
-        <form onSubmit={handleCommandSubmit} className="border-t border-cyber-red/30 p-2">
+        <form onSubmit={handleCommandSubmit} className="border-t border-cyber-red/30 p-3 bg-gradient-to-r from-cyber-black to-gray-900">
           <div className="flex items-center">
-            {showPrompt && <span className="text-cyber-red mr-1">$</span>}
+            {showPrompt && <span className="text-cyber-red mr-2 font-bold text-base">$</span>}
             <input
               ref={inputRef}
               type="text"
@@ -207,10 +219,11 @@ const TerminalComponent: React.FC<TerminalProps> = ({
               onChange={(e) => setCommand(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isExecuting}
-              className="flex-1 bg-transparent border-none outline-none text-cyber-cyan font-mono text-sm"
+              className="flex-1 bg-transparent border-none outline-none text-cyber-cyan font-mono text-base"
               placeholder="Enter command..."
               autoComplete="off"
               spellCheck="false"
+              style={{ caretColor: '#0ff' }}
             />
           </div>
         </form>
