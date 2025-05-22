@@ -1,20 +1,21 @@
-# Netlify configuration for R3B3L 4F v2
+# Netlify configuration for DataOps Terminal v1.0
 # This file configures the Netlify deployment settings
 
 [build]
   # Build command
   command = "npm run build"
-  
+
   # Directory to publish (output of the build)
   publish = "dist"
-  
+
   # Base directory
   base = "/"
 
 # Environment variables that should be set in the Netlify dashboard:
-# - VITE_OPENAI_API_KEY: Your OpenAI API key
-# - VITE_SUPABASE_URL: Your Supabase project URL
-# - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key
+# - VITE_OPENAI_API_KEY: Your OpenAI API key for AI assistant
+# - VITE_SUPABASE_URL: Your Supabase project URL for data persistence
+# - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key for client-side access
+# - VITE_BRIGHT_DATA_API_KEY: Your Bright Data API key for web data collection
 
 # Node.js version
 [build.environment]
@@ -34,4 +35,4 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.openai.com https://*.supabase.co; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:;"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.openai.com https://*.supabase.co https://*.brightdata.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com;"
