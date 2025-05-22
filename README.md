@@ -210,3 +210,10 @@ SOFTWARE.
 ---
 
 *DataOps Terminal is designed for professional data operations and web data collection.*
+
+## Developer
+
+**Independent Full Stack Dev James Derek Ingersoll**
+GodsIMiJ AI Solutions
+www.godsimij-ai-solutions.com
+james@godsimij-ai-solutions.com
