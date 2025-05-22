@@ -1,8 +1,8 @@
 /**
  * Scroll Manager
- * 
+ *
  * This module manages the storage and retrieval of scroll data (operation logs)
- * for the R3B3L 4F system.
+ * for the DataOps Terminal system.
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -31,16 +31,16 @@ export const createScroll = (operation: string, data: any): Scroll => {
     operation,
     timestamp: new Date().toISOString(),
     data,
-    nodeId: 'NODE_717'
+    nodeId: 'DATAOPS_NODE'
   };
-  
+
   scrolls.push(scroll);
-  
+
   // Limit the number of scrolls to prevent memory issues
   if (scrolls.length > 100) {
     scrolls = scrolls.slice(-100);
   }
-  
+
   return scroll;
 };
 

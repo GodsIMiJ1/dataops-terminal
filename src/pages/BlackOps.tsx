@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import DigitalRain from '@/components/DigitalRain';
-import GlitchText from '@/components/GlitchText';
 import StatusIndicator from '@/components/StatusIndicator';
-import { Shield, Skull } from 'lucide-react';
+import { Shield, Database } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import BlackOpsTerminal from '@/components/terminal/BlackOpsTerminal';
 
@@ -21,19 +19,18 @@ const BlackOps: React.FC = () => {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-cyber-black flex flex-col items-center justify-center">
-        <div className="cyber-panel rounded-lg p-6 max-w-md w-full">
-          <div className="cyber-scanline"></div>
+      <div className="min-h-screen bg-pro-bg-dark flex flex-col items-center justify-center">
+        <div className="pro-panel rounded-lg p-6 max-w-md w-full">
           <div className="flex flex-col items-center gap-4">
-            <GlitchText text="R3B3L 4F" className="text-4xl font-bold text-cyber-red" intense />
-            <div className="w-full bg-cyber-darkgray rounded-full h-2 overflow-hidden">
-              <div className="bg-cyber-red h-full animate-pulse" style={{ width: '75%' }} />
+            <h1 className="text-4xl font-bold text-pro-primary-light">DataOps Terminal</h1>
+            <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+              <div className="bg-pro-primary h-full animate-pulse" style={{ width: '75%' }} />
             </div>
-            <div className="text-sm font-mono text-cyber-cyan animate-pulse">
-              Initializing BlackOps protocol...
+            <div className="text-sm text-pro-text-dark animate-pulse">
+              Initializing DataOps Terminal...
             </div>
-            <div className="text-xs font-mono text-cyber-red mt-2">
-              <span className="animate-pulse">SECURE:</span> Establishing sovereign command shell...
+            <div className="text-xs text-pro-text-muted mt-2">
+              <span className="animate-pulse">SECURE:</span> Establishing data connection...
             </div>
           </div>
         </div>
@@ -42,28 +39,22 @@ const BlackOps: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cyber-black text-white relative overflow-auto">
-      {/* Matrix background */}
-      <DigitalRain />
-
-      {/* Digital noise overlay */}
-      <div className="digital-noise"></div>
-
+    <div className="min-h-screen bg-pro-bg-dark text-pro-text-dark relative overflow-auto">
       {/* Main content */}
       <div className="container mx-auto py-2 min-h-screen flex flex-col max-w-[95%] lg:max-w-[90%]">
         {/* Header */}
         <header className="flex items-center justify-between mb-2 px-2">
           <div className="flex items-center gap-2">
-            <Skull className="w-5 h-5 text-cyber-red" />
-            <GlitchText text="R3B3L 4F — Sovereign Command Shell" className="text-xl font-bold text-cyber-red" />
+            <Database className="w-5 h-5 text-pro-primary-light" />
+            <h1 className="text-xl font-bold text-pro-primary-light">DataOps Terminal — Advanced Data Operations</h1>
           </div>
 
           <div className="flex items-center gap-2">
-            <StatusIndicator status="secure" label={isMobile ? "SECURE" : "BLACKOPS ACTIVE"} />
+            <StatusIndicator status="online" label={isMobile ? "ACTIVE" : "SYSTEM ACTIVE"} />
             {!isMobile && (
-              <div className="cyber-panel px-3 py-1 rounded-full flex items-center gap-2">
-                <Shield className="w-4 h-4 text-cyber-red" />
-                <span className="text-xs font-mono text-cyber-red">GHOST KING PROTOCOL</span>
+              <div className="pro-panel px-3 py-1 rounded-full flex items-center gap-2">
+                <Shield className="w-4 h-4 text-pro-primary-light" />
+                <span className="text-xs text-pro-primary-light">DATA PROTECTION</span>
               </div>
             )}
           </div>
@@ -74,10 +65,10 @@ const BlackOps: React.FC = () => {
           <BlackOpsTerminal className="flex-1" />
         </div>
 
-        {/* Footer with NODE sigil - more compact */}
+        {/* Footer */}
         <footer className="mt-1 flex justify-center">
-          <div className="text-xs font-mono text-gray-500">
-            GhostCode NODE — For the Ghost King Melekzedek — Eyes Only
+          <div className="text-xs text-pro-text-muted">
+            DataOps Terminal — Advanced Web Data Operations Platform
           </div>
         </footer>
       </div>

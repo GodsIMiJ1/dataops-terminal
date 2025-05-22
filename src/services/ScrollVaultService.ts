@@ -1,7 +1,7 @@
 /**
  * ScrollVaultService.ts
- * 
- * This service provides encryption and decryption for R3B3L 4F scroll logs.
+ *
+ * This service provides encryption and decryption for DataOps Terminal logs.
  * It allows for secure storage of sensitive mission data.
  */
 
@@ -80,7 +80,7 @@ const generateKey = async (salt: Uint8Array): Promise<CryptoKey> => {
   // Convert passphrase to buffer
   const encoder = new TextEncoder();
   const passphraseBuffer = encoder.encode(config.passphrase);
-  
+
   // Import the passphrase as a key
   const baseKey = await crypto.subtle.importKey(
     'raw',
@@ -89,7 +89,7 @@ const generateKey = async (salt: Uint8Array): Promise<CryptoKey> => {
     false,
     ['deriveKey']
   );
-  
+
   // Derive the actual encryption key
   return crypto.subtle.deriveKey(
     {
@@ -118,17 +118,17 @@ export const encryptScroll = async (content: string): Promise<string> => {
     // Generate random salt and IV
     const salt = crypto.getRandomValues(new Uint8Array(config.saltLength));
     const iv = crypto.getRandomValues(new Uint8Array(config.ivLength));
-    
+
     // Generate key
     const key = await generateKey(salt);
-    
+
     // Encode content
     const encoder = new TextEncoder();
     const contentBuffer = encoder.encode(content);
-    
+
     // Encrypt content
     let encryptedContent: ArrayBuffer;
-    
+
     if (config.encryptionAlgorithm === 'AES-GCM') {
       encryptedContent = await crypto.subtle.encrypt(
         {
@@ -148,13 +148,13 @@ export const encryptScroll = async (content: string): Promise<string> => {
         contentBuffer
       );
     }
-    
+
     // Combine salt, IV, and encrypted content
     const result = new Uint8Array(salt.length + iv.length + encryptedContent.byteLength);
     result.set(salt, 0);
     result.set(iv, salt.length);
     result.set(new Uint8Array(encryptedContent), salt.length + iv.length);
-    
+
     // Convert to base64
     return btoa(String.fromCharCode(...result));
   } catch (error) {
@@ -172,18 +172,18 @@ export const decryptScroll = async (encryptedContent: string): Promise<string> =
   try {
     // Convert from base64
     const encryptedBuffer = Uint8Array.from(atob(encryptedContent), c => c.charCodeAt(0));
-    
+
     // Extract salt, IV, and encrypted content
     const salt = encryptedBuffer.slice(0, config.saltLength);
     const iv = encryptedBuffer.slice(config.saltLength, config.saltLength + config.ivLength);
     const content = encryptedBuffer.slice(config.saltLength + config.ivLength);
-    
+
     // Generate key
     const key = await generateKey(salt);
-    
+
     // Decrypt content
     let decryptedContent: ArrayBuffer;
-    
+
     if (config.encryptionAlgorithm === 'AES-GCM') {
       decryptedContent = await crypto.subtle.decrypt(
         {
@@ -203,7 +203,7 @@ export const decryptScroll = async (encryptedContent: string): Promise<string> =
         content
       );
     }
-    
+
     // Decode content
     const decoder = new TextDecoder();
     return decoder.decode(decryptedContent);

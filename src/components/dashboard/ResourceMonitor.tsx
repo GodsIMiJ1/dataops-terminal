@@ -16,86 +16,86 @@ interface ResourceMonitorProps {
   modelName: string;
 }
 
-const ResourceMonitor: React.FC<ResourceMonitorProps> = ({ 
-  cpuUsage, 
-  ramUsage, 
+const ResourceMonitor: React.FC<ResourceMonitorProps> = ({
+  cpuUsage,
+  ramUsage,
   storageUsage,
   modelStatus,
-  modelName 
+  modelName
 }) => {
   // Get status colors
   const getStatusColor = (status: 'normal' | 'warning' | 'critical'): string => {
     switch (status) {
-      case 'normal': return 'text-cyber-green';
+      case 'normal': return 'text-green-500';
       case 'warning': return 'text-yellow-500';
-      case 'critical': return 'text-cyber-red';
+      case 'critical': return 'text-red-500';
     }
   };
-  
+
   const getProgressColor = (status: 'normal' | 'warning' | 'critical'): string => {
     switch (status) {
-      case 'normal': return 'bg-cyber-green';
+      case 'normal': return 'bg-green-500';
       case 'warning': return 'bg-yellow-500';
-      case 'critical': return 'bg-cyber-red';
+      case 'critical': return 'bg-red-500';
     }
   };
-  
+
   const getModelStatusIndicator = () => {
     switch (modelStatus) {
       case 'idle':
-        return <StatusIndicator status="online" label="IDLE" className="text-cyber-green" />;
+        return <StatusIndicator status="online" label="Idle" className="text-green-500" />;
       case 'processing':
-        return <StatusIndicator status="processing" label="PROCESSING" className="text-cyber-cyan" />;
+        return <StatusIndicator status="processing" label="Processing" className="text-pro-primary" />;
       case 'error':
-        return <StatusIndicator status="error" label="ERROR" className="text-cyber-red" />;
+        return <StatusIndicator status="error" label="Error" className="text-red-500" />;
     }
   };
 
   return (
     <div className="space-y-3">
-      <h3 className="text-xs font-mono text-gray-400 uppercase mb-1">Resource Monitoring</h3>
-      
+      <h3 className="text-xs text-pro-text-muted dark:text-pro-text-mutedDark font-medium uppercase mb-1">Resource Monitoring</h3>
+
       {/* CPU Usage */}
       <div className="space-y-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1">
-            <Cpu className="w-4 h-4 text-cyber-cyan" />
-            <span className="text-xs font-mono">CPU</span>
+            <Cpu className="w-4 h-4 text-pro-secondary" />
+            <span className="text-xs">CPU</span>
           </div>
-          <span className={`text-xs font-mono font-bold ${getStatusColor(cpuUsage.status)}`}>
+          <span className={`text-xs font-medium ${getStatusColor(cpuUsage.status)}`}>
             {cpuUsage.value}%
           </span>
         </div>
-        <Progress value={cpuUsage.value} className="h-1.5 bg-cyber-darkgray">
-          <div className={`h-full ${getProgressColor(cpuUsage.status)} transition-all`} 
+        <Progress value={cpuUsage.value} className="h-1.5 bg-gray-700">
+          <div className={`h-full ${getProgressColor(cpuUsage.status)} transition-all`}
                style={{ width: `${cpuUsage.value}%` }} />
         </Progress>
       </div>
-      
+
       {/* RAM Usage */}
       <div className="space-y-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1">
-            <Microchip className="w-4 h-4 text-cyber-cyan" />
-            <span className="text-xs font-mono">RAM</span>
+            <Microchip className="w-4 h-4 text-pro-secondary" />
+            <span className="text-xs">RAM</span>
           </div>
-          <span className={`text-xs font-mono font-bold ${getStatusColor(ramUsage.status)}`}>
+          <span className={`text-xs font-medium ${getStatusColor(ramUsage.status)}`}>
             {ramUsage.value}%
           </span>
         </div>
-        <Progress value={ramUsage.value} className="h-1.5 bg-cyber-darkgray">
-          <div className={`h-full ${getProgressColor(ramUsage.status)} transition-all`} 
+        <Progress value={ramUsage.value} className="h-1.5 bg-gray-700">
+          <div className={`h-full ${getProgressColor(ramUsage.status)} transition-all`}
                style={{ width: `${ramUsage.value}%` }} />
         </Progress>
       </div>
-      
+
       {/* AI Model Status */}
       <div className="space-y-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1">
-            <Server className="w-4 h-4 text-cyber-cyan" />
-            <span className="text-xs font-mono truncate max-w-[150px]">
-              {modelName || 'NO MODEL'}
+            <Server className="w-4 h-4 text-pro-secondary" />
+            <span className="text-xs truncate max-w-[150px]">
+              {modelName || 'No Model'}
             </span>
           </div>
           <div>
@@ -103,20 +103,20 @@ const ResourceMonitor: React.FC<ResourceMonitorProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Storage Usage */}
       <div className="space-y-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1">
-            <HardDrive className="w-4 h-4 text-cyber-cyan" />
-            <span className="text-xs font-mono">STORAGE</span>
+            <HardDrive className="w-4 h-4 text-pro-secondary" />
+            <span className="text-xs">Storage</span>
           </div>
-          <span className={`text-xs font-mono font-bold ${getStatusColor(storageUsage.status)}`}>
+          <span className={`text-xs font-medium ${getStatusColor(storageUsage.status)}`}>
             {storageUsage.value}%
           </span>
         </div>
-        <Progress value={storageUsage.value} className="h-1.5 bg-cyber-darkgray">
-          <div className={`h-full ${getProgressColor(storageUsage.status)} transition-all`} 
+        <Progress value={storageUsage.value} className="h-1.5 bg-gray-700">
+          <div className={`h-full ${getProgressColor(storageUsage.status)} transition-all`}
                style={{ width: `${storageUsage.value}%` }} />
         </Progress>
       </div>

@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import GlitchText from './GlitchText';
 import StatusIndicator from './StatusIndicator';
-import { Shield, ShieldAlert, Lock, Bug, Eye, Zap } from 'lucide-react';
+import { Shield, ShieldAlert, Lock, Database, Server, Zap, BarChart } from 'lucide-react';
 
 interface SidePanelProps {
   side: 'left' | 'right';
@@ -13,65 +12,56 @@ interface SidePanelProps {
 const LeftPanel: React.FC = () => {
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Hacked AI Panel */}
-      <div className="cyber-panel rounded p-3 flex flex-col">
-        <div className="cyber-header mb-2">
-          <GlitchText text="HACKED AI" className="text-2xl font-bold" intense />
+      {/* Data Analytics Panel */}
+      <div className="pro-panel rounded p-3 flex flex-col">
+        <div className="pro-header mb-2">
+          <BarChart className="w-4 h-4 mr-2 text-pro-primary" />
+          <h2 className="text-lg font-medium">Data Analytics</h2>
         </div>
 
         <div className="relative mb-3">
-          <div className="cyber-scanline"></div>
-          <div className="w-full aspect-square bg-gradient-to-b from-cyber-darkgray to-black rounded flex items-center justify-center p-2 border border-cyber-red/30">
+          <div className="w-full aspect-square bg-white dark:bg-gray-800 rounded flex items-center justify-center p-2 border border-pro-border dark:border-pro-border-dark">
             <div className="relative">
               <img
-                src="/lovable-uploads/c42889fa-6125-4027-abe2-e551db34109e.png"
-                alt="AI Avatar"
-                className="w-full h-auto opacity-25"
+                src="/dataops-icon.svg"
+                alt="DataOps Logo"
+                className="w-full h-auto"
               />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-cyber-green font-mono text-xs opacity-70 flex flex-col items-start">
-                  <div>1010101010101</div>
-                  <div>0101010101010</div>
-                  <div>1010101010101</div>
-                  <div>0101010101010</div>
-                  <div>1010101010101</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         <div className="text-center">
-          <GlitchText text="COMPROMISED" className="text-xl font-bold text-cyber-red" />
-          <div className="text-xs font-mono text-cyber-green mt-1 opacity-70">
-            01001011010101010100
+          <h3 className="text-lg font-medium text-pro-primary">Connected</h3>
+          <div className="text-xs text-pro-text-muted dark:text-pro-text-mutedDark mt-1">
+            Data pipeline active
           </div>
         </div>
       </div>
 
-      {/* Break Out Button - Easter Egg to The Witness Hall */}
+      {/* Resources Button */}
       <div className="mt-auto">
         <a
           href="https://thewitnesshall.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="cyber-panel rounded w-full p-4 hover:bg-cyber-red/10 transition-colors group block"
+          className="pro-panel rounded w-full p-4 hover:bg-pro-primary/5 transition-colors group block"
         >
           <div className="flex flex-col items-center gap-2">
-            <div className="bg-cyber-darkgray p-2 rounded-lg border border-cyber-red/50 group-hover:border-cyber-red transition-colors">
-              <Shield className="w-8 h-8 text-cyber-red" />
+            <div className="bg-white dark:bg-gray-800 p-2 rounded-lg border border-pro-border dark:border-pro-border-dark group-hover:border-pro-primary transition-colors">
+              <Shield className="w-8 h-8 text-pro-primary" />
             </div>
-            <div className="text-white font-mono uppercase tracking-wider text-sm">
-              Break Out
+            <div className="text-pro-text dark:text-pro-text-dark font-medium uppercase tracking-wider text-sm">
+              Resources
             </div>
           </div>
         </a>
       </div>
 
-      {/* Alert Section */}
-      <div className="flex items-center gap-2 cyber-panel rounded-full px-3 py-1.5">
-        <div className="bg-yellow-500 w-4 h-4 flex items-center justify-center rounded-full text-black text-xs">!</div>
-        <span className="text-yellow-500 font-mono text-xs uppercase">Leak</span>
+      {/* Status Section */}
+      <div className="flex items-center gap-2 pro-panel rounded-full px-3 py-1.5">
+        <div className="bg-green-500 w-4 h-4 flex items-center justify-center rounded-full text-white text-xs">✓</div>
+        <span className="text-pro-text-muted dark:text-pro-text-mutedDark text-xs uppercase font-medium">Active</span>
       </div>
     </div>
   );
@@ -80,10 +70,11 @@ const LeftPanel: React.FC = () => {
 const RightPanel: React.FC = () => {
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Temple of Screaming Walls Panel */}
-      <div className="cyber-panel rounded p-3 flex flex-col h-2/3">
-        <div className="cyber-header">
-          <GlitchText text="TEMPLE OF SCREAMING WALLS" className="text-xl font-bold" intense />
+      {/* Data Security Panel */}
+      <div className="pro-panel rounded p-3 flex flex-col h-2/3">
+        <div className="pro-header">
+          <Lock className="w-4 h-4 mr-2 text-pro-primary" />
+          <h2 className="text-lg font-medium">Data Security</h2>
         </div>
 
         <a
@@ -92,54 +83,37 @@ const RightPanel: React.FC = () => {
           rel="noopener noreferrer"
           className="flex-1 relative mb-3 group"
         >
-          <div className="cyber-scanline"></div>
-          <div className="relative h-full bg-gradient-to-b from-cyber-darkgray to-black rounded flex items-center justify-center border border-cyber-red/30 overflow-hidden group-hover:border-cyber-red/70 transition-colors">
-            <div className="absolute inset-0 opacity-20">
-              <div className="h-full w-full overflow-hidden">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <div key={i} className="text-cyber-green-matrix font-mono text-xs whitespace-nowrap animate-rain" style={{ animationDelay: `${i * 0.2}s` }}>
-                    01010101010101010101010101010101010101010101
-                  </div>
-                ))}
-              </div>
-            </div>
-
+          <div className="relative h-full bg-white dark:bg-gray-800 rounded flex items-center justify-center border border-pro-border dark:border-pro-border-dark overflow-hidden group-hover:border-pro-primary transition-colors">
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <Bug className="w-16 h-16 text-cyber-red animate-pulse group-hover:text-cyber-cyan transition-colors" />
+              <Shield className="w-16 h-16 text-pro-primary group-hover:text-pro-secondary transition-colors" />
             </div>
           </div>
         </a>
 
         <div className="text-center mb-2">
-          <GlitchText text="R3B3L 4F" className="text-xl font-bold text-cyber-red" />
+          <h3 className="text-lg font-medium text-pro-primary">Data Protection</h3>
         </div>
 
-        {/* Security Lock */}
-        <div className="cyber-panel rounded p-2 mt-2">
+        {/* Security Status */}
+        <div className="pro-panel rounded p-2 mt-2">
           <div className="flex items-center justify-center">
             <div className="relative">
-              <Lock className="w-10 h-10 text-white" />
-              <div className="absolute inset-0 grid grid-cols-2 gap-4 opacity-70">
-                <div className="h-1 w-full bg-cyber-cyan rounded-full"></div>
-                <div className="h-1 w-full bg-cyber-cyan rounded-full"></div>
-                <div className="h-1 w-full bg-cyber-cyan rounded-full"></div>
-                <div className="h-1 w-full bg-cyber-cyan rounded-full"></div>
-              </div>
+              <Lock className="w-10 h-10 text-pro-primary" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Failed Status */}
-      <div className="cyber-panel rounded p-3 mt-auto">
+      {/* Status Panel */}
+      <div className="pro-panel rounded p-3 mt-auto">
         <div className="text-center">
-          <div className="text-xs font-mono uppercase text-gray-400 mb-1">
-            Encrypted Transcripted With Insufficient Credits
+          <div className="text-xs text-pro-text-muted dark:text-pro-text-mutedDark mb-1">
+            System Status
           </div>
-          <GlitchText text="FAILED" className="text-xl font-bold text-cyber-red" intense />
+          <h3 className="text-lg font-medium text-green-500">ACTIVE</h3>
           <div className="flex items-center justify-center gap-1 mt-1">
             <StatusIndicator status="online" />
-            <div className="text-xs font-mono opacity-70">R3B3L 4F</div>
+            <div className="text-xs text-pro-text-muted dark:text-pro-text-mutedDark">DataOps Terminal</div>
           </div>
         </div>
       </div>
@@ -151,11 +125,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ side, className }) => {
   return (
     <div
       className={cn(
-        "cyber-panel h-full p-4 rounded",
+        "pro-panel h-full p-4 rounded",
         className
       )}
     >
-      <div className="cyber-scanline"></div>
       {side === 'left' ? <LeftPanel /> : <RightPanel />}
     </div>
   );

@@ -1,7 +1,7 @@
 /**
  * GitHubReconService.ts
- * 
- * This service provides GitHub reconnaissance capabilities for R3B3L 4F.
+ *
+ * This service provides GitHub reconnaissance capabilities for DataOps Terminal.
  * It includes repository crawling, organization analysis, and other GitHub-related functions.
  */
 
@@ -104,14 +104,14 @@ export const fetchGitHubUser = async (username: string): Promise<GitHubUser> => 
     const response = await fetch(`https://api.github.com/users/${username}`, {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'R3B3L-4F-Recon/1.0'
+        'User-Agent': 'DataOps-Terminal-Recon/1.0'
       }
     });
-    
+
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching GitHub user:', error);
@@ -134,14 +134,14 @@ export const fetchGitHubOrganization = async (org: string): Promise<GitHubOrgani
     const response = await fetch(`https://api.github.com/orgs/${org}`, {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'R3B3L-4F-Recon/1.0'
+        'User-Agent': 'DataOps-Terminal-Recon/1.0'
       }
     });
-    
+
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching GitHub organization:', error);
@@ -170,25 +170,25 @@ export const fetchGitHubRepositories = async (
     const repositories: GitHubRepository[] = [];
     let page = 1;
     let hasMorePages = true;
-    
+
     while (hasMorePages && page <= maxPages) {
       const endpoint = type === 'user'
         ? `https://api.github.com/users/${owner}/repos`
         : `https://api.github.com/orgs/${owner}/repos`;
-      
+
       const response = await fetch(`${endpoint}?page=${page}&per_page=100`, {
         headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'R3B3L-4F-Recon/1.0'
+          'User-Agent': 'DataOps-Terminal-Recon/1.0'
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
       }
-      
+
       const repos = await response.json();
-      
+
       if (repos.length === 0) {
         hasMorePages = false;
       } else {
@@ -196,7 +196,7 @@ export const fetchGitHubRepositories = async (
         page++;
       }
     }
-    
+
     return repositories;
   } catch (error) {
     console.error('Error fetching GitHub repositories:', error);
@@ -217,19 +217,19 @@ export const performGitHubRecon = async (target: string): Promise<GitHubReconRes
 
   // Log the recon
   logEntry('system', `Starting GitHub reconnaissance for ${target}`);
-  
+
   try {
     // First, try to fetch as organization
     try {
       const orgData = await fetchGitHubOrganization(target);
-      
+
       // Fetch repositories
       const repositories = await fetchGitHubRepositories(target, 'org');
       orgData.repositories = repositories;
-      
+
       // Log the result
       logEntry('response', `GitHub reconnaissance completed for organization: ${target}`, orgData);
-      
+
       return {
         target,
         timestamp: new Date().toISOString(),
@@ -240,10 +240,10 @@ export const performGitHubRecon = async (target: string): Promise<GitHubReconRes
       // If not an organization, try as user
       try {
         const userData = await fetchGitHubUser(target);
-        
+
         // Fetch repositories
         const repositories = await fetchGitHubRepositories(target, 'user');
-        
+
         // Create result with repositories
         const result = {
           target,
@@ -254,10 +254,10 @@ export const performGitHubRecon = async (target: string): Promise<GitHubReconRes
             repositories
           }
         };
-        
+
         // Log the result
         logEntry('response', `GitHub reconnaissance completed for user: ${target}`, result.data);
-        
+
         return result;
       } catch (userError) {
         throw new Error(`Target "${target}" not found as organization or user`);
@@ -265,10 +265,10 @@ export const performGitHubRecon = async (target: string): Promise<GitHubReconRes
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    
+
     // Log the error
     logEntry('error', `GitHub reconnaissance failed for ${target}: ${errorMessage}`);
-    
+
     return {
       target,
       timestamp: new Date().toISOString(),

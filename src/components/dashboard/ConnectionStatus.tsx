@@ -11,13 +11,13 @@ const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ sshStatus }) => {
     <div className="flex gap-2 items-center">
       {sshStatus ? (
         <>
-          <Wifi className="w-5 h-5 text-cyber-green animate-pulse" />
-          <span className="text-sm font-mono text-cyber-green">CONNECTED</span>
+          <Wifi className="w-5 h-5 text-green-500 animate-pulse" />
+          <span className="text-sm font-medium text-green-500">Connected</span>
         </>
       ) : (
         <>
-          <WifiOff className="w-5 h-5 text-cyber-red animate-pulse" />
-          <span className="text-sm font-mono text-cyber-red">DISCONNECTED</span>
+          <WifiOff className="w-5 h-5 text-red-500 animate-pulse" />
+          <span className="text-sm font-medium text-red-500">Disconnected</span>
         </>
       )}
     </div>

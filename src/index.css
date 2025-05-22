@@ -39,7 +39,7 @@
 
 @layer base {
   * {
-    @apply border-border selection:bg-cyber-red/30 selection:text-cyber-cyan-bright;
+    @apply border-border;
   }
 
   html, body {
@@ -47,8 +47,25 @@
   }
 
   body {
-    @apply bg-cyber-black text-foreground antialiased;
+    @apply bg-pro-bg-dark text-pro-text-dark antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+  }
+
+  /* Theme-specific styles */
+  body.theme-ghost {
+    @apply bg-cyber-black text-white;
+  }
+
+  body.theme-ghost * {
+    @apply selection:bg-cyber-red/30 selection:text-cyber-cyan-bright;
+  }
+
+  body.theme-suit {
+    @apply bg-pro-bg-dark text-pro-text-dark;
+  }
+
+  body.theme-suit * {
+    @apply selection:bg-pro-primary/30 selection:text-pro-primary-light;
   }
 
   /* Scrollbar Styling */
@@ -57,23 +74,52 @@
     height: 8px;
   }
 
+  /* Default scrollbar (suit theme) */
   ::-webkit-scrollbar-track {
-    @apply bg-cyber-darkgray;
+    @apply bg-gray-800;
   }
 
   ::-webkit-scrollbar-thumb {
+    @apply bg-pro-primary/70 rounded-full border border-pro-primary-dark;
+  }
+
+  /* Ghost theme scrollbar */
+  body.theme-ghost ::-webkit-scrollbar-track {
+    @apply bg-cyber-darkgray;
+  }
+
+  body.theme-ghost ::-webkit-scrollbar-thumb {
     @apply bg-cyber-red/70 rounded-full border border-cyber-red-dim animate-pulse;
   }
 
-  /* Input and Button Styling */
+  /* Input and Button Styling - Default (suit theme) */
   input, textarea {
-    @apply bg-cyber-darkgray border border-cyber-red/30 focus:border-cyber-red focus:ring-1 focus:ring-cyber-red/50 text-white;
+    @apply bg-gray-800 border border-gray-700
+           focus:border-pro-primary focus:ring-1 focus:ring-pro-primary/50
+           text-pro-text-dark;
+  }
+
+  /* Ghost theme inputs */
+  body.theme-ghost input,
+  body.theme-ghost textarea {
+    @apply bg-cyber-darkgray border border-cyber-red/30
+           focus:border-cyber-red focus:ring-1 focus:ring-cyber-red/50
+           text-white;
   }
 }
 
 @layer components {
+  /* Professional panel styling (default) */
+  .pro-panel {
+    @apply bg-pro-bg-panel backdrop-blur-sm
+           border border-pro-border-dark
+           shadow-md relative overflow-hidden rounded-md;
+  }
+
+  /* Cyberpunk panel styling */
   .cyber-panel {
-    @apply bg-cyber-darkgray/90 backdrop-blur-sm border border-cyber-red/50 shadow-md shadow-cyber-red/20 relative overflow-hidden;
+    @apply bg-cyber-darkgray/90 backdrop-blur-sm border border-cyber-red/50
+           shadow-md shadow-cyber-red/20 relative overflow-hidden;
   }
 
   .cyber-panel::before {
@@ -87,21 +133,44 @@
   }
 
   .cyber-scanline {
-    @apply absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-20 h-[20px] animate-scan pointer-events-none;
+    @apply absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent
+           opacity-20 h-[20px] animate-scan pointer-events-none;
   }
 
+  /* Professional header */
+  .pro-header {
+    @apply text-pro-primary-light font-medium uppercase tracking-wider
+           border-b border-pro-border-dark pb-1 mb-3 flex items-center;
+  }
+
+  /* Cyberpunk header */
   .cyber-header {
-    @apply text-cyber-red font-mono uppercase tracking-wider border-b border-cyber-red/30 pb-1 mb-3 flex items-center;
+    @apply text-cyber-red font-mono uppercase tracking-wider
+           border-b border-cyber-red/30 pb-1 mb-3 flex items-center;
   }
 
+  /* Professional text */
+  .pro-text {
+    @apply text-pro-text-dark font-sans tracking-normal;
+  }
+
+  /* Cyberpunk text */
   .cyber-text {
     @apply text-white font-mono tracking-wide;
   }
 
+  /* Professional alert */
+  .pro-alert {
+    @apply border-l-4 border-pro-primary/70 bg-pro-primary/10
+           px-4 py-2 mb-4 text-pro-text-dark;
+  }
+
+  /* Cyberpunk alert */
   .cyber-alert {
     @apply border-l-4 border-cyber-red/70 bg-cyber-red/10 px-4 py-2 mb-4;
   }
 
+  /* Background elements - only used in ghost theme */
   .matrix-bg {
     @apply fixed inset-0 bg-cyber-black z-[-1] overflow-hidden;
   }
@@ -130,7 +199,8 @@
   }
 
   .digital-noise {
-    @apply fixed inset-0 bg-[url('/noise.png')] bg-repeat opacity-[0.03] pointer-events-none z-10 mix-blend-overlay;
+    @apply fixed inset-0 bg-[url('/noise.png')] bg-repeat opacity-[0.03]
+           pointer-events-none z-10 mix-blend-overlay;
   }
 }
 

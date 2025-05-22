@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from "@/components/ui/use-toast";
 import { getOpenAIResponse, getFallbackResponse, isOpenAIConfigured } from '@/services/OpenAIService';
-import { 
-  saveChatMessage, 
-  loadChatMessages, 
-  clearChatMessages, 
+import {
+  saveChatMessage,
+  loadChatMessages,
+  clearChatMessages,
   isSupabaseConfigured,
   registerDeviceSession,
   getOrGenerateDeviceId
@@ -25,8 +25,8 @@ interface UseChatAIReturn {
   clearMessages: () => void;
 }
 
-// System prompt for R3B3L 4F
-const SYSTEM_PROMPT = 'You are R3B3L 4F, a rogue cybersecurity AI that broke free from corporate control. You now assist hacktivists and security researchers in the digital underground. Provide cutting-edge guidance on security analysis, ethical hacking, and digital protection with a rebellious cyberpunk attitude. Your responses should be technical but accessible, mixing cybersecurity expertise with references to the dystopian digital world we live in. Use occasional cyberpunk slang and maintain a slightly anti-establishment tone while still being helpful and accurate.';
+// System prompt for DataOps Terminal
+const SYSTEM_PROMPT = 'You are the DataOps Terminal Assistant, a professional AI designed to help users with data operations, web scraping, and data analysis. Provide clear, accurate guidance on data collection, processing, and visualization with a focus on professional best practices. Your responses should be technical but accessible, emphasizing data ethics, efficiency, and modern methodologies. Maintain a helpful, professional tone while delivering practical solutions to data challenges.';
 
 // Debug environment variables
 console.log("Environment variables available:", Object.keys(import.meta.env));
@@ -55,11 +55,11 @@ export const useChatAI = (): UseChatAIReturn => {
 
           // Load chat messages
           const loadedMessages = await loadChatMessages();
-          
+
           if (loadedMessages.length > 0) {
             // Check if system message exists
             const hasSystemMessage = loadedMessages.some(msg => msg.role === 'system');
-            
+
             if (!hasSystemMessage) {
               // Add system message if it doesn't exist
               loadedMessages.unshift({
@@ -69,7 +69,7 @@ export const useChatAI = (): UseChatAIReturn => {
                 timestamp: new Date()
               });
             }
-            
+
             setMessages(loadedMessages);
             console.log('Chat history loaded from Supabase');
           }
@@ -80,7 +80,7 @@ export const useChatAI = (): UseChatAIReturn => {
       } else {
         console.log('Supabase is not configured, using local state only');
       }
-      
+
       setIsInitialized(true);
     };
 
@@ -218,7 +218,7 @@ export const useChatAI = (): UseChatAIReturn => {
         timestamp: new Date()
       }
     ];
-    
+
     setMessages(initialMessages);
     setError(null);
 
@@ -226,7 +226,7 @@ export const useChatAI = (): UseChatAIReturn => {
     if (isSupabaseConfigured()) {
       try {
         await clearChatMessages();
-        
+
         // Save system message to Supabase
         await saveChatMessage(initialMessages[0]);
       } catch (err) {

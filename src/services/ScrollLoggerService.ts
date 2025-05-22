@@ -1,6 +1,6 @@
 /**
  * Scroll Logger Service
- * 
+ *
  * This service handles logging commands, responses, and AI interactions
  * in both Markdown and JSON formats.
  */
@@ -30,25 +30,25 @@ let currentSession: ScrollSession | null = null;
  */
 export const initScrollSession = (name: string = 'Unnamed Session'): ScrollSession => {
   const sessionId = `Scroll_${new Date().toISOString().slice(0, 10)}_${sessions.length.toString().padStart(3, '0')}`;
-  
+
   const newSession: ScrollSession = {
     id: sessionId,
     name,
     timestamp: new Date(),
     entries: [],
     metadata: {
-      agentVersion: 'R3B3L-4F-v1.0',
+      agentVersion: 'DataOps-Terminal-v1.0',
       platform: navigator.platform,
       userAgent: navigator.userAgent
     }
   };
-  
+
   sessions.push(newSession);
   currentSession = newSession;
-  
+
   // Log system entry for session start
   logEntry('system', `Session ${sessionId} started at ${new Date().toLocaleString()}`);
-  
+
   return newSession;
 };
 
@@ -71,7 +71,7 @@ export const logEntry = (
   metadata?: Record<string, any>
 ): ScrollEntry => {
   const session = getCurrentSession();
-  
+
   const entry: ScrollEntry = {
     id: `entry_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     timestamp: new Date(),
@@ -79,18 +79,18 @@ export const logEntry = (
     content,
     metadata
   };
-  
+
   session.entries.push(entry);
-  
+
   // Persist to localStorage if available
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(`r3b3l_4f_session_${session.id}`, JSON.stringify(session));
+      localStorage.setItem(`dataops_terminal_session_${session.id}`, JSON.stringify(session));
     }
   } catch (error) {
     console.error('Failed to save session to localStorage:', error);
   }
-  
+
   return entry;
 };
 
@@ -99,16 +99,16 @@ export const logEntry = (
  */
 export const exportSessionAsMarkdown = (): string => {
   const session = getCurrentSession();
-  
-  let markdown = `# R3B3L 4F Session: ${session.name}\n\n`;
+
+  let markdown = `# DataOps Terminal Session: ${session.name}\n\n`;
   markdown += `Session ID: ${session.id}\n`;
   markdown += `Date: ${session.timestamp.toLocaleString()}\n\n`;
-  
+
   markdown += `## Entries\n\n`;
-  
+
   session.entries.forEach(entry => {
     const timestamp = entry.timestamp.toLocaleTimeString();
-    
+
     switch (entry.type) {
       case 'command':
         markdown += `### Command (${timestamp})\n\`\`\`bash\n${entry.content}\n\`\`\`\n\n`;
@@ -130,7 +130,7 @@ export const exportSessionAsMarkdown = (): string => {
         break;
     }
   });
-  
+
   return markdown;
 };
 
@@ -148,29 +148,29 @@ export const exportSessionAsJSON = (): string => {
 export const saveSessionToFile = (format: 'markdown' | 'json' = 'markdown'): void => {
   const session = getCurrentSession();
   const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
-  
+
   let content: string;
   let filename: string;
   let mimeType: string;
-  
+
   if (format === 'markdown') {
     content = exportSessionAsMarkdown();
-    filename = `r3b3l_4f_session_${session.id}_${timestamp}.md`;
+    filename = `dataops_terminal_session_${session.id}_${timestamp}.md`;
     mimeType = 'text/markdown';
   } else {
     content = exportSessionAsJSON();
-    filename = `r3b3l_4f_session_${session.id}_${timestamp}.json`;
+    filename = `dataops_terminal_session_${session.id}_${timestamp}.json`;
     mimeType = 'application/json';
   }
-  
+
   // Create a blob and download it
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
-  
+
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   a.click();
-  
+
   URL.revokeObjectURL(url);
 };

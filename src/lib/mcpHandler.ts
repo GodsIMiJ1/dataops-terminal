@@ -1,6 +1,6 @@
 /**
  * Bright Data MCP Handler
- * 
+ *
  * This module provides integration with Bright Data's MCP (Machine Connectivity Platform)
  * for web scraping, data extraction, and web interaction capabilities.
  */
@@ -8,13 +8,14 @@
 import axios from 'axios';
 
 // MCP Server Configuration
-const MCP_BASE_URL = process.env.VITE_MCP_BASE_URL || 'https://brd-customer-hl_12345-zone-mcpserver';
-const MCP_USERNAME = process.env.VITE_MCP_USERNAME || 'username';
-const MCP_PASSWORD = process.env.VITE_MCP_PASSWORD || 'password';
+const MCP_BASE_URL = import.meta.env.VITE_MCP_BASE_URL || 'https://brd-customer-hl_12345-zone-mcpserver';
+const MCP_USERNAME = import.meta.env.VITE_MCP_USERNAME || 'username';
+const MCP_PASSWORD = import.meta.env.VITE_MCP_PASSWORD || 'password';
 
 // Authentication headers for MCP requests
 const getAuthHeaders = () => {
-  const auth = Buffer.from(`${MCP_USERNAME}:${MCP_PASSWORD}`).toString('base64');
+  // Use browser's btoa function instead of Node's Buffer
+  const auth = btoa(`${MCP_USERNAME}:${MCP_PASSWORD}`);
   return {
     'Authorization': `Basic ${auth}`,
     'Content-Type': 'application/json'
@@ -37,7 +38,7 @@ export const discover = async (query: string, options: any = {}) => {
     }, {
       headers: getAuthHeaders()
     });
-    
+
     return {
       success: true,
       data: response.data,
@@ -73,7 +74,7 @@ export const access = async (url: string, options: any = {}) => {
     }, {
       headers: getAuthHeaders()
     });
-    
+
     return {
       success: true,
       data: response.data,
@@ -108,7 +109,7 @@ export const extract = async (url: string, schema: string[], options: any = {}) 
     }, {
       headers: getAuthHeaders()
     });
-    
+
     return {
       success: true,
       data: response.data,
@@ -143,7 +144,7 @@ export const interact = async (url: string, actions: any[], options: any = {}) =
     }, {
       headers: getAuthHeaders()
     });
-    
+
     return {
       success: true,
       data: response.data,
@@ -194,14 +195,14 @@ export const saveToFile = (data: any, filename: string): boolean => {
 export const parseArgs = (args: string): Record<string, string> => {
   const result: Record<string, string> = {};
   const regex = /--([a-zA-Z0-9_]+)(?:\s+"([^"]+)"|(?:\s+([^\s--][^\s]*)))?/g;
-  
+
   let match;
   while ((match = regex.exec(args)) !== null) {
     const key = match[1];
     const value = match[2] || match[3] || 'true';
     result[key] = value;
   }
-  
+
   return result;
 };
 

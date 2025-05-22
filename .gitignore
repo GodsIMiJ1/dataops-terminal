@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
@@ -18,6 +19,7 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+src/server/.env
 
 # Editor directories and files
 .vscode/*
@@ -29,3 +31,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Build artifacts
+build/
+coverage/
+
+# Original files (for reference only)
+README_JUDGE.md
+README_ORIGINAL.md

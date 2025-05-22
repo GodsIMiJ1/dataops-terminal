@@ -36,22 +36,22 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   return (
-    <div className="p-4 border-t border-cyber-red/30">
+    <div className="p-4 border-t border-pro-border dark:border-pro-border-dark bg-white dark:bg-pro-bg-darkPanel">
       <form onSubmit={handleSubmit} className="flex gap-2">
         <div className="flex-1 relative">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter command to hack the planet..."
-            className="w-full bg-cyber-darkgray border border-cyber-red/30 focus:border-cyber-red rounded p-2 font-mono text-sm"
+            placeholder="Ask a question or enter a command..."
+            className="w-full bg-white dark:bg-gray-800 border border-pro-border dark:border-pro-border-dark focus:border-pro-primary focus:ring-1 focus:ring-pro-primary/50 rounded p-2 text-sm"
             disabled={isLoading}
           />
           {input && (
             <button
               type="button"
               onClick={() => setInput('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-pro-text-muted hover:text-pro-primary dark:text-pro-text-mutedDark dark:hover:text-pro-primary-light"
             >
               ×
             </button>

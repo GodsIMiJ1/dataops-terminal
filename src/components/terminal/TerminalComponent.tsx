@@ -9,6 +9,7 @@ interface TerminalProps {
   autoFocus?: boolean;
   showPrompt?: boolean;
   readOnly?: boolean;
+  theme?: 'suit' | 'ghost';
 }
 
 interface TerminalLine {
@@ -24,6 +25,7 @@ const TerminalComponent: React.FC<TerminalProps> = ({
   autoFocus = false,
   showPrompt = true,
   readOnly = false,
+  theme = 'suit',
 }) => {
   const [command, setCommand] = useState(initialCommand);
   const [history, setHistory] = useState<TerminalLine[]>([]);
@@ -122,24 +124,48 @@ const TerminalComponent: React.FC<TerminalProps> = ({
   };
 
   return (
-    <div className={cn('cyber-panel rounded flex flex-col h-full shadow-lg', className)}>
-      <div className="cyber-scanline"></div>
+    <div className={cn(
+      'rounded flex flex-col h-full shadow-lg',
+      theme === 'ghost'
+        ? 'cyber-panel'
+        : 'border border-pro-border bg-white dark:bg-pro-bg-dark',
+      className
+    )}>
+      {theme === 'ghost' && <div className="cyber-scanline"></div>}
 
-      {/* Terminal Header - GNOME-style with window controls */}
-      <div className="p-2 border-b border-cyber-red/30 flex items-center justify-between bg-gradient-to-r from-cyber-black to-gray-900">
+      {/* Terminal Header - Professional or Cyberpunk style */}
+      <div className={cn(
+        "p-2 flex items-center justify-between",
+        theme === 'ghost'
+          ? "border-b border-cyber-red/30 bg-gradient-to-r from-cyber-black to-gray-900"
+          : "border-b border-pro-border bg-pro-bg-panel dark:bg-pro-bg-darkPanel"
+      )}>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 mr-2">
             <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer" title="Close"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 cursor-pointer" title="Minimize"></div>
             <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer" title="Maximize"></div>
           </div>
-          <TerminalIcon className="w-4 h-4 text-cyber-red" />
-          <span className="text-sm font-mono text-cyber-red">R3B3L 4F — Sovereign Command Shell</span>
+          <TerminalIcon className={cn(
+            "w-4 h-4",
+            theme === 'ghost' ? "text-cyber-red" : "text-pro-primary"
+          )} />
+          <span className={cn(
+            "text-sm font-mono",
+            theme === 'ghost' ? "text-cyber-red" : "text-pro-text dark:text-pro-text-dark"
+          )}>
+            DataOps Terminal
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={clearTerminal}
-            className="text-gray-400 hover:text-cyber-red transition-colors"
+            className={cn(
+              "transition-colors",
+              theme === 'ghost'
+                ? "text-gray-400 hover:text-cyber-red"
+                : "text-pro-text-muted hover:text-pro-primary dark:text-pro-text-mutedDark dark:hover:text-pro-primary-light"
+            )}
             title="Clear Terminal"
           >
             <X className="w-4 h-4" />
@@ -147,15 +173,20 @@ const TerminalComponent: React.FC<TerminalProps> = ({
         </div>
       </div>
 
-      {/* Terminal Output - Increased font size and improved spacing */}
+      {/* Terminal Output - Styled based on theme */}
       <div
         ref={terminalRef}
-        className="flex-1 overflow-y-auto p-3 font-mono text-base bg-cyber-black/90"
-        style={{
+        className={cn(
+          "flex-1 overflow-y-auto p-3 font-mono text-base",
+          theme === 'ghost'
+            ? "bg-cyber-black/90"
+            : "bg-white dark:bg-pro-bg-dark"
+        )}
+        style={theme === 'ghost' ? {
           backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.3) 1px, transparent 1px)',
           backgroundSize: '100% 4px',
           textShadow: '0 0 2px rgba(0, 255, 255, 0.3)'
-        }}
+        } : {}}
       >
         {history.map((line) => {
           let lineClass = '';
@@ -163,19 +194,34 @@ const TerminalComponent: React.FC<TerminalProps> = ({
 
           switch (line.type) {
             case 'input':
-              lineClass = 'text-cyber-cyan';
-              icon = <Play className="w-3 h-3 text-cyber-cyan" />;
+              if (theme === 'ghost') {
+                lineClass = 'text-cyber-cyan';
+                icon = <Play className="w-3 h-3 text-cyber-cyan" />;
+              } else {
+                lineClass = 'text-pro-primary';
+                icon = <Play className="w-3 h-3 text-pro-primary" />;
+              }
               break;
             case 'output':
-              lineClass = 'text-white';
+              lineClass = theme === 'ghost' ? 'text-white' : 'text-pro-text dark:text-pro-text-dark';
               break;
             case 'error':
-              lineClass = 'text-cyber-red';
-              icon = <AlertTriangle className="w-3 h-3 text-cyber-red" />;
+              if (theme === 'ghost') {
+                lineClass = 'text-cyber-red';
+                icon = <AlertTriangle className="w-3 h-3 text-cyber-red" />;
+              } else {
+                lineClass = 'text-red-500';
+                icon = <AlertTriangle className="w-3 h-3 text-red-500" />;
+              }
               break;
             case 'system':
-              lineClass = 'text-yellow-500';
-              icon = <Cpu className="w-3 h-3 text-yellow-500" />;
+              if (theme === 'ghost') {
+                lineClass = 'text-yellow-500';
+                icon = <Cpu className="w-3 h-3 text-yellow-500" />;
+              } else {
+                lineClass = 'text-pro-secondary';
+                icon = <Cpu className="w-3 h-3 text-pro-secondary" />;
+              }
               break;
           }
 
@@ -207,11 +253,26 @@ const TerminalComponent: React.FC<TerminalProps> = ({
         )}
       </div>
 
-      {/* Terminal Input - Enhanced with better styling */}
+      {/* Terminal Input - Styled based on theme */}
       {!readOnly && (
-        <form onSubmit={handleCommandSubmit} className="border-t border-cyber-red/30 p-3 bg-gradient-to-r from-cyber-black to-gray-900">
+        <form
+          onSubmit={handleCommandSubmit}
+          className={cn(
+            "border-t p-3",
+            theme === 'ghost'
+              ? "border-cyber-red/30 bg-gradient-to-r from-cyber-black to-gray-900"
+              : "border-pro-border bg-pro-bg-panel dark:bg-pro-bg-darkPanel"
+          )}
+        >
           <div className="flex items-center">
-            {showPrompt && <span className="text-cyber-red mr-2 font-bold text-base">$</span>}
+            {showPrompt && (
+              <span className={cn(
+                "mr-2 font-bold text-base",
+                theme === 'ghost' ? "text-cyber-red" : "text-pro-primary"
+              )}>
+                $
+              </span>
+            )}
             <input
               ref={inputRef}
               type="text"
@@ -219,11 +280,16 @@ const TerminalComponent: React.FC<TerminalProps> = ({
               onChange={(e) => setCommand(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isExecuting}
-              className="flex-1 bg-transparent border-none outline-none text-cyber-cyan font-mono text-base"
+              className={cn(
+                "flex-1 bg-transparent border-none outline-none font-mono text-base",
+                theme === 'ghost'
+                  ? "text-cyber-cyan"
+                  : "text-pro-text dark:text-pro-text-dark"
+              )}
               placeholder="Enter command..."
               autoComplete="off"
               spellCheck="false"
-              style={{ caretColor: '#0ff' }}
+              style={{ caretColor: theme === 'ghost' ? '#0ff' : '#0ea5e9' }}
             />
           </div>
         </form>

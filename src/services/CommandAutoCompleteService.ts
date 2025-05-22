@@ -1,6 +1,6 @@
 /**
  * CommandAutoCompleteService.ts
- * 
+ *
  * A service for providing command auto-completion in the terminal.
  */
 
@@ -14,14 +14,14 @@ export interface CommandDefinition {
 
 class CommandAutoCompleteService {
   private commands: CommandDefinition[] = [];
-  
+
   /**
    * Initialize with default commands
    */
   initialize(): void {
     this.registerDefaultCommands();
   }
-  
+
   /**
    * Register default commands for auto-completion
    */
@@ -29,7 +29,7 @@ class CommandAutoCompleteService {
     this.commands = [
       {
         name: '!help',
-        description: 'Show available commands and the R3B3L Guide to Web Warfare'
+        description: 'Show available commands and DataOps Terminal guide'
       },
       {
         name: '!mission',
@@ -156,7 +156,7 @@ class CommandAutoCompleteService {
       }
     ];
   }
-  
+
   /**
    * Register a new command for auto-completion
    * @param command The command definition
@@ -164,7 +164,7 @@ class CommandAutoCompleteService {
   registerCommand(command: CommandDefinition): void {
     this.commands.push(command);
   }
-  
+
   /**
    * Get auto-completion suggestions for a command
    * @param input The current input text
@@ -174,10 +174,10 @@ class CommandAutoCompleteService {
     if (!input) {
       return [];
     }
-    
+
     const parts = input.trim().split(' ');
     const commandPart = parts[0];
-    
+
     // If we're just starting to type a command
     if (parts.length === 1) {
       return this.commands
@@ -187,12 +187,12 @@ class CommandAutoCompleteService {
           description: cmd.description
         }));
     }
-    
+
     // If we're typing a subcommand
     if (parts.length === 2 && commandPart === '!r3b3l') {
       const subcommandPart = parts[1];
       const r3b3lCommand = this.commands.find(cmd => cmd.name === '!r3b3l');
-      
+
       if (r3b3lCommand && r3b3lCommand.subcommands) {
         return r3b3lCommand.subcommands
           .filter(subcmd => subcmd.name.startsWith(subcommandPart))
@@ -202,7 +202,7 @@ class CommandAutoCompleteService {
           }));
       }
     }
-    
+
     // If we're typing arguments
     const command = this.commands.find(cmd => cmd.name === commandPart);
     if (command && command.args) {
@@ -210,7 +210,7 @@ class CommandAutoCompleteService {
       if (commandPart === '!r3b3l' && parts.length >= 2) {
         const subcommandName = parts[1];
         const subcommand = command.subcommands?.find(subcmd => subcmd.name === subcommandName);
-        
+
         if (subcommand && subcommand.args) {
           const currentArg = parts[parts.length - 1];
           return subcommand.args
@@ -221,7 +221,7 @@ class CommandAutoCompleteService {
             }));
         }
       }
-      
+
       // For regular commands
       const currentArg = parts[parts.length - 1];
       return command.args
@@ -231,10 +231,10 @@ class CommandAutoCompleteService {
           description: `Argument for ${commandPart}`
         }));
     }
-    
+
     return [];
   }
-  
+
   /**
    * Complete the current input with the selected suggestion
    * @param input The current input text
@@ -244,7 +244,7 @@ class CommandAutoCompleteService {
   completeInput(input: string, suggestion: string): string {
     return suggestion;
   }
-  
+
   /**
    * Get all registered commands
    * @returns Array of command definitions

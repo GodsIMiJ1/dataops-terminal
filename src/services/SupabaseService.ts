@@ -1,6 +1,6 @@
 /**
  * SupabaseService.ts
- * 
+ *
  * This service provides integration with Supabase for R3B3L 4F.
  * It handles device ID generation, chat message persistence, and session management.
  */
@@ -14,7 +14,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Device ID storage key
-const DEVICE_ID_KEY = 'r3b3l_4f_device_id';
+const DEVICE_ID_KEY = 'dataops_terminal_device_id';
 
 // Supabase client
 let supabaseClient: SupabaseClient | null = null;
@@ -95,7 +95,7 @@ export const registerDeviceSession = async (deviceId: string): Promise<boolean> 
 
   try {
     const supabase = initSupabase();
-    
+
     // Check if the device session already exists
     const { data: existingSession } = await supabase
       .from('device_sessions')

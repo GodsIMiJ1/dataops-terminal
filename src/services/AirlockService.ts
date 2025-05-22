@@ -1,7 +1,7 @@
 /**
  * AirlockService.ts
  *
- * This service manages internet access for R3B3L 4F.
+ * This service manages internet access for DataOps Terminal.
  * It provides functions to enable/disable internet access and check the current status.
  * When the airlock is active, all outbound HTTP requests are blocked.
  */

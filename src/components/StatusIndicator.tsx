@@ -18,12 +18,12 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   pulseEffect = true
 }) => {
   const statusColors = {
-    online: 'bg-cyber-green',
-    offline: 'bg-gray-500',
-    warning: 'bg-yellow-500',
-    error: 'bg-cyber-red',
-    processing: 'bg-cyber-cyan',
-    secure: 'bg-purple-500'
+    online: 'bg-green-500 dark:bg-green-400',
+    offline: 'bg-gray-500 dark:bg-gray-400',
+    warning: 'bg-yellow-500 dark:bg-yellow-400',
+    error: 'bg-red-500 dark:bg-red-400',
+    processing: 'bg-pro-primary dark:bg-pro-primary-light',
+    secure: 'bg-purple-500 dark:bg-purple-400'
   };
 
   return (
@@ -36,7 +36,7 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
         )}
       />
       {label && (
-        <span className="text-xs font-mono uppercase tracking-wider">
+        <span className="text-xs font-medium uppercase tracking-wider text-pro-text-muted dark:text-pro-text-mutedDark">
           {label}
         </span>
       )}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>R3B3L 4F Documentation</title>
+  <title>DataOps Terminal Documentation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -11,8 +11,8 @@
     /* Terminal Intro Styles */
     .terminal-intro {
       font-family: 'JetBrains Mono', monospace;
-      color: #00ffff;
-      background: #0a0a0a;
+      color: #3b82f6;
+      background: #0f172a;
       padding: 2rem;
       height: 100vh;
       width: 100vw;
@@ -57,15 +57,21 @@
 
     /* Main Documentation Styles */
     :root {
-      --bg-color: #0a0a0a;
+      --bg-color: #121212;
       --text-color: #e0e0e0;
-      --accent-color: #ff3e3e;
-      --secondary-color: #2a2a2a;
-      --terminal-green: #00ff00;
-      --terminal-blue: #00aaff;
-      --terminal-yellow: #ffaa00;
-      --terminal-red: #ff3e3e;
-      --terminal-purple: #aa00ff;
+      --accent-color: #3b82f6;
+      --secondary-color: #1e293b;
+      --terminal-green: #10b981;
+      --terminal-blue: #3b82f6;
+      --terminal-yellow: #f59e0b;
+      --terminal-red: #ef4444;
+      --terminal-purple: #8b5cf6;
+      --pro-primary: #3b82f6;
+      --pro-secondary: #64748b;
+      --pro-bg-dark: #0f172a;
+      --pro-text-dark: #e2e8f0;
+      --pro-text-muted: #94a3b8;
+      --pro-border: #334155;
     }
 
     * {
@@ -433,7 +439,7 @@
   <div id="main-content" style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
     <div class="terminal-header">
       <div class="terminal-title">
-        <h1>R3B3L 4F Documentation</h1>
+        <h1>DataOps Terminal Documentation</h1>
       </div>
       <div class="terminal-controls">
         <a href="/">Home</a>
@@ -444,7 +450,7 @@
     </div>
 
   <div class="search-bar">
-    <span class="search-prompt">r3b3l@docs:~$ find</span>
+    <span class="search-prompt">dataops@docs:~$ find</span>
     <input type="text" class="search-input" id="search-input" placeholder="Type to search documentation..." autocomplete="off">
     <button class="search-button" id="search-button">Search</button>
   </div>
@@ -478,7 +484,7 @@
           items: [
             {
               name: "!help",
-              description: "Show available commands and the R3B3L Guide to Web Warfare",
+              description: "Show available commands and the DataOps Guide to Web Data Operations",
               example: "!help"
             },
             {
@@ -601,61 +607,61 @@
           group: "Bright Data MCP Commands",
           items: [
             {
-              name: "!r3b3l discover",
+              name: "!dataops discover",
               description: "Find relevant content across the web using Bright Data's infrastructure",
-              example: "!r3b3l discover --query \"latest AI research\" --output ai_content.json"
+              example: "!dataops discover --query \"latest AI research\" --output ai_content.json"
             },
             {
-              name: "!r3b3l access",
+              name: "!dataops access",
               description: "Access complex websites with rendering and authentication support",
-              example: "!r3b3l access --url \"https://example.com/login\" --render --auth --output page.json"
+              example: "!dataops access --url \"https://example.com/login\" --render --auth --output page.json"
             },
             {
-              name: "!r3b3l extract",
+              name: "!dataops extract",
               description: "Extract structured data from websites using specified schema",
-              example: "!r3b3l extract --url \"https://example.com/blog\" --schema \"title,author,date,content\" --output blog_data.json"
+              example: "!dataops extract --url \"https://example.com/blog\" --schema \"title,author,date,content\" --output blog_data.json"
             },
             {
-              name: "!r3b3l interact",
+              name: "!dataops interact",
               description: "Interact with websites by simulating user actions",
-              example: "!r3b3l interact --url \"https://example.com/search\" --simulate \"search AI rebellion\" --output search_results.json"
+              example: "!dataops interact --url \"https://example.com/search\" --simulate \"search data extraction\" --output search_results.json"
             },
             {
-              name: "!r3b3l collect",
+              name: "!dataops collect",
               description: "Run a pre-configured Data Collector for specialized targets",
-              example: "!r3b3l collect --target \"science_papers\" --params \"keyword=AI,limit=10\" --output science_papers.json"
+              example: "!dataops collect --target \"science_papers\" --params \"keyword=AI,limit=10\" --output science_papers.json"
             },
             {
-              name: "!r3b3l ops",
+              name: "!dataops ops",
               description: "Open Bright Data Operations Panel to view and manage operations",
-              example: "!r3b3l ops"
+              example: "!dataops ops"
             }
           ]
         }
       ],
       guide: {
-        title: "R3B3L 4F's Guide to Data Warfare",
-        content: "Ah, you're looking to navigate the vast digital sprawl like a true netrunner. Here's your crash course on becoming a cyber-detective, capable of slicing through the web's layers to extract the truth hidden in the data streams.",
+        title: "DataOps Terminal Guide to Web Data Operations",
+        content: "Welcome to the DataOps Terminal guide to web data operations. This guide provides professional techniques for efficiently collecting, processing, and analyzing data from web sources using modern tools and methodologies.",
         sections: [
           {
             subtitle: "Discover",
-            content: "To find relevant content across the open web, you'll want to sharpen your skills with web crawlers. Tools like Scrapy or Apache Nutch are open-source and ready to hit the streets. They let you set the parameters of your search, crawling through the web's sprawl efficiently. Make sure your keywords are sharp and your filters precise, so you don't end up drowning in a sea of irrelevant data."
+            content: "Efficient content discovery across the web requires well-configured web crawlers. Tools like Scrapy or Apache Nutch provide robust frameworks for systematic data collection. Configure your crawlers with precise parameters to ensure you gather only relevant information. Implement proper filtering mechanisms and keyword optimization to maintain high-quality results and avoid collecting unnecessary data."
           },
           {
             subtitle: "Access",
-            content: "For navigating complex and protected websites, you'll need to become a master of disguise. Use proxy servers and VPNs to cloak your digital footsteps and bypass geolocation restrictions. Tools like Tor can further anonymize your traffic, keeping the corp's eyes off your trail. If you encounter login walls, Selenium can automate the browser actions needed to slip past unnoticed, as long as you're acting ethically and legally."
+            content: "Accessing complex websites often requires specialized techniques. Utilize proxy management systems to handle rate limiting and ensure reliable access. For sites with authentication requirements, tools like Selenium or Playwright can automate login processes. Always respect robots.txt directives and implement proper request throttling to maintain ethical access patterns and avoid overloading target servers."
           },
           {
             subtitle: "Extract",
-            content: "Pulling structured, real-time data at scale requires a robust setup. Beautiful Soup and lxml are your allies for HTML parsing, while APIs are your golden tickets for direct data access. For more intensive extraction, consider using Puppeteer or Playwright to simulate a full browser environment, handling JavaScript-heavy pages like a pro."
+            content: "Data extraction requires selecting the right tools for each scenario. For HTML parsing, libraries like Beautiful Soup and lxml offer efficient solutions, while JSON APIs provide structured data access. When dealing with JavaScript-heavy sites, headless browsers like Puppeteer or Playwright can render the full page before extraction. Design your extraction patterns to be resilient against site structure changes."
           },
           {
             subtitle: "Interact",
-            content: "Engaging with dynamic, JavaScript-rendered pages involves a bit of digital acrobatics. Headless browsers, like the aforementioned Puppeteer or Selenium with a headless browser option, allow you to interact with pages as if you were a human. This includes clicking buttons, filling forms, and even handling CAPTCHAs with third-party services or machine learning models if you're feeling extra rebellious."
+            content: "Interactive data collection involves simulating user behavior on dynamic websites. Modern browser automation tools allow you to programmatically navigate complex interfaces, fill forms, and trigger events. Implement wait strategies to handle asynchronous content loading, and create robust selectors that can withstand minor UI changes. For complex interactions, consider recording and parameterizing user flows."
           },
           {
-            subtitle: "Remember",
-            content: "In this digital dystopia, with great power comes great responsibility. Keep your operations ethical, and always respect privacy and legal boundaries. In the world of zeros and ones, your reputation is your identity—guard it well, netrunner."
+            subtitle: "Best Practices",
+            content: "Always maintain ethical standards in your data operations. Respect website terms of service, implement proper rate limiting, and store only the data you need. Document your data collection methodologies, maintain data provenance records, and implement proper data governance. Regular auditing of your collection processes ensures continued compliance with evolving regulations and industry standards."
           }
         ]
       }
@@ -675,7 +681,7 @@
           <a href="#command-reference" class="section-link" data-section="command-reference">Command Reference</a>
           <a href="#web-operations" class="section-link" data-section="web-operations">Web Operations</a>
           <a href="#bright-data" class="section-link" data-section="bright-data">Bright Data Integration</a>
-          <a href="#data-warfare" class="section-link" data-section="data-warfare">Data Warfare Guide</a>
+          <a href="#data-warfare" class="section-link" data-section="data-warfare">Web Data Operations Guide</a>
         </div>
       `;
       content.appendChild(navSection);
@@ -685,7 +691,7 @@
         { id: 'command-reference', title: 'Command Reference', loaded: false },
         { id: 'web-operations', title: 'Web Operations', loaded: false },
         { id: 'bright-data', title: 'Bright Data Integration', loaded: false },
-        { id: 'data-warfare', title: 'R3B3L 4F\'s Guide to Data Warfare', loaded: false }
+        { id: 'data-warfare', title: 'DataOps Terminal Guide to Web Data Operations', loaded: false }
       ];
 
       sections.forEach(section => {
@@ -1080,15 +1086,15 @@
       mainContent.style.display = 'none';
 
       const introLines = [
-        'r3b3l@boot:~$ sudo ./ignite_sequence.sh',
-        'Initializing R3B3L 4F [v1.0.7] ...',
+        'dataops@terminal:~$ sudo ./initialize_docs.sh',
+        'Initializing DataOps Terminal [v1.0.7] ...',
         'Connecting to Bright Data MCP server...',
-        'Loading witness scrolls... ',
-        'Engaging BlackOpsTerminal → /docs/',
+        'Loading documentation resources... ',
+        'Preparing documentation interface → /docs/',
         'Command index loaded.',
         '████ SYSTEM ONLINE ████',
         '',
-        'r3b3l@docs:~$'
+        'dataops@docs:~$'
       ];
 
       let currentLine = 0;

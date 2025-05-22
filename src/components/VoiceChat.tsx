@@ -11,17 +11,17 @@ interface VoiceChatProps {
   className?: string;
 }
 
-const VoiceChat: React.FC<VoiceChatProps> = ({ 
-  onSpeechRecognized, 
+const VoiceChat: React.FC<VoiceChatProps> = ({
+  onSpeechRecognized,
   disabled = false,
-  className 
+  className
 }) => {
-  const { 
-    startListening, 
-    stopListening, 
-    isListening, 
-    isSpeaking, 
-    error 
+  const {
+    startListening,
+    stopListening,
+    isListening,
+    isSpeaking,
+    error
   } = usePlayAI({ onSpeechRecognized });
 
   const handleToggleMic = () => {
@@ -44,15 +44,15 @@ const VoiceChat: React.FC<VoiceChatProps> = ({
       >
         {isListening ? "Stop" : "Voice"}
       </ActionButton>
-      
+
       {isSpeaking && (
-        <div className="flex items-center text-cyber-cyan">
+        <div className="flex items-center text-pro-secondary">
           <Volume2 className="w-4 h-4 animate-pulse" />
         </div>
       )}
-      
+
       {error && (
-        <div className="text-xs text-cyber-red font-mono">
+        <div className="text-xs text-red-500">
           {error}
         </div>
       )}

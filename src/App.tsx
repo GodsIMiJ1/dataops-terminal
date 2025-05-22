@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import BlackOps from "./pages/BlackOps";
+import TerminalPage from "./pages/TerminalPage";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { testEnvVariables } from "./utils/envTest";
@@ -36,7 +36,8 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/blackops" element={<BlackOps />} />
+          <Route path="/terminal" element={<TerminalPage />} />
+          <Route path="/docs" element={<TerminalPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

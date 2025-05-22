@@ -63,7 +63,43 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Cyberpunk theme colors
+				// Theme colors
+				// Professional theme (default)
+				pro: {
+					bg: {
+						DEFAULT: '#1a1f2b',  // Dark charcoal with blue tint
+						dark: '#121620',     // Even darker charcoal
+						panel: '#1e2433',    // Dark blue-grey for panels
+						darkPanel: '#141824' // Very dark blue-grey
+					},
+					text: {
+						DEFAULT: '#e2e8f0',  // Light grey
+						dark: '#f8fafc',     // Almost white
+						muted: '#94a3b8',    // Medium grey
+						mutedDark: '#64748b' // Darker grey
+					},
+					primary: {
+						DEFAULT: '#3b82f6',  // Bright blue
+						dark: '#2563eb',     // Darker blue
+						light: '#60a5fa'     // Lighter blue
+					},
+					secondary: {
+						DEFAULT: '#6366f1',  // Indigo
+						dark: '#4f46e5',     // Darker indigo
+						light: '#818cf8'     // Lighter indigo
+					},
+					accent: {
+						DEFAULT: '#0ea5e9',  // Sky blue
+						dark: '#0284c7',     // Darker sky blue
+						light: '#38bdf8'     // Lighter sky blue
+					},
+					border: {
+						DEFAULT: '#334155',  // Dark slate
+						dark: '#1e293b',     // Darker slate
+						focus: '#3b82f6'     // Blue for focus
+					}
+				},
+				// Cyberpunk theme (ghost mode)
 				cyber: {
 					black: '#0a0a0a',
 					darkgray: '#1a1a1a',

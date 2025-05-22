@@ -13,12 +13,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ isSpeaking }) => {
   const { modelName, modelStatus } = useSystemMetrics();
 
   return (
-    <div className="p-3 border-b border-cyber-red/30 flex items-center justify-between">
+    <div className="p-3 border-b border-pro-border dark:border-pro-border-dark flex items-center justify-between bg-white dark:bg-pro-bg-darkPanel">
       <div className="flex items-center gap-2">
-        <Terminal className="w-5 h-5 text-cyber-red" />
-        <GlitchText text="R3B3L 4F" className="font-bold text-cyber-red" />
+        <Terminal className="w-5 h-5 text-pro-primary" />
+        <h2 className="font-bold text-pro-primary">DataOps Assistant</h2>
         {isSpeaking && (
-          <Volume2 className="w-4 h-4 text-cyber-cyan animate-pulse" />
+          <Volume2 className="w-4 h-4 text-pro-secondary animate-pulse" />
         )}
       </div>
 
@@ -27,10 +27,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ isSpeaking }) => {
           status={modelStatus === 'idle' ? 'online' : modelStatus === 'processing' ? 'processing' : 'error'}
           label={modelStatus.toUpperCase()}
         />
-        <div className="bg-cyber-darkgray px-2 py-1 rounded text-xs font-mono">
+        <div className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs border border-pro-border dark:border-pro-border-dark">
           <div className="flex items-center gap-1">
-            <Cpu className="w-3 h-3 text-cyber-cyan" />
-            <span className="uppercase">{modelName || 'NO MODEL'}</span>
+            <Cpu className="w-3 h-3 text-pro-secondary" />
+            <span className="uppercase text-pro-text-muted dark:text-pro-text-mutedDark">{modelName || 'NO MODEL'}</span>
           </div>
         </div>
       </div>

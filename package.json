@@ -1,7 +1,13 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "dataops-terminal",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Advanced Web Data Operations Platform with Bright Data Integration",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GodsIMiJ1/dataops-terminal.git"
+  },
+  "author": "GodsIMiJ AI Solutions",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"

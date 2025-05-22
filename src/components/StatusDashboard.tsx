@@ -9,17 +9,15 @@ const StatusDashboard: React.FC = () => {
   const { cpuUsage, memoryUsage, storageUsage, modelName, modelStatus } = useSystemMetrics();
 
   return (
-    <div className="cyber-panel h-full rounded flex flex-col gap-4 p-4">
-      <div className="cyber-scanline"></div>
-      
+    <div className="pro-panel h-full rounded flex flex-col gap-4 p-4">
       {/* Header */}
       <StatusHeader />
-      
+
       {/* Connection Status */}
       <ConnectionStatus sshStatus={modelStatus !== 'error'} />
-      
+
       {/* Resources Section */}
-      <ResourceMonitor 
+      <ResourceMonitor
         cpuUsage={cpuUsage}
         ramUsage={memoryUsage}
         modelStatus={modelStatus}

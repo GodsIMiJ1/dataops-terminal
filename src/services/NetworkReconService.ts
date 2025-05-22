@@ -1,7 +1,7 @@
 /**
  * NetworkReconService.ts
- * 
- * This service provides network reconnaissance capabilities for R3B3L 4F.
+ *
+ * This service provides network reconnaissance capabilities for DataOps Terminal.
  * It includes DNS lookups, IP scanning, and other network-related functions.
  */
 
@@ -59,35 +59,35 @@ export const performDnsLookup = async (hostname: string): Promise<DnsResult[]> =
   try {
     // Use public DNS API to perform lookup
     const response = await fetch(`https://dns.google/resolve?name=${hostname}&type=A`);
-    
+
     if (!response.ok) {
       throw new Error(`DNS lookup failed: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
+
     // Parse the response
     const results: DnsResult[] = [];
-    
+
     if (data.Answer) {
       // Group by record type
       const recordsByType: Record<string, string[]> = {};
-      
+
       for (const answer of data.Answer) {
-        const type = answer.type === 1 ? 'A' : 
-                    answer.type === 28 ? 'AAAA' : 
-                    answer.type === 5 ? 'CNAME' : 
-                    answer.type === 15 ? 'MX' : 
-                    answer.type === 16 ? 'TXT' : 
+        const type = answer.type === 1 ? 'A' :
+                    answer.type === 28 ? 'AAAA' :
+                    answer.type === 5 ? 'CNAME' :
+                    answer.type === 15 ? 'MX' :
+                    answer.type === 16 ? 'TXT' :
                     answer.type === 2 ? 'NS' : 'Unknown';
-        
+
         if (!recordsByType[type]) {
           recordsByType[type] = [];
         }
-        
+
         recordsByType[type].push(answer.data);
       }
-      
+
       // Create result objects
       for (const [type, addresses] of Object.entries(recordsByType)) {
         results.push({
@@ -97,7 +97,7 @@ export const performDnsLookup = async (hostname: string): Promise<DnsResult[]> =
         });
       }
     }
-    
+
     return results;
   } catch (error) {
     console.error('Error performing DNS lookup:', error);
@@ -119,48 +119,48 @@ export const performWhoisLookup = async (domain: string): Promise<WhoisResult> =
   try {
     // Use public WHOIS API to perform lookup
     const response = await fetch(`https://whois.freeaiapi.xyz/?domain=${domain}`);
-    
+
     if (!response.ok) {
       throw new Error(`WHOIS lookup failed: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
+
     // Parse the response
     const result: WhoisResult = {
       domain,
       raw: data.raw || ''
     };
-    
+
     // Extract common WHOIS fields
     if (data.registrar) {
       result.registrar = data.registrar;
     }
-    
+
     if (data.creation_date) {
       result.creationDate = new Date(data.creation_date).toISOString();
     }
-    
+
     if (data.expiration_date) {
       result.expirationDate = new Date(data.expiration_date).toISOString();
     }
-    
+
     if (data.name_servers) {
       result.nameServers = Array.isArray(data.name_servers) ? data.name_servers : [data.name_servers];
     }
-    
+
     if (data.status) {
       result.status = Array.isArray(data.status) ? data.status : [data.status];
     }
-    
+
     if (data.org || data.organization) {
       result.organization = data.org || data.organization;
     }
-    
+
     if (data.emails || data.email) {
       result.contactEmail = Array.isArray(data.emails) ? data.emails[0] : (data.emails || data.email);
     }
-    
+
     return result;
   } catch (error) {
     console.error('Error performing WHOIS lookup:', error);
@@ -184,21 +184,21 @@ export const analyzeHttpHeaders = async (url: string): Promise<Record<string, st
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url;
     }
-    
+
     // Fetch the URL and extract headers
     const response = await fetch(url, {
       method: 'HEAD',
       headers: {
-        'User-Agent': 'R3B3L-4F-Recon/1.0'
+        'User-Agent': 'DataOps-Terminal/1.0'
       }
     });
-    
+
     // Convert headers to object
     const headers: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       headers[key] = value;
     });
-    
+
     return headers;
   } catch (error) {
     console.error('Error analyzing HTTP headers:', error);
@@ -219,12 +219,12 @@ export const performNetworkScan = async (target: string): Promise<NetworkScanRes
 
   // Log the scan
   logEntry('system', `Starting network scan for ${target}`);
-  
+
   const result: NetworkScanResult = {
     target,
     timestamp: new Date().toISOString()
   };
-  
+
   try {
     // Perform DNS lookup
     try {
@@ -232,7 +232,7 @@ export const performNetworkScan = async (target: string): Promise<NetworkScanRes
     } catch (error) {
       console.warn('DNS lookup failed:', error);
     }
-    
+
     // Perform WHOIS lookup if target is a domain
     if (target.includes('.') && !target.match(/^\d+\.\d+\.\d+\.\d+$/)) {
       try {
@@ -241,25 +241,25 @@ export const performNetworkScan = async (target: string): Promise<NetworkScanRes
         console.warn('WHOIS lookup failed:', error);
       }
     }
-    
+
     // Analyze HTTP headers
     try {
       result.headers = await analyzeHttpHeaders(target);
     } catch (error) {
       console.warn('HTTP header analysis failed:', error);
     }
-    
+
     // Log the result
     logEntry('response', `Network scan completed for ${target}`, result);
-    
+
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     result.error = errorMessage;
-    
+
     // Log the error
     logEntry('error', `Network scan failed for ${target}: ${errorMessage}`);
-    
+
     return result;
   }
 };

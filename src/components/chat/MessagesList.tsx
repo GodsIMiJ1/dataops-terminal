@@ -39,37 +39,37 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
 
           switch (message.role) {
             case 'user':
-              messageClass = 'bg-cyber-darkgray border-cyber-cyan/30 ml-auto';
-              iconComponent = <Terminal className="w-4 h-4 text-cyber-cyan" />;
+              messageClass = 'bg-gray-100 dark:bg-gray-800 border-pro-primary/30 ml-auto';
+              iconComponent = <Terminal className="w-4 h-4 text-pro-primary" />;
               break;
             case 'assistant':
-              messageClass = 'bg-cyber-darkgray/50 border-cyber-red/30';
-              iconComponent = <Zap className="w-4 h-4 text-cyber-red" />;
+              messageClass = 'bg-white dark:bg-gray-900 border-pro-secondary/30';
+              iconComponent = <Zap className="w-4 h-4 text-pro-secondary" />;
               break;
             case 'system':
-              messageClass = 'bg-cyber-darkgray/30 border-yellow-600/30';
-              iconComponent = <Cpu className="w-4 h-4 text-yellow-600" />;
+              messageClass = 'bg-gray-50 dark:bg-gray-800 border-yellow-500/30';
+              iconComponent = <Cpu className="w-4 h-4 text-yellow-500" />;
               break;
             case 'error':
-              messageClass = 'bg-cyber-red/10 border-cyber-red/50';
-              iconComponent = <AlertTriangle className="w-4 h-4 text-cyber-red" />;
+              messageClass = 'bg-red-50 dark:bg-red-900/20 border-red-500/30';
+              iconComponent = <AlertTriangle className="w-4 h-4 text-red-500" />;
               break;
           }
 
           return (
             <div
               key={message.id}
-              className={`cyber-panel p-3 rounded ${isMobile ? 'max-w-[95%]' : 'max-w-[85%]'} ${messageClass}`}
+              className={`pro-panel p-3 rounded-lg shadow-sm ${isMobile ? 'max-w-[95%]' : 'max-w-[85%]'} ${messageClass}`}
             >
               <div className="flex items-start gap-2">
                 <div className="mt-1">
                   {iconComponent}
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <div className="font-mono text-sm whitespace-pre-wrap break-words">
+                  <div className="text-sm whitespace-pre-wrap break-words text-pro-text dark:text-pro-text-dark">
                     {message.content}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1 font-mono">
+                  <div className="text-xs text-pro-text-muted dark:text-pro-text-mutedDark mt-1">
                     {formatTime(message.timestamp)}
                   </div>
                 </div>
@@ -80,10 +80,10 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
         <div ref={messagesEndRef} />
 
         {isLoading && (
-          <div className="flex items-center justify-center gap-2 text-cyber-cyan">
-            <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
-            <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
+          <div className="flex items-center justify-center gap-2 text-pro-primary">
+            <div className="w-2 h-2 bg-pro-primary rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 bg-pro-primary rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
+            <div className="w-2 h-2 bg-pro-primary rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
           </div>
         )}
       </div>

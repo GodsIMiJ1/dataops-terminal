@@ -93,7 +93,7 @@ export const confirmCommandExecution = async (
   confirmationToken: string
 ): Promise<CommandExecutionResult> => {
   const API_URL = import.meta.env.VITE_COMMAND_CONFIRM_URL || 'http://localhost:5000/api/confirm';
-  const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'r3b3l-4f-secure-token';
+  const API_TOKEN = import.meta.env.VITE_API_TOKEN || 'dataops-terminal-secure-token';
 
   try {
     const response = await fetch(API_URL, {
@@ -154,14 +154,14 @@ const fallbackExecuteCommand = async (command: string): Promise<CommandExecution
 
   if (command.startsWith('pwd')) {
     return {
-      output: '/home/user/projects/r3b3l-4f\n[MOCK MODE - Backend not connected]',
+      output: '/home/user/projects/dataops-terminal\n[MOCK MODE - Backend not connected]',
       exitCode: 0
     };
   }
 
   if (command.startsWith('whoami')) {
     return {
-      output: 'r3b3l-user\n[MOCK MODE - Backend not connected]',
+      output: 'dataops-user\n[MOCK MODE - Backend not connected]',
       exitCode: 0
     };
   }

@@ -1,7 +1,7 @@
 /**
  * OpenAIService.ts
  *
- * This service provides direct integration with the OpenAI API for R3B3L 4F.
+ * This service provides direct integration with the OpenAI API for DataOps Terminal.
  * It handles communication with the GPT-4o model for chat functionality.
  */
 
