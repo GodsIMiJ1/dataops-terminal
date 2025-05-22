@@ -187,13 +187,13 @@ npm run build
 
 © 2025 GodsIMiJ AI Solutions. All Rights Reserved.
 
-This software is proprietary and confidential. Unauthorized use, reproduction, modification, or distribution is strictly prohibited without explicit written consent from DataOps Solutions.
+This software is proprietary and confidential. Unauthorized use, reproduction, modification, or distribution is strictly prohibited without explicit written consent from GodsIMiJ AI Solutions.
 
 You may:
 - View the code for evaluation or submission purposes only
 - Not distribute, sell, license, or modify any part of the codebase
 
-For commercial or extended usage, contact: legal@dataops.solutions
+For commercial or extended usage, contact: james@godsimij-ai-solutions.com
 
 ---
 
