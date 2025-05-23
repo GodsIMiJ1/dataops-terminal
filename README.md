@@ -41,70 +41,13 @@ This project showcases the power of Bright Data's infrastructure through a profe
 - 🌐 **Responsive Design**: Works on desktop and mobile devices
 - 🎨 **Dual Interface Modes**: Choose between professional and cyberpunk themes
 
-## 🚀 Quick Start
+## System Access
 
-> You'll need an OpenAI API key for GPT-4o access and optionally a Supabase account for persistence.
+This system is a private demonstration build for hackathon judging purposes only.  
+For demo access or extended evaluation, please contact: [james@godsimij.ai-solutions.com](mailto:james@godsimij.ai-solutions.com)
 
-### Configuration
+*No cloning, redistribution, or unauthorized use permitted.*
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/dataops-solutions/dataops-terminal.git
-   cd dataops-terminal
-   ```
-
-2. Create a `.env` file from the example:
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Add your OpenAI API key to the `.env` file:
-   ```
-   VITE_OPENAI_API_KEY=your-openai-api-key-here
-   ```
-
-4. (Optional) For chat persistence, set up Supabase:
-   - Create a free Supabase account at https://supabase.com
-   - Create a new project
-   - Run the SQL from `supabase/schema.sql` in the SQL Editor
-   - Add your Supabase URL and anon key to the `.env` file:
-   ```
-   VITE_SUPABASE_URL=your-supabase-url-here
-   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
-   ```
-
-5. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-6. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-7. Open your browser at http://localhost:5173
-
-### Deployment
-
-This application is deployed on Netlify. You can access the live version at:
-
-```
-https://dataops-terminal.netlify.app/
-```
-
-For local development:
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-```
 
 ### ⚙️ Commands
 
