@@ -187,15 +187,16 @@ npm run build
 
 ## 📜 License
 
+## 🛡️ Licensing
+
+This software is proprietary and protected under the FlameOS Protocol.
+
 © 2025 GodsIMiJ AI Solutions. All Rights Reserved.
 
-This software is proprietary and confidential. Unauthorized use, reproduction, modification, or distribution is strictly prohibited without explicit written consent from GodsIMiJ AI Solutions.
+This codebase is not open source and is intended solely for evaluation within the context of official submissions.  
+Unauthorized use, distribution, or modification is strictly prohibited.  
+Contact [james@godsimij-ai-solutions.com](mailto:james@godsimij-ai-solutions.com) for commercial or extended licensing inquiries.
 
-You may:
-- View the code for evaluation or submission purposes only
-- Not distribute, sell, license, or modify any part of the codebase
-
-For commercial or extended usage, contact: james@godsimij-ai-solutions.com
 
 ---
 
