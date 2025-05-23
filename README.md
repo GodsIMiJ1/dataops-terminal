@@ -1,6 +1,8 @@
 # DataOps Terminal - Advanced Web Data Operations Platform
 
 ![DataOps Terminal Interface](public/screenshots/dataops-terminal-main.png)
+![License: Proprietary](https://img.shields.io/badge/license-Proprietary-red)
+
 
 DataOps Terminal is an advanced web data operations platform with a modern terminal interface, built for the Bright Data Hackathon. It features comprehensive Bright Data integration, real command execution, natural language parsing, and web-connected task execution capabilities.
 
