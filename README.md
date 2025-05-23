@@ -42,7 +42,7 @@ This project showcases:
 
 ---
 
-## 🧠 Command Suite (Judge Ready)
+## 🧠 Command Suite 
 
 ```bash
 # Core Ops
