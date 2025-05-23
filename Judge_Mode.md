@@ -56,6 +56,7 @@ Try these commands to experience the power of DataOps Terminal:
 ```
 !dataops discover --query "latest AI research trends"
 !dataops extract --url "https://example.com/pricing" --schema "plan,price,features"
+!extract-doi --doi "10.1126/sciadv.adu9368"
 !mission MARKET_RESEARCH -o "Analyze competitor pricing strategies"
 ```
 
@@ -72,5 +73,5 @@ With additional development time, we plan to:
 ## Contact
 
 For any questions about this submission, please contact:
-- Email: contact@dataops-solutions.com
-- GitHub: https://github.com/dataops-solutions/dataops-terminal
+- Email: james@godsimij-ai-solutions.com
+- GitHub: https://github.com/GodsIMiJ1/dataops-terminal

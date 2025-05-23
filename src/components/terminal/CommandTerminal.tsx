@@ -7,6 +7,7 @@ import { useChatAI } from '@/hooks/useChatAI';
 import mcpHandler from '@/lib/mcpHandler';
 import { createScroll } from '@/lib/scrollManager';
 import BrightDataPanel from '@/components/BrightDataPanel';
+import { runDoiCollector } from '@/lib/BrightDataService';
 import {
   initScrollSession,
   logEntry,
@@ -305,6 +306,26 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       }
     }
 
+    // Handle DOI extraction command
+    if (mainCommand === '!extract-doi') {
+      // Extract DOI from command
+      const doiMatch = command.match(/--doi\s+"([^"]+)"/);
+      if (!doiMatch) {
+        return 'Missing required parameter: --doi "10.1126/sciadv.adu9368"';
+      }
+
+      const doi = doiMatch[1];
+
+      try {
+        logEntry('system', `Extracting metadata for DOI: ${doi}`);
+        const result = await runDoiCollector(doi);
+        return `📄 DOI Extraction Result:\n\n${JSON.stringify(result, null, 2)}`;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return `Error extracting DOI metadata: ${errorMessage}`;
+      }
+    }
+
     // Handle Bright Data commands
     if (mainCommand === '!dataops') {
       const subCommand = parts[1]?.toLowerCase();
@@ -409,7 +430,7 @@ DataOps Terminal Commands:
 
 # Web Commands (Internet must be enabled)
 !recon <url>                      → Scan and log raw HTML
-!fetch-pub <doi>                  → Fetch publication metadata
+!extract-doi --doi "10.1126/xyz"  → Extract metadata from scientific articles
 !scrape <keyword> <site>          → Keyword web crawl
 
 # Bright Data MCP Commands

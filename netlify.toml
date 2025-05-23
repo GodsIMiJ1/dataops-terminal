@@ -15,7 +15,8 @@
 # - VITE_OPENAI_API_KEY: Your OpenAI API key for AI assistant
 # - VITE_SUPABASE_URL: Your Supabase project URL for data persistence
 # - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key for client-side access
-# - VITE_BRIGHT_DATA_API_KEY: Your Bright Data API key for web data collection
+# - VITE_BRIGHT_DATA_API_KEY: Your Bright Data API key for web data collection (hl_77b8d574)
+# - VITE_BRIGHT_DATA_COLLECTOR_ID: Your Bright Data collector ID (c_maxhmeem10gh3pyrh8)
 
 # Node.js version
 [build.environment]
