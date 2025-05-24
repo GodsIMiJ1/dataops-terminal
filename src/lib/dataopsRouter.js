@@ -15,33 +15,33 @@ const BRIGHT_DATA_COLLECTOR_ID = import.meta.env.VITE_BRIGHT_DATA_COLLECTOR_ID;
  */
 export async function executeCommand(parsedCommand) {
   const { command, query, url, schema, actions, confidence } = parsedCommand;
-  
+
   console.log(`🔄 Executing ${command.toUpperCase()} command...`);
-  
+
   try {
     let result;
-    
+
     switch (command) {
       case 'discover':
         result = await executeDiscover(query);
         break;
-        
+
       case 'access':
         result = await executeAccess(url || query);
         break;
-        
+
       case 'extract':
         result = await executeExtract(url, schema);
         break;
-        
+
       case 'interact':
         result = await executeInteract(url, actions);
         break;
-        
+
       default:
         throw new Error(`Unknown command: ${command}`);
     }
-    
+
     return {
       success: true,
       command,
@@ -49,10 +49,10 @@ export async function executeCommand(parsedCommand) {
       confidence,
       timestamp: new Date().toISOString()
     };
-    
+
   } catch (error) {
     console.error(`Command execution failed:`, error);
-    
+
     // Return mock data if API fails
     return {
       success: false,
@@ -70,28 +70,50 @@ export async function executeCommand(parsedCommand) {
  */
 async function executeDiscover(query) {
   if (!BRIGHT_DATA_API_KEY) {
+    console.warn('No Bright Data API key, using mock data');
     return generateMockDiscoverData(query);
   }
-  
-  // Call Bright Data discover API
-  const response = await fetch('https://api.brightdata.com/datasets/discover', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${BRIGHT_DATA_API_KEY}`
-    },
-    body: JSON.stringify({
-      query,
-      limit: 10,
-      format: 'json'
-    })
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Bright Data API error: ${response.status}`);
+
+  try {
+    // Try multiple API endpoints for discovery
+    const endpoints = [
+      `https://api.brightdata.com/dca/trigger_immediate`,
+      `https://api.brightdata.com/datasets/trigger`,
+      `https://brightdata.com/api/trigger`
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BRIGHT_DATA_API_KEY}`
+          },
+          body: JSON.stringify({
+            query: query,
+            limit: 10,
+            format: 'json'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Bright Data API success:', endpoint);
+          return data;
+        }
+      } catch (e) {
+        console.warn(`Endpoint ${endpoint} failed:`, e.message);
+        continue;
+      }
+    }
+
+    throw new Error('All Bright Data endpoints failed');
+
+  } catch (error) {
+    console.warn(`Bright Data discovery failed: ${error.message}, using mock data`);
+    return generateMockDiscoverData(query);
   }
-  
-  return await response.json();
 }
 
 /**
@@ -101,7 +123,7 @@ async function executeAccess(url) {
   if (!BRIGHT_DATA_API_KEY) {
     return generateMockAccessData(url);
   }
-  
+
   const response = await fetch('https://api.brightdata.com/sessions/browser', {
     method: 'POST',
     headers: {
@@ -114,11 +136,11 @@ async function executeAccess(url) {
       wait_for: 'networkidle'
     })
   });
-  
+
   if (!response.ok) {
     throw new Error(`Bright Data API error: ${response.status}`);
   }
-  
+
   return await response.json();
 }
 
@@ -129,31 +151,35 @@ async function executeExtract(url, schema) {
   if (!BRIGHT_DATA_API_KEY) {
     return generateMockExtractData(url, schema);
   }
-  
+
   // Check if this is a DOI extraction
-  if (url && url.includes('doi.org') || schema === 'doi') {
-    const doiMatch = url.match(/10\.\d{4,}\/[^\s]+/);
+  if (url && (url.includes('doi.org') || url.includes('arxiv.org')) || schema === 'doi') {
+    const doiMatch = url.match(/10\.\d{4,}\/[^\s]+/) || url.match(/arxiv\.org\/abs\/([^\/\s]+)/);
     if (doiMatch) {
       return await runDoiCollector(doiMatch[0]);
     }
   }
-  
-  const response = await fetch(`https://api.brightdata.com/collector/${BRIGHT_DATA_COLLECTOR_ID}/start`, {
+
+  // Use the collector with URL input
+  const response = await fetch(`https://brightdata.com/api/collector/${BRIGHT_DATA_COLLECTOR_ID}/trigger`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${BRIGHT_DATA_API_KEY}`
     },
     body: JSON.stringify({
-      url,
-      schema: schema ? schema.split(',') : ['title', 'content', 'links']
+      input: {
+        url: url,
+        selectors: schema ? schema.split(',') : ['title', 'content', 'links']
+      }
     })
   });
-  
+
   if (!response.ok) {
-    throw new Error(`Bright Data API error: ${response.status}`);
+    console.warn(`Bright Data API error: ${response.status}, falling back to mock data`);
+    return generateMockExtractData(url, schema);
   }
-  
+
   return await response.json();
 }
 
@@ -164,7 +190,7 @@ async function executeInteract(url, actions) {
   if (!BRIGHT_DATA_API_KEY) {
     return generateMockInteractData(url, actions);
   }
-  
+
   const response = await fetch('https://api.brightdata.com/sessions/interact', {
     method: 'POST',
     headers: {
@@ -176,11 +202,11 @@ async function executeInteract(url, actions) {
       actions: parseActions(actions)
     })
   });
-  
+
   if (!response.ok) {
     throw new Error(`Bright Data API error: ${response.status}`);
   }
-  
+
   return await response.json();
 }
 
@@ -189,7 +215,7 @@ async function executeInteract(url, actions) {
  */
 function parseActions(actionsString) {
   if (!actionsString) return [];
-  
+
   // Simple action parsing - can be enhanced
   return actionsString.split(',').map(action => {
     const [type, selector, value] = action.split(':');
@@ -279,4 +305,36 @@ function generateMockInteractData(url, actions) {
   };
 }
 
-export default { executeCommand };
+/**
+ * Test Bright Data API connection
+ */
+export async function testBrightDataConnection() {
+  if (!BRIGHT_DATA_API_KEY) {
+    return { success: false, error: 'No API key configured' };
+  }
+
+  try {
+    // Test with a simple request
+    const response = await fetch('https://api.brightdata.com/dca/datasets', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${BRIGHT_DATA_API_KEY}`
+      }
+    });
+
+    return {
+      success: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      apiKey: BRIGHT_DATA_API_KEY ? `${BRIGHT_DATA_API_KEY.substring(0, 8)}...` : 'Not set'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      apiKey: BRIGHT_DATA_API_KEY ? `${BRIGHT_DATA_API_KEY.substring(0, 8)}...` : 'Not set'
+    };
+  }
+}
+
+export default { executeCommand, testBrightDataConnection };

@@ -9,6 +9,7 @@ import { createScroll } from '@/lib/scrollManager';
 import BrightDataPanel from '@/components/BrightDataPanel';
 import { runDoiCollector } from '@/lib/BrightDataService';
 import { processCommand as processGhostCommand, validateSetup } from '@/lib/ghostCli.js';
+import { testBrightDataConnection } from '@/lib/dataopsRouter.js';
 import {
   initScrollSession,
   logEntry,
@@ -338,6 +339,31 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       return result;
     }
 
+    // Handle Bright Data API test
+    if (mainCommand === '!test-api') {
+      try {
+        logEntry('system', 'Testing Bright Data API connection...');
+        const testResult = await testBrightDataConnection();
+
+        let result = '🔧 Bright Data API Test\n' + '='.repeat(40) + '\n\n';
+        result += `API Key: ${testResult.apiKey}\n`;
+        result += `Status: ${testResult.success ? '✅ SUCCESS' : '❌ FAILED'}\n`;
+
+        if (testResult.success) {
+          result += `HTTP Status: ${testResult.status} ${testResult.statusText}\n`;
+          result += '\n🎉 Bright Data API is working! GHOSTCLI should use real data.';
+        } else {
+          result += `Error: ${testResult.error}\n`;
+          result += '\n⚠️  API connection failed. Using mock data.';
+        }
+
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return `API Test Error: ${errorMessage}`;
+      }
+    }
+
     // Handle DOI extraction command
     if (mainCommand === '!extract-doi') {
       // Extract DOI from command
@@ -463,6 +489,7 @@ DataOps Terminal Commands:
 # 🤖 GHOSTCLI - Autonomous Operations (NEW!)
 !ghost <natural language>        → Process any command in natural language
 !ghost-setup                     → Validate GHOSTCLI configuration
+!test-api                        → Test Bright Data API connection
 
 Examples:
   !ghost search for AI research papers
