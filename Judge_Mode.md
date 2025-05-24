@@ -51,7 +51,19 @@ The application architecture separates concerns into:
 
 ## Demo Commands
 
-Try these commands to experience the power of DataOps Terminal:
+### 🤖 GHOSTCLI - Autonomous Operations (NEW!)
+
+Experience revolutionary natural language processing with GPT-4o-mini + Bright Data:
+
+```
+!ghost search for AI research papers
+!ghost extract pricing from stripe.com
+!ghost access complex website with authentication
+!ghost interact with search form on site
+!ghost-setup
+```
+
+### Traditional Commands
 
 ```
 !dataops discover --query "latest AI research trends"

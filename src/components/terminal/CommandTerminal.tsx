@@ -460,9 +460,15 @@ DataOps Terminal Commands:
 !decrypt-log <filename>           → Decrypt an encrypted log
 !passphrase <key>                 → Set encryption passphrase
 
-# GHOSTCLI - Autonomous Operations
+# 🤖 GHOSTCLI - Autonomous Operations (NEW!)
 !ghost <natural language>        → Process any command in natural language
 !ghost-setup                     → Validate GHOSTCLI configuration
+
+Examples:
+  !ghost search for AI research papers
+  !ghost extract pricing from stripe.com
+  !ghost access complex website with authentication
+  !ghost interact with search form on site
 
 # Web Commands (Internet must be enabled)
 !recon <url>                      → Scan and log raw HTML
