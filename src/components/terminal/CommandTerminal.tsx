@@ -8,6 +8,7 @@ import mcpHandler from '@/lib/mcpHandler';
 import { createScroll } from '@/lib/scrollManager';
 import BrightDataPanel from '@/components/BrightDataPanel';
 import { runDoiCollector } from '@/lib/BrightDataService';
+import { processCommand as processGhostCommand, validateSetup } from '@/lib/ghostCli.js';
 import {
   initScrollSession,
   logEntry,
@@ -306,6 +307,37 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       }
     }
 
+    // Handle GHOSTCLI autonomous command
+    if (mainCommand === '!ghost') {
+      const naturalCommand = command.substring(6).trim(); // Remove "!ghost "
+      if (!naturalCommand) {
+        return 'Usage: !ghost <natural language command>\nExample: !ghost search for AI research papers';
+      }
+
+      try {
+        logEntry('system', `GHOSTCLI processing: ${naturalCommand}`);
+        const result = await processGhostCommand(naturalCommand);
+        logEntry('response', result);
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return `GHOSTCLI Error: ${errorMessage}`;
+      }
+    }
+
+    // Handle GHOSTCLI setup validation
+    if (mainCommand === '!ghost-setup') {
+      const setup = validateSetup();
+      let result = '🤖 GHOSTCLI Setup Validation\n' + '='.repeat(40) + '\n\n';
+
+      setup.issues.forEach(issue => {
+        result += issue + '\n';
+      });
+
+      result += '\n' + (setup.ready ? '✅ GHOSTCLI is ready!' : '⚠️  Some features may be limited');
+      return result;
+    }
+
     // Handle DOI extraction command
     if (mainCommand === '!extract-doi') {
       // Extract DOI from command
@@ -427,6 +459,10 @@ DataOps Terminal Commands:
 !encrypt on/off                   → Enable/disable log encryption
 !decrypt-log <filename>           → Decrypt an encrypted log
 !passphrase <key>                 → Set encryption passphrase
+
+# GHOSTCLI - Autonomous Operations
+!ghost <natural language>        → Process any command in natural language
+!ghost-setup                     → Validate GHOSTCLI configuration
 
 # Web Commands (Internet must be enabled)
 !recon <url>                      → Scan and log raw HTML
