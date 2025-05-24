@@ -68,8 +68,82 @@ This project showcases:
 !dataops access --url "https://example.com"
 !dataops extract --url "https://example.com/products"
 !dataops collect --target "science_papers"
+```
 
-📁 File Structure Summary
+---
+
+## 🚀 Setup Instructions
+
+### Quick Start (Demo Mode)
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/GodsIMiJ1/dataops-terminal.git
+   cd dataops-terminal
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the terminal**: Open http://localhost:5173
+
+### Production Deployment (Netlify)
+1. **Fork/Clone** this repository to your GitHub account
+2. **Connect to Netlify** and deploy from GitHub
+3. **Set environment variables** in Netlify dashboard:
+   ```
+   VITE_BRIGHT_DATA_API_KEY=your-bright-data-key
+   VITE_BRIGHT_DATA_COLLECTOR_ID=your-collector-id
+   VITE_OPENAI_API_KEY=your-openai-key (for GHOSTCLI)
+   ```
+
+### 🔐 Mock Mode Explanation
+
+**DataOps Terminal works in two modes:**
+
+#### 🎭 **Demo Mode** (No API Keys Required)
+- **GHOSTCLI** uses fallback parser for natural language processing
+- **Bright Data operations** return realistic mock data
+- **All commands functional** for demonstration purposes
+- **Perfect for evaluation** and testing the interface
+
+#### ⚡ **Production Mode** (API Keys Required)
+- **Full GPT-4o-mini integration** for intelligent command parsing
+- **Live Bright Data API calls** for real web data operations
+- **Actual data extraction** from target websites
+- **Enterprise-ready** for production deployments
+
+**Mock data includes**: Realistic research papers, pricing tables, contact information, and structured datasets that demonstrate the full capability of the platform.
+
+### 🎯 Live Demo Commands
+
+Try these commands immediately after setup:
+
+```bash
+# Test GHOSTCLI autonomous operations
+!ghost search for machine learning research papers
+!ghost extract pricing information from SaaS websites
+!ghost-setup
+
+# Test traditional Bright Data operations
+!dataops discover --query "AI startups"
+!extract-doi --doi "10.1126/sciadv.adu9368"
+
+# Test system features
+!help
+!mission DEMO -o "Test all terminal capabilities"
+!mode ghost
+```
+
+---
+
+## 📁 File Structure Summary
 
 src/
 ├── components/       # Terminal, chat, and BrightData panels
