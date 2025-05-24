@@ -12,7 +12,37 @@ const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
  * @returns {Promise<Object>} Structured command object
  */
 export async function parseCommand(userInput) {
-  // NUCLEAR OPTION: Always use enhanced fallback parser for demo
+  // Try local Ollama first for demo
+  try {
+    const ollamaResponse = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama3.1:latest',
+        prompt: `Convert this command to JSON: "${userInput}". Return only JSON with fields: command (discover/access/extract/interact), query, confidence (0-1)`,
+        stream: false
+      })
+    });
+
+    if (ollamaResponse.ok) {
+      const data = await ollamaResponse.json();
+      const jsonMatch = data.response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        console.log('✅ Local Ollama parsing successful');
+        return {
+          ...parsed,
+          originalInput: userInput,
+          timestamp: new Date().toISOString(),
+          parser: 'ollama-local'
+        };
+      }
+    }
+  } catch (error) {
+    console.log('Ollama not available, using enhanced parser');
+  }
+
+  // Fallback to enhanced parser
   console.log('🔥 GHOSTCLI: Using enhanced parser for reliable demo');
   return enhancedFallbackParser(userInput);
 

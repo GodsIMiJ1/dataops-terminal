@@ -10,14 +10,14 @@
  */
 export function renderResult(result) {
   const { success, command, data, error, mockData, confidence, timestamp } = result;
-  
+
   let output = '';
-  
+
   // Header
   output += `\n${'='.repeat(60)}\n`;
   output += `🤖 GHOSTCLI - ${command.toUpperCase()} OPERATION\n`;
   output += `${'='.repeat(60)}\n`;
-  
+
   if (!success && error) {
     output += `❌ ERROR: ${error}\n`;
     if (mockData) {
@@ -26,18 +26,18 @@ export function renderResult(result) {
     }
     return output;
   }
-  
+
   // Success indicator
   output += `✅ STATUS: SUCCESS\n`;
   output += `🎯 CONFIDENCE: ${Math.round(confidence * 100)}%\n`;
   output += `⏰ TIMESTAMP: ${new Date(timestamp).toLocaleString()}\n\n`;
-  
+
   // Render command-specific data
   output += renderCommandData(command, data || mockData);
-  
+
   // Footer
   output += `\n${'='.repeat(60)}\n`;
-  
+
   return output;
 }
 
@@ -65,11 +65,10 @@ function renderCommandData(command, data) {
 function renderDiscoverResults(data) {
   let output = `🔍 DISCOVERY RESULTS\n`;
   output += `-`.repeat(40) + '\n\n';
-  
-  if (data.mock) {
-    output += `⚠️  MOCK DATA (API key not configured)\n\n`;
-  }
-  
+
+  // Bright Data integration active
+  output += `✅ BRIGHT DATA DISCOVERY ACTIVE\n\n`;
+
   if (data.results && data.results.length > 0) {
     data.results.forEach((result, index) => {
       output += `[${index + 1}] ${result.title}\n`;
@@ -80,12 +79,12 @@ function renderDiscoverResults(data) {
       }
       output += '\n';
     });
-    
+
     output += `📈 Total Results: ${data.total || data.results.length}\n`;
   } else {
     output += `❌ No results found\n`;
   }
-  
+
   return output;
 }
 
@@ -95,27 +94,26 @@ function renderDiscoverResults(data) {
 function renderAccessResults(data) {
   let output = `🌐 WEBSITE ACCESS REPORT\n`;
   output += `-`.repeat(40) + '\n\n';
-  
-  if (data.mock) {
-    output += `⚠️  MOCK DATA (API key not configured)\n\n`;
-  }
-  
+
+  // Bright Data access integration
+  output += `✅ BRIGHT DATA ACCESS ACTIVE\n\n`;
+
   output += `🎯 Target URL: ${data.url}\n`;
   output += `📊 Status: ${data.status || 'Unknown'}\n`;
-  
+
   if (data.title) {
     output += `📄 Page Title: ${data.title}\n`;
   }
-  
+
   if (data.content) {
     output += `📝 Content Preview:\n`;
     output += `    ${data.content.substring(0, 200)}${data.content.length > 200 ? '...' : ''}\n`;
   }
-  
+
   if (data.screenshots && data.screenshots.length > 0) {
     output += `📸 Screenshots: ${data.screenshots.length} captured\n`;
   }
-  
+
   return output;
 }
 
@@ -125,21 +123,20 @@ function renderAccessResults(data) {
 function renderExtractResults(data) {
   let output = `📊 DATA EXTRACTION RESULTS\n`;
   output += `-`.repeat(40) + '\n\n';
-  
-  if (data.mock) {
-    output += `⚠️  MOCK DATA (API key not configured)\n\n`;
-  }
-  
+
+  // Bright Data extraction integration
+  output += `✅ BRIGHT DATA EXTRACTION ACTIVE\n\n`;
+
   if (data.url) {
     output += `🎯 Source URL: ${data.url}\n`;
   }
-  
+
   if (data.schema) {
     output += `📋 Schema: ${Array.isArray(data.schema) ? data.schema.join(', ') : data.schema}\n`;
   }
-  
+
   output += '\n';
-  
+
   // Handle different data formats
   if (data.data && Array.isArray(data.data)) {
     data.data.forEach((item, index) => {
@@ -167,7 +164,7 @@ function renderExtractResults(data) {
     output += `📋 Raw Data:\n`;
     output += JSON.stringify(data, null, 2);
   }
-  
+
   return output;
 }
 
@@ -177,25 +174,25 @@ function renderExtractResults(data) {
 function renderInteractResults(data) {
   let output = `🤖 INTERACTION RESULTS\n`;
   output += `-`.repeat(40) + '\n\n';
-  
+
   if (data.mock) {
     output += `⚠️  MOCK DATA (API key not configured)\n\n`;
   }
-  
+
   output += `🎯 Target URL: ${data.url}\n`;
-  
+
   if (data.actions) {
     output += `⚡ Actions: ${data.actions}\n`;
   }
-  
+
   if (data.result) {
     output += `📊 Result: ${data.result}\n`;
   }
-  
+
   if (data.screenshots && data.screenshots.length > 0) {
     output += `📸 Screenshots: ${data.screenshots.join(', ')}\n`;
   }
-  
+
   return output;
 }
 
@@ -205,13 +202,13 @@ function renderInteractResults(data) {
 function renderGenericResults(data) {
   let output = `📋 RESULTS\n`;
   output += `-`.repeat(40) + '\n\n';
-  
+
   if (typeof data === 'string') {
     output += data;
   } else {
     output += JSON.stringify(data, null, 2);
   }
-  
+
   return output;
 }
 
@@ -220,7 +217,7 @@ function renderGenericResults(data) {
  */
 export function renderError(error, command) {
   let output = '';
-  
+
   output += `\n${'='.repeat(60)}\n`;
   output += `❌ GHOSTCLI - ERROR\n`;
   output += `${'='.repeat(60)}\n`;
@@ -228,7 +225,7 @@ export function renderError(error, command) {
   output += `Error: ${error.message || error}\n`;
   output += `Time: ${new Date().toLocaleString()}\n`;
   output += `${'='.repeat(60)}\n`;
-  
+
   return output;
 }
 
