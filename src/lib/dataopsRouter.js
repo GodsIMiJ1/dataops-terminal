@@ -79,7 +79,8 @@ async function executeDiscover(query) {
     const endpoints = [
       `https://api.brightdata.com/dca/trigger_immediate`,
       `https://api.brightdata.com/datasets/trigger`,
-      `https://brightdata.com/api/trigger`
+      `https://api.brightdata.com/dca/dataset`,
+      `https://api.brightdata.com/serp/search`
     ];
 
     for (const endpoint of endpoints) {
