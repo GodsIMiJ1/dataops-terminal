@@ -1,7 +1,7 @@
 {
   "name": "dataops-terminal",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Advanced Web Data Operations Platform with Bright Data Integration",
   "repository": {
     "type": "git",
