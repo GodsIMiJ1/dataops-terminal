@@ -69,10 +69,8 @@ export async function executeCommand(parsedCommand) {
  * Execute discover command - Find content across the web
  */
 async function executeDiscover(query) {
-  if (!BRIGHT_DATA_API_KEY) {
-    console.warn('No Bright Data API key, using mock data');
-    return generateMockDiscoverData(query);
-  }
+  // NUCLEAR OPTION: Always try real APIs first, regardless of keys
+  console.log('🔥 GHOSTCLI: Forcing real data retrieval...');
 
   try {
     // NUCLEAR OPTION: Use multiple real APIs to get actual data
