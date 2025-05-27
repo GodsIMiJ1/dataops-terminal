@@ -16,11 +16,11 @@ interface Message {
   timestamp: Date;
 }
 
-const ClaudeDuoPanel: React.FC<ClaudeDuoPanelProps> = ({ 
-  className, 
-  onClose, 
+const ClaudeDuoPanel: React.FC<ClaudeDuoPanelProps> = ({
+  className,
+  onClose,
   theme,
-  onCommandExecute 
+  onCommandExecute
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [opusInput, setOpusInput] = useState('');
@@ -63,7 +63,7 @@ const ClaudeDuoPanel: React.FC<ClaudeDuoPanelProps> = ({
     try {
       // Simulate Claude Opus 4 strategic response
       const opusResponse = await generateOpusResponse(opusInput);
-      
+
       const opusMessage: Message = {
         id: Date.now().toString() + '_opus',
         type: 'opus',
@@ -120,7 +120,7 @@ const ClaudeDuoPanel: React.FC<ClaudeDuoPanelProps> = ({
 
     try {
       const result = await onCommandExecute(command);
-      
+
       const responseMessage: Message = {
         id: Date.now().toString() + '_code_output',
         type: 'code',
@@ -252,41 +252,41 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
   return (
     <div className={cn(
       'flex flex-col h-full border-l',
-      theme === 'ghost' 
-        ? 'bg-cyber-black border-cyber-red/30' 
-        : 'bg-pro-bg-panel border-pro-border',
+      theme === 'ghost'
+        ? 'bg-gray-900 border-red-500/30'
+        : 'bg-white border-gray-300',
       className
     )}>
       {/* Header */}
       <div className={cn(
         'flex items-center justify-between p-3 border-b',
-        theme === 'ghost' 
-          ? 'border-cyber-red/30 bg-gradient-to-r from-cyber-black to-gray-900' 
-          : 'border-pro-border bg-pro-bg-secondary'
+        theme === 'ghost'
+          ? 'border-red-500/30 bg-gray-800'
+          : 'border-gray-300 bg-gray-50'
       )}>
         <div className="flex items-center gap-2">
           <Brain className={cn(
             'w-5 h-5',
-            theme === 'ghost' ? 'text-cyber-red' : 'text-pro-primary'
+            theme === 'ghost' ? 'text-red-500' : 'text-blue-600'
           )} />
           <span className={cn(
             'font-mono font-bold text-sm',
-            theme === 'ghost' ? 'text-cyber-red' : 'text-pro-text'
+            theme === 'ghost' ? 'text-red-500' : 'text-gray-900'
           )}>
             CLAUDE DUO
           </span>
           <Split className={cn(
             'w-4 h-4',
-            theme === 'ghost' ? 'text-cyber-cyan' : 'text-pro-secondary'
+            theme === 'ghost' ? 'text-cyan-400' : 'text-blue-500'
           )} />
         </div>
         <button
           onClick={onClose}
           className={cn(
-            'p-1 rounded hover:bg-opacity-20',
-            theme === 'ghost' 
-              ? 'text-cyber-red hover:bg-cyber-red' 
-              : 'text-pro-text hover:bg-pro-primary'
+            'p-1 rounded hover:bg-gray-200',
+            theme === 'ghost'
+              ? 'text-red-500 hover:bg-red-500/20'
+              : 'text-gray-600 hover:bg-gray-200'
           )}
         >
           <X className="w-4 h-4" />
@@ -299,15 +299,15 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
           <div
             key={message.id}
             className={cn(
-              'p-3 rounded-lg text-sm font-mono',
-              message.type === 'user' && theme === 'ghost' && 'bg-cyber-red/10 border border-cyber-red/30 text-cyber-cyan',
-              message.type === 'user' && theme === 'suit' && 'bg-pro-primary/10 border border-pro-primary/30 text-pro-text',
-              message.type === 'opus' && theme === 'ghost' && 'bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan',
-              message.type === 'opus' && theme === 'suit' && 'bg-pro-secondary/10 border border-pro-secondary/30 text-pro-text',
-              message.type === 'code' && theme === 'ghost' && 'bg-cyber-green/10 border border-cyber-green/30 text-cyber-green',
-              message.type === 'code' && theme === 'suit' && 'bg-pro-accent/10 border border-pro-accent/30 text-pro-text',
-              message.type === 'system' && theme === 'ghost' && 'bg-gray-800/50 border border-gray-600/30 text-gray-300',
-              message.type === 'system' && theme === 'suit' && 'bg-gray-100/50 border border-gray-300/30 text-gray-600'
+              'p-3 rounded-lg text-sm font-mono border',
+              message.type === 'user' && theme === 'ghost' && 'bg-red-500/10 border-red-500/30 text-cyan-400',
+              message.type === 'user' && theme === 'suit' && 'bg-blue-500/10 border-blue-500/30 text-gray-900',
+              message.type === 'opus' && theme === 'ghost' && 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400',
+              message.type === 'opus' && theme === 'suit' && 'bg-green-500/10 border-green-500/30 text-gray-900',
+              message.type === 'code' && theme === 'ghost' && 'bg-green-500/10 border-green-500/30 text-green-400',
+              message.type === 'code' && theme === 'suit' && 'bg-purple-500/10 border-purple-500/30 text-gray-900',
+              message.type === 'system' && theme === 'ghost' && 'bg-gray-800/50 border-gray-600/30 text-gray-300',
+              message.type === 'system' && theme === 'suit' && 'bg-gray-100/50 border-gray-300/30 text-gray-600'
             )}
           >
             <div className="flex items-center gap-2 mb-1">
@@ -328,7 +328,7 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
       {/* Input Areas */}
       <div className={cn(
         'border-t',
-        theme === 'ghost' ? 'border-cyber-red/30' : 'border-pro-border'
+        theme === 'ghost' ? 'border-red-500/30' : 'border-gray-300'
       )}>
         {/* Tab Selector */}
         <div className="flex">
@@ -336,14 +336,14 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
             onClick={() => setActivePanel('opus')}
             className={cn(
               'flex-1 p-2 text-xs font-mono border-r transition-colors',
-              theme === 'ghost' ? 'border-cyber-red/30' : 'border-pro-border',
+              theme === 'ghost' ? 'border-red-500/30' : 'border-gray-300',
               activePanel === 'opus'
-                ? theme === 'ghost' 
-                  ? 'bg-cyber-cyan/20 text-cyber-cyan' 
-                  : 'bg-pro-secondary/20 text-pro-secondary'
+                ? theme === 'ghost'
+                  ? 'bg-cyan-500/20 text-cyan-400'
+                  : 'bg-blue-500/20 text-blue-600'
                 : theme === 'ghost'
-                  ? 'text-cyber-red hover:bg-cyber-red/10'
-                  : 'text-pro-text hover:bg-pro-primary/10'
+                  ? 'text-red-500 hover:bg-red-500/10'
+                  : 'text-gray-600 hover:bg-gray-100'
             )}
           >
             🧠 OPUS 4 (GUI)
@@ -353,12 +353,12 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
             className={cn(
               'flex-1 p-2 text-xs font-mono transition-colors',
               activePanel === 'code'
-                ? theme === 'ghost' 
-                  ? 'bg-cyber-green/20 text-cyber-green' 
-                  : 'bg-pro-accent/20 text-pro-accent'
+                ? theme === 'ghost'
+                  ? 'bg-green-500/20 text-green-400'
+                  : 'bg-purple-500/20 text-purple-600'
                 : theme === 'ghost'
-                  ? 'text-cyber-red hover:bg-cyber-red/10'
-                  : 'text-pro-text hover:bg-pro-primary/10'
+                  ? 'text-red-500 hover:bg-red-500/10'
+                  : 'text-gray-600 hover:bg-gray-100'
             )}
           >
             ⚡ CODE (CLI)
@@ -373,17 +373,17 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
               value={activePanel === 'opus' ? opusInput : codeInput}
               onChange={(e) => activePanel === 'opus' ? setOpusInput(e.target.value) : setCCodeInput(e.target.value)}
               placeholder={
-                activePanel === 'opus' 
-                  ? 'Strategic input for Claude Opus 4...' 
+                activePanel === 'opus'
+                  ? 'Strategic input for Claude Opus 4...'
                   : 'Command for Claude Code...'
               }
               className={cn(
                 'flex-1 px-3 py-2 text-sm font-mono rounded border bg-transparent',
                 theme === 'ghost'
-                  ? 'border-cyber-red/30 text-cyber-cyan placeholder-cyber-red/50 focus:border-cyber-cyan'
-                  : 'border-pro-border text-pro-text placeholder-gray-400 focus:border-pro-primary',
+                  ? 'border-red-500/30 text-cyan-400 placeholder-red-500/50 focus:border-cyan-400'
+                  : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500',
                 'focus:outline-none focus:ring-1',
-                theme === 'ghost' ? 'focus:ring-cyber-cyan' : 'focus:ring-pro-primary'
+                theme === 'ghost' ? 'focus:ring-cyan-400' : 'focus:ring-blue-500'
               )}
               disabled={isProcessing}
             />
@@ -393,8 +393,8 @@ Status: ✅ Strategic analysis complete. Ready for execution.`;
               className={cn(
                 'px-3 py-2 rounded transition-colors disabled:opacity-50',
                 theme === 'ghost'
-                  ? 'bg-cyber-red text-black hover:bg-cyber-red/80'
-                  : 'bg-pro-primary text-white hover:bg-pro-primary/80'
+                  ? 'bg-red-500 text-black hover:bg-red-500/80'
+                  : 'bg-blue-500 text-white hover:bg-blue-500/80'
               )}
             >
               {isProcessing ? (
