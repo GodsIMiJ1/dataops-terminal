@@ -12,11 +12,11 @@
   base = "/"
 
 # Environment variables that should be set in the Netlify dashboard:
-# - VITE_OPENAI_API_KEY: Your OpenAI API key for AI assistant
-# - VITE_SUPABASE_URL: Your Supabase project URL for data persistence
-# - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key for client-side access
-# - VITE_BRIGHT_DATA_API_KEY: Your Bright Data API key for web data collection (hl_77b8d574)
-# - VITE_BRIGHT_DATA_COLLECTOR_ID: Your Bright Data collector ID (c_maxhmeem10gh3pyrh8)
+# - NEXT_PUBLIC_ANTHROPIC_API_KEY: Your Claude API key for dual-AI integration (Opus 4 + Haiku 3.5)
+# - NEXT_PUBLIC_SUPABASE_URL: Your Supabase project URL for data persistence
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY: Your Supabase anonymous key for client-side access
+# - NEXT_PUBLIC_BRIGHT_DATA_API_KEY: Your Bright Data API key for web data collection
+# - NEXT_PUBLIC_BRIGHT_DATA_COLLECTOR_ID: Your Bright Data collector ID
 
 # Node.js version
 [build.environment]
@@ -36,4 +36,4 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.openai.com https://*.supabase.co https://*.brightdata.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com;"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://api.anthropic.com https://*.supabase.co https://*.brightdata.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com;"

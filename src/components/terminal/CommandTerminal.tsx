@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key, ArrowLeft, FileText, Moon, Sun, Brain, Split } from 'lucide-react';
+import { Wifi, WifiOff, Zap, Shield, Terminal as TerminalIcon, Save, Lock, Unlock, Database, Search, Key, ArrowLeft, FileText, Moon, Sun, Brain, Split, User, Settings } from 'lucide-react';
 import TerminalComponent from './TerminalComponent';
 import { executeAndFormatCommand, confirmCommandExecution } from '@/services/CommandExecutionService';
 import { parseNaturalLanguageCommand } from '@/services/CommandParserService';
@@ -15,6 +15,7 @@ import {
   logEntry,
   saveSessionToFile
 } from '@/services/ScrollLoggerService';
+import claudeAPIService, { ClaudeResponse } from '@/services/ClaudeAPIService';
 import {
   initMission,
   updateCurrentMission,
@@ -55,7 +56,26 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
   const [airlockActive, setAirlockActive] = useState(isAirlockActive());
   const [encryptionEnabled, setEncryptionEnabled] = useState(isEncryptionEnabled());
   const [showBrightDataPanel, setShowBrightDataPanel] = useState(false);
-  const [theme, setTheme] = useState<'suit' | 'ghost'>(getInitialTheme());
+  const [theme, setTheme] = useState<'ghost' | 'rebel'>(getInitialTheme() === 'suit' ? 'ghost' : 'rebel');
+
+  // Chat Interface State for Claude AI Models
+  const [selectedModel, setSelectedModel] = useState<'opus' | 'haiku'>('haiku'); // Default to cost-effective model
+  const [chatMessages, setChatMessages] = useState<Array<{
+    id: string;
+    type: 'user' | 'opus' | 'haiku' | 'system';
+    content: string;
+    timestamp: Date;
+    command?: string;
+    model?: 'opus' | 'haiku';
+  }>>([
+    {
+      id: '1',
+      type: 'system',
+      content: '🔥 DUAL-SCREEN FLAME VIEW ACTIVATED\n\n• Strategic Command Interface Online\n• Architecture: DataOps Terminal with autonomous capabilities\n• Integration: GHOSTCLI + Claude Code dual-AI system\n• AI Models: Claude Opus 4 (Strategic) + Claude Haiku 3.5 (Lite)\n• Status: Ready for strategic operations',
+      timestamp: new Date()
+    }
+  ]);
+  const [chatInput, setChatInput] = useState('');
 
   // Initialize mission and scroll session
   useEffect(() => {
@@ -80,8 +100,88 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     localStorage.setItem(THEME_KEY, theme);
     // Apply theme to body for global styling
     document.body.classList.toggle('theme-ghost', theme === 'ghost');
-    document.body.classList.toggle('theme-suit', theme === 'suit');
+    document.body.classList.toggle('theme-rebel', theme === 'rebel');
   }, [theme]);
+
+  // Handle chat message submission
+  const handleChatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      type: 'user' as const,
+      content: chatInput,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+
+    // Process the natural language input with selected Claude model
+    try {
+      const aiResponse = await processClaudeCommand(chatInput, selectedModel);
+
+      const aiMessage = {
+        id: (Date.now() + 1).toString(),
+        type: selectedModel as const,
+        content: aiResponse.response,
+        timestamp: new Date(),
+        command: aiResponse.command,
+        model: selectedModel
+      };
+
+      setChatMessages(prev => [...prev, aiMessage]);
+
+      // If AI generated a CLI command, execute it in the terminal
+      if (aiResponse.command) {
+        const result = await handleCommandExecute(aiResponse.command);
+
+        const systemMessage = {
+          id: (Date.now() + 2).toString(),
+          type: 'system' as const,
+          content: `Command executed: ${aiResponse.command}\n\nResult:\n${result}`,
+          timestamp: new Date()
+        };
+
+        setChatMessages(prev => [...prev, systemMessage]);
+      }
+    } catch (error) {
+      const errorMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'system' as const,
+        content: `Error processing request: ${error instanceof Error ? error.message : String(error)}`,
+        timestamp: new Date()
+      };
+
+      setChatMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
+  // Process natural language with selected Claude model
+  const processClaudeCommand = async (input: string, model: 'opus' | 'haiku'): Promise<ClaudeResponse> => {
+    const apiKey = claudeAPIService.getAPIKey();
+
+    if (apiKey) {
+      try {
+        // Use real Claude API
+        return await claudeAPIService.callClaude(input, { apiKey, model });
+      } catch (error) {
+        console.warn('Claude API failed, falling back to simulation:', error);
+        // Add system message about API failure
+        const errorMessage = {
+          id: Date.now().toString(),
+          type: 'system' as const,
+          content: `⚠️ Claude API unavailable. Using simulation mode.\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          timestamp: new Date()
+        };
+        setChatMessages(prev => [...prev, errorMessage]);
+      }
+    }
+
+    // Fallback to simulation
+    return claudeAPIService.simulateResponse(input, model);
+  };
 
   // Handle command execution
   const handleCommandExecute = async (command: string): Promise<string> => {
@@ -199,11 +299,11 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     // Handle mode command for theme switching
     if (mainCommand === '!mode') {
       const mode = parts[1]?.toLowerCase();
-      if (mode === 'suit' || mode === 'ghost') {
-        setTheme(mode);
+      if (mode === 'ghost' || mode === 'rebel') {
+        setTheme(mode as 'ghost' | 'rebel');
         return `Theme switched to ${mode} mode.`;
       } else {
-        return 'Invalid mode. Available modes: suit, ghost';
+        return 'Invalid mode. Available modes: ghost, rebel';
       }
     }
 
@@ -339,9 +439,32 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       return result;
     }
 
+    // Handle Claude API key management
+    if (mainCommand === '!claude-api') {
+      const action = parts[1]?.toLowerCase();
+
+      if (action === 'set') {
+        const apiKey = parts.slice(2).join(' ').trim();
+        if (!apiKey) {
+          return 'Usage: !claude-api set <your-api-key>\nGet your API key from: https://console.anthropic.com/';
+        }
+        claudeAPIService.setAPIKey(apiKey);
+        return '✅ Claude API key set successfully! You can now use real Claude models.';
+      } else if (action === 'remove') {
+        claudeAPIService.removeAPIKey();
+        return '🗑️ Claude API key removed. Falling back to simulation mode.';
+      } else if (action === 'status') {
+        const hasKey = claudeAPIService.isAPIKeyAvailable();
+        return `🔑 Claude API Status: ${hasKey ? '✅ Connected' : '❌ No API key set'}\n\nTo set API key: !claude-api set <your-key>\nGet API key: https://console.anthropic.com/`;
+      } else {
+        return 'Usage: !claude-api <set|remove|status>\n\nExamples:\n!claude-api set sk-ant-api03-...\n!claude-api status\n!claude-api remove';
+      }
+    }
+
     // Handle status command
     if (mainCommand === '!dual-status') {
-      return '🔥 DUAL-SCREEN FLAME VIEW STATUS\n\n🧠 Left Panel: Claude Opus 4 (Strategic GUI) - ACTIVE\n⚡ Right Panel: Claude Code (Execution CLI) - ACTIVE\n\nTwo minds. One terminal. Sovereign sync OPERATIONAL.';
+      const apiStatus = claudeAPIService.isAPIKeyAvailable() ? '✅ API Connected' : '⚠️ Simulation Mode';
+      return `🔥 DUAL-SCREEN FLAME VIEW STATUS\n\n🧠 Left Panel: Claude ${selectedModel.toUpperCase()} (Strategic GUI) - ACTIVE\n⚡ Right Panel: Claude Code (Execution CLI) - ACTIVE\n🔑 Claude API: ${apiStatus}\n\nTwo minds. One terminal. Sovereign sync OPERATIONAL.`;
     }
 
     // Handle Claude Code commands
@@ -529,7 +652,7 @@ DataOps Terminal Commands:
 !status                           → View current system state
 !save md/json                     → Save session logs
 !confirm                          → Execute queued dangerous commands
-!mode suit/ghost                  → Switch between professional/cyberpunk themes
+!mode ghost/rebel                 → Switch between professional/cyberpunk themes
 
 # Mode Controls
 !internet on/off                  → Enable/disable internet access
@@ -553,8 +676,11 @@ Examples:
   !ghost access complex website with authentication
   !ghost interact with search form on site
 
-# 🧠 CLAUDE CODE - Agentic Development (ROYAL ENHANCEMENT!)
-!claude analyze <query>          → Analyze codebase with Claude Opus 4
+# 🧠 CLAUDE AI - Dual Model Integration (ULTIMATE ENHANCEMENT!)
+!claude-api set <api-key>        → Set Claude API key for real AI models
+!claude-api status               → Check API connection status
+!claude-api remove               → Remove API key (use simulation)
+!claude analyze <query>          → Analyze codebase with Claude
 !claude fix <bug description>    → Automatically fix bugs
 !claude enhance <feature>        → Add new features autonomously
 !claude test                     → Run tests and analyze results
@@ -613,23 +739,23 @@ Examples:
   };
 
   return (
-    <div className={cn('flex flex-col h-full', className, theme === 'ghost' ? 'theme-ghost' : 'theme-suit')}>
+    <div className={cn('flex flex-col h-full', className, theme === 'ghost' ? 'theme-ghost' : 'theme-rebel')}>
       {/* Status Bar - Professional styling */}
       <div className={cn(
         "p-1 mb-1 flex items-center justify-between shadow-sm",
         theme === 'ghost'
-          ? "bg-gradient-to-r from-cyber-black to-gray-900 border-b border-cyber-red/30"
-          : "bg-pro-bg-panel border-b border-pro-border"
+          ? "bg-gray-800 border-b border-gray-600"
+          : "bg-gray-900 border-b border-red-500/30"
       )}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
             <TerminalIcon className={cn(
               "w-4 h-4",
-              theme === 'ghost' ? "text-cyber-red" : "text-pro-primary"
+              theme === 'ghost' ? "text-blue-400" : "text-red-500"
             )} />
             <span className={cn(
               "text-xs font-mono font-bold",
-              theme === 'ghost' ? "text-cyber-red" : "text-pro-text"
+              theme === 'ghost' ? "text-gray-300" : "text-red-500"
             )}>
               DataOps Terminal
             </span>
@@ -638,11 +764,11 @@ Examples:
           <div className="flex items-center gap-1">
             <Zap className={cn(
               "w-4 h-4",
-              theme === 'ghost' ? "text-cyber-cyan" : "text-pro-secondary"
+              theme === 'ghost' ? "text-purple-400" : "text-cyan-400"
             )} />
             <span className={cn(
               "text-xs font-mono",
-              theme === 'ghost' ? "text-cyber-cyan" : "text-pro-text"
+              theme === 'ghost' ? "text-gray-300" : "text-cyan-400"
             )}>
               Mission: {currentMission}
             </span>
@@ -666,16 +792,16 @@ Examples:
 
           {/* Theme Toggle */}
           <button
-            onClick={() => setTheme(theme === 'suit' ? 'ghost' : 'suit')}
+            onClick={() => setTheme(theme === 'ghost' ? 'rebel' : 'ghost')}
             className={cn(
               "p-1 rounded-full",
               theme === 'ghost'
-                ? "hover:bg-cyber-red/20 text-cyber-cyan"
-                : "hover:bg-pro-primary/10 text-pro-primary"
+                ? "hover:bg-blue-500/20 text-purple-400"
+                : "hover:bg-red-500/20 text-cyan-400"
             )}
-            title={theme === 'suit' ? "Switch to Ghost Mode" : "Switch to Suit Mode"}
+            title={theme === 'ghost' ? "Switch to Rebel Mode" : "Switch to Ghost Mode"}
           >
-            {theme === 'suit' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            {theme === 'ghost' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           </button>
 
           {/* Internet Status */}
@@ -683,19 +809,19 @@ Examples:
             {internetEnabled ? (
               <Wifi className={cn(
                 "w-4 h-4",
-                theme === 'ghost' ? "text-cyber-green" : "text-pro-accent"
+                theme === 'ghost' ? "text-green-400" : "text-green-400"
               )} />
             ) : (
               <WifiOff className={cn(
                 "w-4 h-4",
-                theme === 'ghost' ? "text-cyber-red" : "text-red-500"
+                theme === 'ghost' ? "text-red-400" : "text-red-500"
               )} />
             )}
             <span className={cn(
               "text-xs font-mono",
               theme === 'ghost'
-                ? internetEnabled ? "text-cyber-green" : "text-cyber-red"
-                : internetEnabled ? "text-pro-accent" : "text-red-500"
+                ? internetEnabled ? "text-green-400" : "text-red-400"
+                : internetEnabled ? "text-green-400" : "text-red-500"
             )}>
               {internetEnabled ? 'ONLINE' : 'OFFLINE'}
             </span>
@@ -706,19 +832,19 @@ Examples:
             {airlockActive ? (
               <Lock className={cn(
                 "w-4 h-4",
-                theme === 'ghost' ? "text-cyber-red" : "text-red-500"
+                theme === 'ghost' ? "text-red-400" : "text-red-500"
               )} />
             ) : (
               <Unlock className={cn(
                 "w-4 h-4",
-                theme === 'ghost' ? "text-cyber-green" : "text-pro-accent"
+                theme === 'ghost' ? "text-green-400" : "text-green-400"
               )} />
             )}
             <span className={cn(
               "text-xs font-mono",
               theme === 'ghost'
-                ? airlockActive ? "text-cyber-red" : "text-cyber-green"
-                : airlockActive ? "text-red-500" : "text-pro-accent"
+                ? airlockActive ? "text-red-400" : "text-green-400"
+                : airlockActive ? "text-red-500" : "text-green-400"
             )}>
               {airlockActive ? 'SECURE' : 'OPEN'}
             </span>
@@ -747,80 +873,178 @@ Examples:
       {/* Main Content Area - DUAL-SCREEN FLAME VIEW */}
       <div className="flex-1 flex">
         {/* Left Panel: Claude Opus 4 Strategic GUI */}
-        <div className="w-1/2 flex flex-col">
+        <div className={cn(
+          "w-1/2 flex flex-col",
+          theme === 'ghost' ? 'bg-gray-800' : 'bg-gray-900'
+        )}>
           {/* Opus Header */}
           <div className={cn(
             'flex items-center justify-between p-3 border-b',
             theme === 'ghost'
-              ? 'border-red-500/30 bg-gray-800'
-              : 'border-gray-300 bg-gray-50'
+              ? 'border-gray-600 bg-gray-700'
+              : 'border-red-500/30 bg-gray-800'
           )}>
             <div className="flex items-center gap-2">
               <Brain className={cn(
                 'w-5 h-5',
-                theme === 'ghost' ? 'text-red-500' : 'text-blue-600'
+                theme === 'ghost' ? 'text-blue-400' : 'text-red-500'
               )} />
               <span className={cn(
                 'font-mono font-bold text-sm',
-                theme === 'ghost' ? 'text-red-500' : 'text-gray-900'
+                theme === 'ghost' ? 'text-gray-300' : 'text-red-500'
               )}>
-                🧠 CLAUDE OPUS 4 (STRATEGIC GUI)
+                🧠 CLAUDE {selectedModel.toUpperCase()} (STRATEGIC GUI)
               </span>
+            </div>
+
+            {/* Model Selector */}
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value as 'opus' | 'haiku')}
+                className={cn(
+                  'px-2 py-1 text-xs font-mono rounded border',
+                  theme === 'ghost'
+                    ? 'bg-gray-700 border-gray-600 text-gray-300'
+                    : 'bg-gray-800 border-red-500/30 text-cyan-400'
+                )}
+              >
+                <option value="haiku">Haiku 3.5 (Lite)</option>
+                <option value="opus">Opus 4 (Premium)</option>
+              </select>
+
+              {/* API Status Indicator */}
+              <div className={cn(
+                'w-2 h-2 rounded-full',
+                claudeAPIService.isAPIKeyAvailable()
+                  ? 'bg-green-400'
+                  : 'bg-yellow-400'
+              )}
+              title={claudeAPIService.isAPIKeyAvailable() ? 'API Connected' : 'Simulation Mode'}
+              />
             </div>
           </div>
 
-          {/* Strategic Interface */}
-          <div className="flex-1 p-4 space-y-4">
-            <div className={cn(
-              'p-4 rounded-lg border',
-              theme === 'ghost'
-                ? 'bg-gray-900 border-red-500/30 text-cyan-400'
-                : 'bg-white border-gray-300 text-gray-900'
-            )}>
-              <h3 className="font-mono font-bold mb-2">🔥 DUAL-SCREEN FLAME VIEW ACTIVATED</h3>
-              <p className="text-sm mb-4">Strategic Command Interface - Claude Opus 4</p>
-
-              <div className="space-y-2 text-xs">
-                <div>• Architecture: DataOps Terminal with autonomous capabilities</div>
-                <div>• Integration: GHOSTCLI + Claude Code dual-AI system</div>
-                <div>• Status: Ready for strategic operations</div>
-              </div>
+          {/* Strategic Chat Interface */}
+          <div className="flex-1 flex flex-col">
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+              {chatMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className={cn(
+                    'p-3 rounded-lg border',
+                    message.type === 'user'
+                      ? theme === 'ghost'
+                        ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 ml-8'
+                        : 'bg-blue-500/10 border-blue-500/30 text-blue-400 ml-8'
+                      : message.type === 'opus'
+                      ? theme === 'ghost'
+                        ? 'bg-purple-500/10 border-purple-500/30 text-purple-400 mr-8'
+                        : 'bg-red-500/10 border-red-500/30 text-red-400 mr-8'
+                      : message.type === 'haiku'
+                      ? theme === 'ghost'
+                        ? 'bg-green-500/10 border-green-500/30 text-green-400 mr-8'
+                        : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400 mr-8'
+                      : theme === 'ghost'
+                      ? 'bg-gray-700 border-gray-600 text-gray-300'
+                      : 'bg-gray-800 border-gray-600 text-cyan-400'
+                  )}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    {message.type === 'user' && <User className="w-4 h-4" />}
+                    {message.type === 'opus' && <Brain className="w-4 h-4" />}
+                    {message.type === 'haiku' && <Zap className="w-4 h-4" />}
+                    {message.type === 'system' && <TerminalIcon className="w-4 h-4" />}
+                    <span className="text-xs font-mono opacity-70">
+                      {message.type === 'user' ? 'USER' :
+                       message.type === 'opus' ? 'CLAUDE OPUS 4' :
+                       message.type === 'haiku' ? 'CLAUDE HAIKU 3.5' : 'SYSTEM'}
+                    </span>
+                    <span className="text-xs opacity-50 ml-auto">
+                      {message.timestamp.toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div className="text-sm font-mono whitespace-pre-wrap">
+                    {message.content}
+                  </div>
+                  {message.command && (
+                    <div className={cn(
+                      'mt-2 p-2 rounded text-xs font-mono',
+                      theme === 'ghost'
+                        ? 'bg-gray-600 text-green-400'
+                        : 'bg-gray-700 text-green-400'
+                    )}>
+                      Generated Command: {message.command}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
+            {/* Chat Input Area */}
             <div className={cn(
-              'p-3 rounded border',
-              theme === 'ghost'
-                ? 'bg-cyan-500/10 border-cyan-500/30'
-                : 'bg-blue-500/10 border-blue-500/30'
+              'border-t p-3',
+              theme === 'ghost' ? 'border-gray-600' : 'border-red-500/30'
             )}>
-              <div className="text-xs font-mono">
-                <div className="font-bold mb-1">STRATEGIC COMMANDS:</div>
-                <div>• Type commands in the CLI panel →</div>
-                <div>• Use !ghost for autonomous operations</div>
-                <div>• Use !claude for development tasks</div>
-                <div>• Full dual-AI coordination active</div>
+              <form onSubmit={handleChatSubmit} className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask Claude Opus 4 anything... (e.g., 'search for AI research papers')"
+                  className={cn(
+                    'flex-1 px-3 py-2 text-sm font-mono rounded border',
+                    theme === 'ghost'
+                      ? 'bg-gray-700 border-gray-600 text-gray-300 placeholder-gray-500'
+                      : 'bg-gray-800 border-red-500/30 text-cyan-400 placeholder-cyan-400/50'
+                  )}
+                />
+                <button
+                  type="submit"
+                  disabled={!chatInput.trim()}
+                  className={cn(
+                    'px-4 py-2 text-sm font-mono rounded border transition-colors',
+                    theme === 'ghost'
+                      ? 'bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30 disabled:opacity-50'
+                      : 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30 disabled:opacity-50'
+                  )}
+                >
+                  Send
+                </button>
+              </form>
+              <div className={cn(
+                'mt-2 text-xs font-mono text-center opacity-70',
+                theme === 'ghost' ? 'text-gray-400' : 'text-cyan-400'
+              )}>
+                Natural language → CLI commands → Terminal execution
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Panel: Claude Code Execution CLI */}
-        <div className="w-1/2 border-l border-gray-300 flex flex-col">
+        <div className={cn(
+          "w-1/2 border-l flex flex-col",
+          theme === 'ghost'
+            ? 'border-gray-600 bg-gray-800'
+            : 'border-red-500/30 bg-gray-900'
+        )}>
           {/* CLI Header */}
           <div className={cn(
             'flex items-center justify-between p-3 border-b',
             theme === 'ghost'
-              ? 'border-red-500/30 bg-gray-800'
-              : 'border-gray-300 bg-gray-50'
+              ? 'border-gray-600 bg-gray-700'
+              : 'border-red-500/30 bg-gray-800'
           )}>
             <div className="flex items-center gap-2">
               <TerminalIcon className={cn(
                 'w-5 h-5',
-                theme === 'ghost' ? 'text-green-400' : 'text-purple-600'
+                theme === 'ghost' ? 'text-purple-400' : 'text-green-400'
               )} />
               <span className={cn(
                 'font-mono font-bold text-sm',
-                theme === 'ghost' ? 'text-green-400' : 'text-gray-900'
+                theme === 'ghost' ? 'text-gray-300' : 'text-green-400'
               )}>
                 ⚡ CLAUDE CODE (EXECUTION CLI)
               </span>
@@ -870,10 +1094,10 @@ Examples:
         <a
           href="/"
           className={cn(
-            "flex items-center gap-1 px-3 py-2 text-sm font-mono transition-colors",
+            "flex items-center gap-1 px-3 py-2 text-sm font-mono transition-colors rounded",
             theme === 'ghost'
-              ? "bg-cyber-black border border-cyber-red text-cyber-red hover:bg-cyber-red hover:text-black"
-              : "bg-white border border-pro-primary text-pro-primary hover:bg-pro-primary hover:text-white"
+              ? "bg-gray-800 border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-black"
+              : "bg-gray-900 border border-red-500 text-red-500 hover:bg-red-500 hover:text-black"
           )}
           title="Return to Home"
         >
@@ -883,10 +1107,10 @@ Examples:
         <a
           href="/terminal-docs.html"
           className={cn(
-            "flex items-center gap-1 px-3 py-2 text-sm font-mono transition-colors",
+            "flex items-center gap-1 px-3 py-2 text-sm font-mono transition-colors rounded",
             theme === 'ghost'
-              ? "bg-cyber-black border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-black"
-              : "bg-white border border-pro-secondary text-pro-secondary hover:bg-pro-secondary hover:text-white"
+              ? "bg-gray-800 border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-black"
+              : "bg-gray-900 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black"
           )}
           title="View Terminal Documentation"
           target="_blank"
