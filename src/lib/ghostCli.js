@@ -6,7 +6,6 @@
 import { parseCommand } from './gptParser.js';
 import { executeCommand } from './dataopsRouter.js';
 import { renderResult, renderError, renderLoading } from './resultRenderer.js';
-import { ClaudeCodeIntegration } from './claudeCodeIntegration.js';
 
 /**
  * Main GHOSTCLI processor
