@@ -339,6 +339,57 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       return result;
     }
 
+    // Handle Claude Code commands
+    if (mainCommand === '!claude') {
+      const subCommand = parts[1]?.toLowerCase();
+      const prompt = command.substring(command.indexOf(subCommand || '') + (subCommand?.length || 0)).trim();
+
+      try {
+        const { claudeCode } = await import('../../lib/claudeCodeIntegration.js');
+
+        switch (subCommand) {
+          case 'analyze':
+            if (!prompt) return 'Usage: !claude analyze <analysis query>';
+            const analysis = await claudeCode.analyzeCodebase(prompt);
+            return analysis.success ? analysis.output : `Error: ${analysis.error}`;
+
+          case 'fix':
+            if (!prompt) return 'Usage: !claude fix <bug description>';
+            const fix = await claudeCode.fixBug(prompt);
+            return fix.success ? fix.output : `Error: ${fix.error}`;
+
+          case 'enhance':
+            if (!prompt) return 'Usage: !claude enhance <feature request>';
+            const enhancement = await claudeCode.enhanceFeature(prompt);
+            return enhancement.success ? enhancement.output : `Error: ${enhancement.error}`;
+
+          case 'test':
+            const testResult = await claudeCode.runTests();
+            return testResult.success ? testResult.output : `Error: ${testResult.error}`;
+
+          case 'git':
+            if (!prompt) return 'Usage: !claude git <git operation>';
+            const gitResult = await claudeCode.gitOperation(prompt);
+            return gitResult.success ? gitResult.output : `Error: ${gitResult.error}`;
+
+          case 'status':
+            const status = claudeCode.getStatus();
+            return `🧠 Claude Code Status\n${JSON.stringify(status, null, 2)}`;
+
+          default:
+            if (!subCommand) {
+              return 'Usage: !claude <analyze|fix|enhance|test|git|status> [prompt]';
+            }
+            // Direct prompt execution
+            const result = await claudeCode.executeClaudeCode(command.substring(7));
+            return result.success ? result.output : `Error: ${result.error}`;
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return `Claude Code Error: ${errorMessage}`;
+      }
+    }
+
     // Handle Bright Data API test
     if (mainCommand === '!test-api') {
       try {
@@ -496,6 +547,21 @@ Examples:
   !ghost extract pricing from stripe.com
   !ghost access complex website with authentication
   !ghost interact with search form on site
+
+# 🧠 CLAUDE CODE - Agentic Development (ROYAL ENHANCEMENT!)
+!claude analyze <query>          → Analyze codebase with Claude Opus 4
+!claude fix <bug description>    → Automatically fix bugs
+!claude enhance <feature>        → Add new features autonomously
+!claude test                     → Run tests and analyze results
+!claude git <operation>          → Manage Git operations
+!claude status                   → Check Claude Code integration status
+!claude <direct prompt>          → Direct Claude Code interaction
+
+Examples:
+  !claude analyze the GHOSTCLI architecture
+  !claude fix the API connection timeout issue
+  !claude enhance add real-time notifications
+  !claude git commit with professional message
 
 # Web Commands (Internet must be enabled)
 !recon <url>                      → Scan and log raw HTML
