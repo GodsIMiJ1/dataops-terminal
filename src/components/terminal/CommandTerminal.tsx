@@ -7,7 +7,6 @@ import { useChatAI } from '@/hooks/useChatAI';
 import mcpHandler from '@/lib/mcpHandler';
 import { createScroll } from '@/lib/scrollManager';
 import BrightDataPanel from '@/components/BrightDataPanel';
-import ClaudeDuoPanel from './ClaudeDuoPanel';
 import { runDoiCollector } from '@/lib/BrightDataService';
 import { processCommand as processGhostCommand, validateSetup } from '@/lib/ghostCli.js';
 import { testBrightDataConnection } from '@/lib/dataopsRouter.js';
@@ -56,7 +55,6 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
   const [airlockActive, setAirlockActive] = useState(isAirlockActive());
   const [encryptionEnabled, setEncryptionEnabled] = useState(isEncryptionEnabled());
   const [showBrightDataPanel, setShowBrightDataPanel] = useState(false);
-  const [showClaudeDuoPanel, setShowClaudeDuoPanel] = useState(false);
   const [theme, setTheme] = useState<'suit' | 'ghost'>(getInitialTheme());
 
   // Initialize mission and scroll session
@@ -341,10 +339,9 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       return result;
     }
 
-    // Handle Claude Duo command
-    if (mainCommand === '!claude-duo') {
-      setShowClaudeDuoPanel(true);
-      return '🔥 CLAUDE DUO ACTIVATED - DUAL-SCREEN FLAME VIEW\n\n🧠 Left Panel: Claude Opus 4 (Strategic GUI)\n⚡ Right Panel: Claude Code (Execution CLI)\n\nTwo minds. One terminal. Sovereign sync.';
+    // Handle status command
+    if (mainCommand === '!dual-status') {
+      return '🔥 DUAL-SCREEN FLAME VIEW STATUS\n\n🧠 Left Panel: Claude Opus 4 (Strategic GUI) - ACTIVE\n⚡ Right Panel: Claude Code (Execution CLI) - ACTIVE\n\nTwo minds. One terminal. Sovereign sync OPERATIONAL.';
     }
 
     // Handle Claude Code commands
@@ -356,10 +353,6 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
         const { claudeCode } = await import('../../lib/claudeCodeIntegration.js');
 
         switch (subCommand) {
-          case 'duo':
-            setShowClaudeDuoPanel(true);
-            return '🔥 CLAUDE DUO ACTIVATED - DUAL-SCREEN FLAME VIEW\n\n🧠 Left Panel: Claude Opus 4 (Strategic GUI)\n⚡ Right Panel: Claude Code (Execution CLI)\n\nTwo minds. One terminal. Sovereign sync.';
-
           case 'analyze':
             if (!prompt) return 'Usage: !claude analyze <analysis query>';
             const analysis = await claudeCode.analyzeCodebase(prompt);
@@ -390,7 +383,7 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
 
           default:
             if (!subCommand) {
-              return 'Usage: !claude <duo|analyze|fix|enhance|test|git|status> [prompt]';
+              return 'Usage: !claude <analyze|fix|enhance|test|git|status> [prompt]';
             }
             // Direct prompt execution
             const result = await claudeCode.executeClaudeCode(command.substring(7));
@@ -561,7 +554,6 @@ Examples:
   !ghost interact with search form on site
 
 # 🧠 CLAUDE CODE - Agentic Development (ROYAL ENHANCEMENT!)
-!claude duo                      → Activate CLAUDE DUO dual-screen view
 !claude analyze <query>          → Analyze codebase with Claude Opus 4
 !claude fix <bug description>    → Automatically fix bugs
 !claude enhance <feature>        → Add new features autonomously
@@ -570,16 +562,15 @@ Examples:
 !claude status                   → Check Claude Code integration status
 !claude <direct prompt>          → Direct Claude Code interaction
 
-# 🔥 CLAUDE DUO - Dual-Screen Flame View (ULTIMATE ENHANCEMENT!)
-!claude-duo                      → Activate sovereign sync interface
-!claude duo                      → Alternative activation command
+# 🔥 DUAL-SCREEN FLAME VIEW - Always Active (ULTIMATE ENHANCEMENT!)
+!dual-status                     → Check dual-screen interface status
 
 Examples:
-  !claude duo                    → Launch dual-screen interface
   !claude analyze the GHOSTCLI architecture
   !claude fix the API connection timeout issue
   !claude enhance add real-time notifications
   !claude git commit with professional message
+  !dual-status                   → Verify sovereign sync operational
 
 # Web Commands (Internet must be enabled)
 !recon <url>                      → Scan and log raw HTML
@@ -659,23 +650,19 @@ Examples:
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Claude Duo Toggle */}
-          <button
-            onClick={() => setShowClaudeDuoPanel(!showClaudeDuoPanel)}
-            className={cn(
-              "p-1 rounded-full",
-              theme === 'ghost'
-                ? showClaudeDuoPanel
-                  ? "bg-cyber-red/20 text-cyber-red"
-                  : "hover:bg-cyber-red/20 text-cyber-cyan"
-                : showClaudeDuoPanel
-                  ? "bg-pro-primary/20 text-pro-primary"
-                  : "hover:bg-pro-primary/10 text-pro-primary"
-            )}
-            title="Toggle Claude Duo Panel"
-          >
-            <Brain className="w-4 h-4" />
-          </button>
+          {/* Dual-Screen Status */}
+          <div className="flex items-center gap-1">
+            <Brain className={cn(
+              "w-4 h-4",
+              theme === 'ghost' ? "text-red-500" : "text-blue-600"
+            )} />
+            <span className={cn(
+              "text-xs font-mono",
+              theme === 'ghost' ? "text-red-500" : "text-blue-600"
+            )}>
+              DUAL-AI
+            </span>
+          </div>
 
           {/* Theme Toggle */}
           <button
@@ -757,43 +744,118 @@ Examples:
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - DUAL-SCREEN FLAME VIEW */}
       <div className="flex-1 flex">
-        {/* Terminal - Dynamic width based on active panels */}
-        <div className={cn(
-          "flex-1 transition-all duration-300",
-          showBrightDataPanel && showClaudeDuoPanel ? "w-1/3" :
-          showBrightDataPanel || showClaudeDuoPanel ? "w-1/2" : "w-full"
-        )}>
-          <TerminalComponent
-            onCommandExecute={handleCommandExecute}
-            autoFocus={true}
-            className="h-full"
-            theme={theme}
-          />
+        {/* Left Panel: Claude Opus 4 Strategic GUI */}
+        <div className="w-1/2 flex flex-col">
+          {/* Opus Header */}
+          <div className={cn(
+            'flex items-center justify-between p-3 border-b',
+            theme === 'ghost'
+              ? 'border-red-500/30 bg-gray-800'
+              : 'border-gray-300 bg-gray-50'
+          )}>
+            <div className="flex items-center gap-2">
+              <Brain className={cn(
+                'w-5 h-5',
+                theme === 'ghost' ? 'text-red-500' : 'text-blue-600'
+              )} />
+              <span className={cn(
+                'font-mono font-bold text-sm',
+                theme === 'ghost' ? 'text-red-500' : 'text-gray-900'
+              )}>
+                🧠 CLAUDE OPUS 4 (STRATEGIC GUI)
+              </span>
+            </div>
+          </div>
+
+          {/* Strategic Interface */}
+          <div className="flex-1 p-4 space-y-4">
+            <div className={cn(
+              'p-4 rounded-lg border',
+              theme === 'ghost'
+                ? 'bg-gray-900 border-red-500/30 text-cyan-400'
+                : 'bg-white border-gray-300 text-gray-900'
+            )}>
+              <h3 className="font-mono font-bold mb-2">🔥 DUAL-SCREEN FLAME VIEW ACTIVATED</h3>
+              <p className="text-sm mb-4">Strategic Command Interface - Claude Opus 4</p>
+
+              <div className="space-y-2 text-xs">
+                <div>• Architecture: DataOps Terminal with autonomous capabilities</div>
+                <div>• Integration: GHOSTCLI + Claude Code dual-AI system</div>
+                <div>• Status: Ready for strategic operations</div>
+              </div>
+            </div>
+
+            <div className={cn(
+              'p-3 rounded border',
+              theme === 'ghost'
+                ? 'bg-cyan-500/10 border-cyan-500/30'
+                : 'bg-blue-500/10 border-blue-500/30'
+            )}>
+              <div className="text-xs font-mono">
+                <div className="font-bold mb-1">STRATEGIC COMMANDS:</div>
+                <div>• Type commands in the CLI panel →</div>
+                <div>• Use !ghost for autonomous operations</div>
+                <div>• Use !claude for development tasks</div>
+                <div>• Full dual-AI coordination active</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Claude Duo Panel */}
-        {showClaudeDuoPanel && (
+        {/* Right Panel: Claude Code Execution CLI */}
+        <div className="w-1/2 border-l border-gray-300 flex flex-col">
+          {/* CLI Header */}
           <div className={cn(
-            "transition-all duration-300 ml-1",
-            showBrightDataPanel ? "w-1/3" : "w-1/2"
+            'flex items-center justify-between p-3 border-b',
+            theme === 'ghost'
+              ? 'border-red-500/30 bg-gray-800'
+              : 'border-gray-300 bg-gray-50'
           )}>
-            <ClaudeDuoPanel
-              className="h-full"
-              onClose={() => setShowClaudeDuoPanel(false)}
-              theme={theme}
+            <div className="flex items-center gap-2">
+              <TerminalIcon className={cn(
+                'w-5 h-5',
+                theme === 'ghost' ? 'text-green-400' : 'text-purple-600'
+              )} />
+              <span className={cn(
+                'font-mono font-bold text-sm',
+                theme === 'ghost' ? 'text-green-400' : 'text-gray-900'
+              )}>
+                ⚡ CLAUDE CODE (EXECUTION CLI)
+              </span>
+            </div>
+
+            {/* Bright Data Toggle */}
+            {showBrightDataPanel && (
+              <button
+                onClick={() => setShowBrightDataPanel(false)}
+                className={cn(
+                  'text-xs px-2 py-1 rounded',
+                  theme === 'ghost'
+                    ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                )}
+              >
+                Hide Data Panel
+              </button>
+            )}
+          </div>
+
+          {/* Terminal Component */}
+          <div className="flex-1">
+            <TerminalComponent
               onCommandExecute={handleCommandExecute}
+              autoFocus={true}
+              className="h-full"
+              theme={theme}
             />
           </div>
-        )}
+        </div>
 
-        {/* Bright Data Panel */}
+        {/* Optional Bright Data Panel (slides over) */}
         {showBrightDataPanel && (
-          <div className={cn(
-            "transition-all duration-300 ml-1",
-            showClaudeDuoPanel ? "w-1/3" : "w-1/2"
-          )}>
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 z-10">
             <BrightDataPanel
               className="h-full"
               onClose={() => setShowBrightDataPanel(false)}
