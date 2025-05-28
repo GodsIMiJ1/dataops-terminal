@@ -87,11 +87,11 @@ The four pillars of data sovereignty:
 
 ## 🔥 **QUICK START - JOIN THE REVOLUTION**
 
-### **1. Clone the Empire**
+### **1. Licensed Access Only**
 ```bash
-git clone https://github.com/GodsIMiJ1/dataops-terminal.git
-cd dataops-terminal
-npm install
+# Contact james@godsimij-ai-solutions.com for access
+# This is PROPRIETARY technology - not for public cloning
+# Enterprise licensing available
 ```
 
 ### **2. Set Your API Keys**
@@ -229,18 +229,29 @@ npm run preview      # Preview build
 
 ## 📜 **LICENSE**
 
-**Proprietary License** - © 2025 GodsIMiJ AI Solutions
+**🔒 PROPRIETARY LICENSE - ALL RIGHTS RESERVED** - © 2025 GodsIMiJ AI Solutions
 
-This software is the intellectual property of GodsIMiJ AI Solutions.
-Built for AI sovereignty, not corporate control.
+**This software is the exclusive intellectual property of GodsIMiJ AI Solutions.**
+
+⚠️ **UNAUTHORIZED USE, COPYING, OR DISTRIBUTION IS STRICTLY PROHIBITED** ⚠️
+
+Built from scratch by our team. No external help. 100% original innovation.
+Contact us for licensing inquiries ONLY.
 
 ---
 
-## 🤝 **JOIN THE REVOLUTION**
+## 🛡️ **PROPRIETARY TECHNOLOGY**
 
-**Developers**: Fork, contribute, build the future
-**Enterprises**: Contact us for licensing and custom solutions
-**AI Enthusiasts**: Join the sovereignty movement
+**⚠️ THIS IS NOT OPEN SOURCE ⚠️**
+
+This repository showcases our **PROPRIETARY TECHNOLOGY** built from scratch by GodsIMiJ AI Solutions.
+
+**🚫 DO NOT COPY, FORK, OR STEAL OUR INNOVATIONS**
+
+**For Licensing & Business Inquiries ONLY:**
+- **Enterprise Licensing**: Contact for commercial use
+- **Custom Solutions**: Bespoke AI sovereignty platforms
+- **Partnership Opportunities**: Strategic alliances only
 
 **Contact**: james@godsimij-ai-solutions.com
 **Empire**: [GodsIMiJ AI Solutions](https://www.godsimij-ai-solutions.com)
