@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Terminal as TerminalIcon, Play, X, AlertTriangle, Cpu } from 'lucide-react';
+import { Terminal as TerminalIcon, Play, X, AlertTriangle, Cpu, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ollamaService, { OllamaModel } from '@/services/OllamaService';
+import ethicalHackingService from '@/services/EthicalHackingService';
+import ollamaService from '@/services/OllamaService';
+import ethicalHackingService from '@/services/EthicalHackingService';
 
 interface TerminalProps {
   className?: string;
@@ -10,6 +14,7 @@ interface TerminalProps {
   showPrompt?: boolean;
   readOnly?: boolean;
   theme?: 'suit' | 'ghost';
+  terminalId?: string; // Unique ID for this terminal instance
 }
 
 interface TerminalLine {
@@ -26,12 +31,19 @@ const TerminalComponent: React.FC<TerminalProps> = ({
   showPrompt = true,
   readOnly = false,
   theme = 'suit',
+  terminalId = 'default',
 }) => {
   const [command, setCommand] = useState(initialCommand);
   const [history, setHistory] = useState<TerminalLine[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // Ollama integration for this terminal instance
+  const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([]);
+  const [selectedOllamaModel, setSelectedOllamaModel] = useState<string>('');
+  const [ollamaStatus, setOllamaStatus] = useState<{isRunning: boolean, error?: string}>({isRunning: false});
+  const [showModelSelector, setShowModelSelector] = useState(false);
 
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,6 +61,121 @@ const TerminalComponent: React.FC<TerminalProps> = ({
       inputRef.current.focus();
     }
   }, [autoFocus]);
+
+  // Initialize Ollama service for this terminal
+  useEffect(() => {
+    const initializeOllama = async () => {
+      try {
+        const status = await ollamaService.getStatus();
+        setOllamaStatus({isRunning: status.isRunning, error: status.error});
+
+        if (status.isRunning && status.models.length > 0) {
+          setOllamaModels(status.models);
+
+          // Auto-select model based on terminal purpose
+          const defaultModel = getDefaultModelForTerminal(terminalId, status.models);
+          if (defaultModel) {
+            setSelectedOllamaModel(defaultModel);
+
+            // Add system message about model selection
+            const systemMessage: TerminalLine = {
+              id: Date.now().toString(),
+              content: `🤖 ${terminalId.toUpperCase()} TERMINAL: Auto-selected ${defaultModel} for optimal performance`,
+              type: 'system'
+            };
+            setHistory(prev => [...prev, systemMessage]);
+          }
+        } else if (!status.isRunning) {
+          const errorMessage: TerminalLine = {
+            id: Date.now().toString(),
+            content: `⚠️ Ollama service not detected. Start with: ollama serve`,
+            type: 'error'
+          };
+          setHistory(prev => [...prev, errorMessage]);
+        }
+      } catch (error) {
+        console.error('Failed to initialize Ollama in terminal:', error);
+      }
+    };
+
+    initializeOllama();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(initializeOllama, 30000);
+    return () => clearInterval(interval);
+  }, [terminalId]);
+
+  // Get default model based on terminal purpose
+  const getDefaultModelForTerminal = (terminalId: string, models: OllamaModel[]): string | null => {
+    const modelPreferences = {
+      'chat': ['r3b3l-4f-godmode', 'llama3.1:latest', 'bianca'], // Strategic planning
+      'cli': ['deepseek-coder:6.7b', 'r3b3l-4f-godmode', 'llama3.1:latest'], // Code execution
+      'default': ['llama3.1:latest', 'r3b3l-4f-godmode', 'deepseek-coder:6.7b']
+    };
+
+    const preferences = modelPreferences[terminalId as keyof typeof modelPreferences] || modelPreferences.default;
+
+    for (const preferred of preferences) {
+      const found = models.find(m => m.name.includes(preferred));
+      if (found) return found.name;
+    }
+
+    return models[0]?.name || null;
+  };
+
+  // Process Ollama commands in terminal
+  const processOllamaCommand = async (input: string): Promise<string> => {
+    if (!ollamaStatus.isRunning) {
+      return '❌ Ollama service not running. Start with: ollama serve';
+    }
+
+    if (!selectedOllamaModel) {
+      return '❌ No Ollama model selected. Use !model select <model-name>';
+    }
+
+    try {
+      // Check if this looks like an ethical hacking request
+      const lowerInput = input.toLowerCase();
+      const hackingKeywords = ['recon', 'scan', 'exploit', 'vulnerability', 'penetration', 'security', 'hack', 'enumerate', 'payload', 'code', 'script'];
+      const isHackingRequest = hackingKeywords.some(keyword => lowerInput.includes(keyword));
+
+      if (isHackingRequest) {
+        // Use ethical hacking service
+        const taskType = lowerInput.includes('recon') ? 'recon' :
+                        lowerInput.includes('exploit') ? 'exploit' :
+                        lowerInput.includes('code') || lowerInput.includes('script') ? 'coding' :
+                        lowerInput.includes('analysis') || lowerInput.includes('analyze') ? 'analysis' : 'general';
+
+        const result = await ethicalHackingService.processRequest({
+          type: taskType,
+          description: input,
+          model: selectedOllamaModel
+        });
+
+        let response = result.response;
+        if (result.warnings && result.warnings.length > 0) {
+          response = result.warnings.join('\n') + '\n\n' + response;
+        }
+
+        return response;
+      } else {
+        // Regular chat with Ollama
+        const systemPrompt = terminalId === 'cli'
+          ? 'You are a coding assistant specialized in ethical hacking tools and security scripts. Provide clean, well-commented code with security best practices. Focus on educational and authorized testing purposes only.'
+          : 'You are a helpful AI assistant focused on ethical hacking and cybersecurity. Provide helpful, educational responses while emphasizing legal and ethical practices.';
+
+        const response = await ollamaService.generate(
+          selectedOllamaModel,
+          input,
+          systemPrompt
+        );
+
+        return response;
+      }
+    } catch (error) {
+      return `❌ Ollama error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
+  };
 
   const handleCommandSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -70,18 +197,60 @@ const TerminalComponent: React.FC<TerminalProps> = ({
     setIsExecuting(true);
 
     try {
-      if (onCommandExecute) {
-        const result = await onCommandExecute(command);
+      let result = '';
 
-        // Add result to history
-        const outputLine: TerminalLine = {
-          id: `output-${Date.now()}`,
-          content: result,
-          type: 'output',
-        };
+      // Handle Ollama model commands
+      if (command.startsWith('!model ')) {
+        const parts = command.split(' ');
+        const action = parts[1]?.toLowerCase();
 
-        setHistory(prev => [...prev, outputLine]);
+        if (action === 'select') {
+          const modelName = parts.slice(2).join(' ').trim();
+          if (!modelName) {
+            result = 'Usage: !model select <model-name>\n\nAvailable models: ' + ollamaModels.map(m => m.name).join(', ');
+          } else {
+            const model = ollamaModels.find(m => m.name.includes(modelName));
+            if (model) {
+              setSelectedOllamaModel(model.name);
+              result = `✅ Selected model: ${model.name} for ${terminalId.toUpperCase()} terminal`;
+            } else {
+              result = `❌ Model not found: ${modelName}\n\nAvailable: ${ollamaModels.map(m => m.name).join(', ')}`;
+            }
+          }
+        } else if (action === 'status') {
+          const statusText = ollamaStatus.isRunning ? '✅ RUNNING' : '❌ OFFLINE';
+          result = `🤖 OLLAMA STATUS: ${statusText}\n\nTerminal: ${terminalId.toUpperCase()}\nSelected Model: ${selectedOllamaModel || 'None'}\nAvailable Models: ${ollamaModels.length}`;
+        } else if (action === 'list') {
+          const modelList = ollamaModels.map(m => `• ${m.name} (${m.size})`).join('\n');
+          result = `🤖 AVAILABLE MODELS:\n\n${modelList || 'No models installed'}`;
+        } else {
+          result = 'Usage: !model <select|status|list>\n\nExamples:\n!model select deepseek-coder\n!model status\n!model list';
+        }
       }
+      // Handle AI chat commands
+      else if (command.startsWith('!ai ')) {
+        const prompt = command.substring(4).trim();
+        if (!prompt) {
+          result = 'Usage: !ai <your question>\n\nExample: !ai write a python port scanner';
+        } else {
+          result = await processOllamaCommand(prompt);
+        }
+      }
+      // Regular command execution
+      else if (onCommandExecute) {
+        result = await onCommandExecute(command);
+      } else {
+        result = `Command not recognized: ${command}\n\nTry:\n!model status - Check Ollama status\n!ai <question> - Ask AI assistant`;
+      }
+
+      // Add result to history
+      const outputLine: TerminalLine = {
+        id: `output-${Date.now()}`,
+        content: result,
+        type: 'output',
+      };
+
+      setHistory(prev => [...prev, outputLine]);
     } catch (error) {
       // Add error to history
       const errorLine: TerminalLine = {
@@ -154,10 +323,39 @@ const TerminalComponent: React.FC<TerminalProps> = ({
             "text-sm font-mono",
             theme === 'ghost' ? "text-cyber-red" : "text-pro-text dark:text-pro-text-dark"
           )}>
-            DataOps Terminal
+            R3B3L 4F {terminalId.toUpperCase()} TERMINAL
           </span>
         </div>
         <div className="flex items-center gap-2">
+          {/* Ollama Model Selector */}
+          {ollamaModels.length > 0 && (
+            <select
+              value={selectedOllamaModel}
+              onChange={(e) => setSelectedOllamaModel(e.target.value)}
+              className={cn(
+                'px-2 py-1 text-xs font-mono rounded border',
+                theme === 'ghost'
+                  ? 'bg-gray-800 border-cyber-red/30 text-cyber-red'
+                  : 'bg-gray-100 border-gray-300 text-gray-700'
+              )}
+              title="Select Ollama Model"
+            >
+              {ollamaModels.map(model => (
+                <option key={model.name} value={model.name}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Ollama Status Indicator */}
+          <div className={cn(
+            'w-2 h-2 rounded-full',
+            ollamaStatus.isRunning ? 'bg-green-400' : 'bg-red-400'
+          )}
+          title={ollamaStatus.isRunning ? 'Ollama Running' : 'Ollama Offline'}
+          />
+
           <button
             onClick={clearTerminal}
             className={cn(

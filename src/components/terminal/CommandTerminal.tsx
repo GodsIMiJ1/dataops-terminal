@@ -79,6 +79,7 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     }
   ]);
   const [chatInput, setChatInput] = useState('');
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize mission and scroll session
   useEffect(() => {
@@ -115,15 +116,21 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
 
         if (status.isRunning && status.models.length > 0) {
           setOllamaModels(status.models);
-          // Auto-select first available model
-          setSelectedOllamaModel(status.models[0].name);
+          // Auto-select model for chat interface (strategic planning)
+          const chatModel = status.models.find(m =>
+            m.name.includes('r3b3l-4f-godmode') ||
+            m.name.includes('llama3.1') ||
+            m.name.includes('bianca')
+          ) || status.models[0];
+
+          setSelectedOllamaModel(chatModel.name);
 
           // Add system message about detected models
           const modelList = status.models.map(m => `• ${m.name}`).join('\n');
           const systemMessage = {
             id: Date.now().toString(),
             type: 'system' as const,
-            content: `🤖 OLLAMA MODELS DETECTED:\n\n${modelList}\n\n✅ Local AI ready for ethical hacking operations!`,
+            content: `🤖 OLLAMA MODELS DETECTED:\n\n${modelList}\n\n✅ Chat Interface: ${chatModel.name} (Strategic Planning)\n✅ CLI Terminal: Auto-selects coding models\n\n⚔️ DUAL-MODEL ARCHITECTURE READY! ⚔️`,
             timestamp: new Date()
           };
           setChatMessages(prev => [...prev, systemMessage]);
@@ -147,6 +154,11 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     const interval = setInterval(initializeOllama, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    chatMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   // Handle chat message submission
   const handleChatSubmit = async (e: React.FormEvent) => {
@@ -921,9 +933,9 @@ Examples:
           </div>
 
           {/* Strategic Chat Interface */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 h-96 min-h-0 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
               {chatMessages.map((message) => (
                 <div
                   key={message.id}
@@ -969,6 +981,8 @@ Examples:
                   )}
                 </div>
               ))}
+              {/* Scroll anchor */}
+              <div ref={chatMessagesEndRef} />
             </div>
 
             {/* Chat Input Area */}
@@ -1062,6 +1076,7 @@ Examples:
               autoFocus={true}
               className="h-full"
               theme={theme}
+              terminalId="cli"
             />
           </div>
         </div>
