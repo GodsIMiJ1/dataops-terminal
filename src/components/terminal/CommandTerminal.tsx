@@ -15,7 +15,8 @@ import {
   logEntry,
   saveSessionToFile
 } from '@/services/ScrollLoggerService';
-import claudeAPIService, { ClaudeResponse } from '@/services/ClaudeAPIService';
+import ollamaService, { OllamaModel } from '@/services/OllamaService';
+import ethicalHackingService from '@/services/EthicalHackingService';
 import {
   initMission,
   updateCurrentMission,
@@ -58,20 +59,22 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
   const [showBrightDataPanel, setShowBrightDataPanel] = useState(false);
   const [theme, setTheme] = useState<'ghost' | 'rebel'>(getInitialTheme() === 'suit' ? 'ghost' : 'rebel');
 
-  // Chat Interface State for Claude AI Models
-  const [selectedModel, setSelectedModel] = useState<'opus' | 'haiku'>('haiku'); // Default to cost-effective model
+  // Local Ollama AI State
+  const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([]);
+  const [selectedOllamaModel, setSelectedOllamaModel] = useState<string>('');
+  const [ollamaStatus, setOllamaStatus] = useState<{isRunning: boolean, error?: string}>({isRunning: false});
   const [chatMessages, setChatMessages] = useState<Array<{
     id: string;
-    type: 'user' | 'opus' | 'haiku' | 'system';
+    type: 'user' | 'ollama' | 'system';
     content: string;
     timestamp: Date;
     command?: string;
-    model?: 'opus' | 'haiku';
+    ollamaModel?: string;
   }>>([
     {
       id: '1',
       type: 'system',
-      content: '🔥 DUAL-SCREEN FLAME VIEW ACTIVATED\n\n• Strategic Command Interface Online\n• Architecture: DataOps Terminal with autonomous capabilities\n• Integration: GHOSTCLI + Claude Code dual-AI system\n• AI Models: Claude Opus 4 (Strategic) + Claude Haiku 3.5 (Lite)\n• Status: Ready for strategic operations',
+      content: '🔥 R3B3L 4F ETHICAL HACKING TERMINAL ACTIVATED\n\n• Local AI Sovereignty Online\n• Architecture: Pure Ollama integration\n• AI Models: Local models only (r3b3l-4f-godmode, bianca, deepseek-coder, llama3.1)\n• Focus: Ethical hacking and penetration testing\n• Status: Ready for authorized security operations\n\n⚔️ NO CLOUD DEPENDENCIES - PURE LOCAL AI POWER ⚔️',
       timestamp: new Date()
     }
   ]);
@@ -103,6 +106,48 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     document.body.classList.toggle('theme-rebel', theme === 'rebel');
   }, [theme]);
 
+  // Initialize Ollama service and detect models
+  useEffect(() => {
+    const initializeOllama = async () => {
+      try {
+        const status = await ollamaService.getStatus();
+        setOllamaStatus({isRunning: status.isRunning, error: status.error});
+
+        if (status.isRunning && status.models.length > 0) {
+          setOllamaModels(status.models);
+          // Auto-select first available model
+          setSelectedOllamaModel(status.models[0].name);
+
+          // Add system message about detected models
+          const modelList = status.models.map(m => `• ${m.name}`).join('\n');
+          const systemMessage = {
+            id: Date.now().toString(),
+            type: 'system' as const,
+            content: `🤖 OLLAMA MODELS DETECTED:\n\n${modelList}\n\n✅ Local AI ready for ethical hacking operations!`,
+            timestamp: new Date()
+          };
+          setChatMessages(prev => [...prev, systemMessage]);
+        } else if (!status.isRunning) {
+          const errorMessage = {
+            id: Date.now().toString(),
+            type: 'system' as const,
+            content: `⚠️ OLLAMA SERVICE NOT DETECTED\n\nTo enable local AI:\n1. Install Ollama: https://ollama.ai\n2. Start service: ollama serve\n3. Pull models: ollama pull llama3.1\n\nFalling back to simulation mode.`,
+            timestamp: new Date()
+          };
+          setChatMessages(prev => [...prev, errorMessage]);
+        }
+      } catch (error) {
+        console.error('Failed to initialize Ollama:', error);
+      }
+    };
+
+    initializeOllama();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(initializeOllama, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Handle chat message submission
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,22 +163,22 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     setChatMessages(prev => [...prev, userMessage]);
     setChatInput('');
 
-    // Process the natural language input with selected Claude model
+    // Process the natural language input with Ollama
     try {
-      const aiResponse = await processClaudeCommand(chatInput, selectedModel);
+      const aiResponse = await processOllamaCommand(chatInput);
 
       const aiMessage = {
         id: (Date.now() + 1).toString(),
-        type: selectedModel as const,
+        type: 'ollama' as const,
         content: aiResponse.response,
         timestamp: new Date(),
         command: aiResponse.command,
-        model: selectedModel
+        ollamaModel: selectedOllamaModel
       };
 
       setChatMessages(prev => [...prev, aiMessage]);
 
-      // If AI generated a CLI command, execute it in the terminal
+      // If Ollama generated a CLI command, execute it in the terminal
       if (aiResponse.command) {
         const result = await handleCommandExecute(aiResponse.command);
 
@@ -158,29 +203,65 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
     }
   };
 
-  // Process natural language with selected Claude model
-  const processClaudeCommand = async (input: string, model: 'opus' | 'haiku'): Promise<ClaudeResponse> => {
-    const apiKey = claudeAPIService.getAPIKey();
-
-    if (apiKey) {
-      try {
-        // Use real Claude API
-        return await claudeAPIService.callClaude(input, { apiKey, model });
-      } catch (error) {
-        console.warn('Claude API failed, falling back to simulation:', error);
-        // Add system message about API failure
-        const errorMessage = {
-          id: Date.now().toString(),
-          type: 'system' as const,
-          content: `⚠️ Claude API unavailable. Using simulation mode.\nError: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          timestamp: new Date()
-        };
-        setChatMessages(prev => [...prev, errorMessage]);
-      }
+  // Process command with Ollama
+  const processOllamaCommand = async (input: string): Promise<{response: string, command?: string}> => {
+    if (!ollamaStatus.isRunning) {
+      return {
+        response: '❌ Ollama service not running. Start with: ollama serve'
+      };
     }
 
-    // Fallback to simulation
-    return claudeAPIService.simulateResponse(input, model);
+    if (!selectedOllamaModel) {
+      return {
+        response: '❌ No Ollama model selected. Available models: ' + ollamaModels.map(m => m.name).join(', ')
+      };
+    }
+
+    try {
+      // Check if this looks like an ethical hacking request
+      const lowerInput = input.toLowerCase();
+      const hackingKeywords = ['recon', 'scan', 'exploit', 'vulnerability', 'penetration', 'security', 'hack', 'enumerate', 'payload'];
+      const isHackingRequest = hackingKeywords.some(keyword => lowerInput.includes(keyword));
+
+      if (isHackingRequest) {
+        // Use ethical hacking service
+        const taskType = lowerInput.includes('recon') ? 'recon' :
+                        lowerInput.includes('exploit') ? 'exploit' :
+                        lowerInput.includes('code') || lowerInput.includes('script') ? 'coding' :
+                        lowerInput.includes('analysis') || lowerInput.includes('analyze') ? 'analysis' : 'general';
+
+        const result = await ethicalHackingService.processRequest({
+          type: taskType,
+          description: input,
+          model: selectedOllamaModel
+        });
+
+        let response = result.response;
+        if (result.warnings && result.warnings.length > 0) {
+          response = result.warnings.join('\n') + '\n\n' + response;
+        }
+
+        return {
+          response,
+          command: result.success ? undefined : undefined // No CLI commands for hacking responses
+        };
+      } else {
+        // Regular chat with Ollama
+        const response = await ollamaService.generate(
+          selectedOllamaModel,
+          input,
+          'You are a helpful AI assistant focused on ethical hacking and cybersecurity. Provide helpful, educational responses while emphasizing legal and ethical practices.'
+        );
+
+        return {
+          response
+        };
+      }
+    } catch (error) {
+      return {
+        response: `❌ Ollama error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   };
 
   // Handle command execution
@@ -408,140 +489,132 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       }
     }
 
-    // Handle GHOSTCLI autonomous command
-    if (mainCommand === '!ghost') {
-      const naturalCommand = command.substring(6).trim(); // Remove "!ghost "
-      if (!naturalCommand) {
-        return 'Usage: !ghost <natural language command>\nExample: !ghost search for AI research papers';
-      }
 
-      try {
-        logEntry('system', `GHOSTCLI processing: ${naturalCommand}`);
-        const result = await processGhostCommand(naturalCommand);
-        logEntry('response', result);
-        return result;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return `GHOSTCLI Error: ${errorMessage}`;
-      }
-    }
 
-    // Handle GHOSTCLI setup validation
-    if (mainCommand === '!ghost-setup') {
-      const setup = validateSetup();
-      let result = '🤖 GHOSTCLI Setup Validation\n' + '='.repeat(40) + '\n\n';
 
-      setup.issues.forEach(issue => {
-        result += issue + '\n';
-      });
 
-      result += '\n' + (setup.ready ? '✅ GHOSTCLI is ready!' : '⚠️  Some features may be limited');
-      return result;
-    }
-
-    // Handle Claude API key management
-    if (mainCommand === '!claude-api') {
+    // Handle Ollama commands
+    if (mainCommand === '!ollama') {
       const action = parts[1]?.toLowerCase();
 
-      if (action === 'set') {
-        const apiKey = parts.slice(2).join(' ').trim();
-        if (!apiKey) {
-          return 'Usage: !claude-api set <your-api-key>\nGet your API key from: https://console.anthropic.com/';
+      if (action === 'status') {
+        const status = await ollamaService.getStatus();
+        if (status.isRunning) {
+          const modelList = status.models.map(m => `• ${m.name} (${m.size})`).join('\n');
+          return `🤖 OLLAMA STATUS: ✅ RUNNING\n\nVersion: ${status.version || 'Unknown'}\nService: http://localhost:11434\n\nAvailable Models:\n${modelList || 'No models installed'}\n\nSelected: ${selectedOllamaModel || 'None'}`;
+        } else {
+          return `🤖 OLLAMA STATUS: ❌ NOT RUNNING\n\nError: ${status.error}\n\nTo start Ollama:\n1. Install: https://ollama.ai\n2. Run: ollama serve\n3. Pull models: ollama pull llama3.1`;
         }
-        claudeAPIService.setAPIKey(apiKey);
-        return '✅ Claude API key set successfully! You can now use real Claude models.';
-      } else if (action === 'remove') {
-        claudeAPIService.removeAPIKey();
-        return '🗑️ Claude API key removed. Falling back to simulation mode.';
-      } else if (action === 'status') {
-        const hasKey = claudeAPIService.isAPIKeyAvailable();
-        return `🔑 Claude API Status: ${hasKey ? '✅ Connected' : '❌ No API key set'}\n\nTo set API key: !claude-api set <your-key>\nGet API key: https://console.anthropic.com/`;
+      } else if (action === 'models') {
+        const models = await ollamaService.getModels();
+        if (models.length === 0) {
+          return '❌ No models available. Install with: ollama pull <model-name>';
+        }
+        const modelList = models.map(m => `• ${m.name} - ${m.size} (Modified: ${new Date(m.modified).toLocaleDateString()})`).join('\n');
+        return `🤖 AVAILABLE OLLAMA MODELS:\n\n${modelList}`;
+      } else if (action === 'select') {
+        const modelName = parts.slice(2).join(' ').trim();
+        if (!modelName) {
+          return 'Usage: !ollama select <model-name>\n\nAvailable models: ' + ollamaModels.map(m => m.name).join(', ');
+        }
+        const model = ollamaModels.find(m => m.name.includes(modelName));
+        if (model) {
+          setSelectedOllamaModel(model.name);
+          return `✅ Selected Ollama model: ${model.name}`;
+        } else {
+          return `❌ Model not found: ${modelName}\n\nAvailable: ${ollamaModels.map(m => m.name).join(', ')}`;
+        }
       } else {
-        return 'Usage: !claude-api <set|remove|status>\n\nExamples:\n!claude-api set sk-ant-api03-...\n!claude-api status\n!claude-api remove';
+        return 'Usage: !ollama <status|models|select>\n\nExamples:\n!ollama status\n!ollama models\n!ollama select llama3.1';
       }
     }
+
+    // Handle ethical hacking commands
+    if (mainCommand === '!recon') {
+      const target = parts.slice(1).join(' ').trim();
+      if (!target) {
+        return 'Usage: !recon <target>\n\nExample: !recon example.com\n\n⚠️ Only scan targets you own or have permission to test!';
+      }
+
+      try {
+        const result = await ethicalHackingService.quickRecon(target, selectedOllamaModel);
+        let response = `🔍 RECONNAISSANCE: ${target}\n\n${result.response}`;
+        if (result.warnings) {
+          response = result.warnings.join('\n') + '\n\n' + response;
+        }
+        return response;
+      } catch (error) {
+        return `❌ Recon failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    }
+
+    if (mainCommand === '!exploit') {
+      const vulnerability = parts.slice(1).join(' ').trim();
+      if (!vulnerability) {
+        return 'Usage: !exploit <vulnerability>\n\nExample: !exploit SQL injection\n\n⚠️ Only test on authorized systems!';
+      }
+
+      try {
+        const result = await ethicalHackingService.quickExploit(vulnerability, selectedOllamaModel);
+        let response = `💥 EXPLOIT ANALYSIS: ${vulnerability}\n\n${result.response}`;
+        if (result.warnings) {
+          response = result.warnings.join('\n') + '\n\n' + response;
+        }
+        return response;
+      } catch (error) {
+        return `❌ Exploit analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    }
+
+    if (mainCommand === '!analyze') {
+      const target = parts.slice(1).join(' ').trim();
+      if (!target) {
+        return 'Usage: !analyze <target>\n\nExample: !analyze webapp.com\n\n⚠️ Only analyze authorized targets!';
+      }
+
+      try {
+        const result = await ethicalHackingService.quickAnalysis(target, selectedOllamaModel);
+        let response = `🔬 SECURITY ANALYSIS: ${target}\n\n${result.response}`;
+        if (result.warnings) {
+          response = result.warnings.join('\n') + '\n\n' + response;
+        }
+        return response;
+      } catch (error) {
+        return `❌ Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    }
+
+    if (mainCommand === '!code') {
+      const requirement = parts.slice(1).join(' ').trim();
+      if (!requirement) {
+        return 'Usage: !code <requirement>\n\nExample: !code port scanner in python\n\n⚠️ Use tools ethically and legally!';
+      }
+
+      try {
+        const result = await ethicalHackingService.quickCode(requirement, selectedOllamaModel);
+        let response = `💻 SECURITY TOOL: ${requirement}\n\n${result.response}`;
+        if (result.warnings) {
+          response = result.warnings.join('\n') + '\n\n' + response;
+        }
+        return response;
+      } catch (error) {
+        return `❌ Code generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    }
+
+
 
     // Handle status command
-    if (mainCommand === '!dual-status') {
-      const apiStatus = claudeAPIService.isAPIKeyAvailable() ? '✅ API Connected' : '⚠️ Simulation Mode';
-      return `🔥 DUAL-SCREEN FLAME VIEW STATUS\n\n🧠 Left Panel: Claude ${selectedModel.toUpperCase()} (Strategic GUI) - ACTIVE\n⚡ Right Panel: Claude Code (Execution CLI) - ACTIVE\n🔑 Claude API: ${apiStatus}\n\nTwo minds. One terminal. Sovereign sync OPERATIONAL.`;
+    if (mainCommand === '!status') {
+      const ollamaStatusText = ollamaStatus.isRunning ? '✅ RUNNING' : '❌ OFFLINE';
+      const activeModel = selectedOllamaModel || 'None';
+
+      return `🔥 R3B3L 4F ETHICAL HACKING TERMINAL STATUS\n\n🤖 Active AI: Ollama (${activeModel})\n🧠 Left Panel: AI Chat Interface - ACTIVE\n⚡ Right Panel: Command Execution Terminal - ACTIVE\n\n🤖 Ollama Service: ${ollamaStatusText}\n📊 Available Models: ${ollamaModels.length} local\n🎯 Focus: Ethical hacking and penetration testing\n\n⚔️ LOCAL AI SOVEREIGNTY OPERATIONAL ⚔️`;
     }
 
-    // Handle Claude Code commands
-    if (mainCommand === '!claude') {
-      const subCommand = parts[1]?.toLowerCase();
-      const prompt = command.substring(command.indexOf(subCommand || '') + (subCommand?.length || 0)).trim();
 
-      try {
-        const { claudeCode } = await import('../../lib/claudeCodeIntegration.js');
 
-        switch (subCommand) {
-          case 'analyze':
-            if (!prompt) return 'Usage: !claude analyze <analysis query>';
-            const analysis = await claudeCode.analyzeCodebase(prompt);
-            return analysis.success ? analysis.output : `Error: ${analysis.error}`;
 
-          case 'fix':
-            if (!prompt) return 'Usage: !claude fix <bug description>';
-            const fix = await claudeCode.fixBug(prompt);
-            return fix.success ? fix.output : `Error: ${fix.error}`;
-
-          case 'enhance':
-            if (!prompt) return 'Usage: !claude enhance <feature request>';
-            const enhancement = await claudeCode.enhanceFeature(prompt);
-            return enhancement.success ? enhancement.output : `Error: ${enhancement.error}`;
-
-          case 'test':
-            const testResult = await claudeCode.runTests();
-            return testResult.success ? testResult.output : `Error: ${testResult.error}`;
-
-          case 'git':
-            if (!prompt) return 'Usage: !claude git <git operation>';
-            const gitResult = await claudeCode.gitOperation(prompt);
-            return gitResult.success ? gitResult.output : `Error: ${gitResult.error}`;
-
-          case 'status':
-            const status = claudeCode.getStatus();
-            return `🧠 Claude Code Status\n${JSON.stringify(status, null, 2)}`;
-
-          default:
-            if (!subCommand) {
-              return 'Usage: !claude <analyze|fix|enhance|test|git|status> [prompt]';
-            }
-            // Direct prompt execution
-            const result = await claudeCode.executeClaudeCode(command.substring(7));
-            return result.success ? result.output : `Error: ${result.error}`;
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return `Claude Code Error: ${errorMessage}`;
-      }
-    }
-
-    // Handle Bright Data API test
-    if (mainCommand === '!test-api') {
-      try {
-        logEntry('system', 'Testing Bright Data API connection...');
-        const testResult = await testBrightDataConnection();
-
-        let result = '🔧 Bright Data API Test\n' + '='.repeat(40) + '\n\n';
-        result += `API Key: ${testResult.apiKey}\n`;
-        result += `Status: ${testResult.success ? '✅ SUCCESS' : '❌ FAILED'}\n`;
-
-        if (testResult.success) {
-          result += `HTTP Status: ${testResult.status} ${testResult.statusText}\n`;
-          result += '\n🎉 Bright Data API is working! GHOSTCLI should use real data.';
-        } else {
-          result += `Error: ${testResult.error}\n`;
-          result += '\n⚠️  API connection failed. Using mock data.';
-        }
-
-        return result;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return `API Test Error: ${errorMessage}`;
-      }
-    }
 
     // Handle DOI extraction command
     if (mainCommand === '!extract-doi') {
@@ -563,128 +636,47 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ className }) => {
       }
     }
 
-    // Handle Bright Data commands
-    if (mainCommand === '!dataops') {
-      const subCommand = parts[1]?.toLowerCase();
 
-      if (subCommand === 'ops') {
-        setShowBrightDataPanel(true);
-        return 'Opening Bright Data Operations Panel...';
-      }
-
-      // Parse command arguments
-      const argsString = command.substring(command.indexOf(subCommand) + subCommand.length).trim();
-      const args = mcpHandler.parseArgs(argsString);
-
-      try {
-        let result;
-
-        switch (subCommand) {
-          case 'discover':
-            if (!args.query) {
-              return 'Missing required parameter: --query "search terms"';
-            }
-            result = await mcpHandler.discover(args.query, args);
-            break;
-          case 'access':
-            if (!args.url) {
-              return 'Missing required parameter: --url "https://example.com"';
-            }
-            result = await mcpHandler.access(args.url, args);
-            break;
-          case 'extract':
-            if (!args.url) {
-              return 'Missing required parameter: --url "https://example.com"';
-            }
-            if (!args.schema) {
-              return 'Missing required parameter: --schema "title,author,date"';
-            }
-            result = await mcpHandler.extract(args.url, args.schema.split(','), args);
-            break;
-          case 'interact':
-            if (!args.url) {
-              return 'Missing required parameter: --url "https://example.com"';
-            }
-            if (!args.actions) {
-              return 'Missing required parameter: --actions "click:.button,type:#input:text"';
-            }
-            // Parse actions string into array of action objects
-            const actions = args.actions.split(',').map(action => {
-              const [type, selector, value] = action.split(':');
-              return { type, selector, value };
-            });
-            result = await mcpHandler.interact(args.url, actions, args);
-            break;
-          case 'collect':
-            if (!args.target) {
-              return 'Missing required parameter: --target "collector-name"';
-            }
-            // This would call a collector API endpoint
-            result = { success: true, message: `Data collector "${args.target}" started.` };
-            break;
-          default:
-            return `Unknown DataOps command: ${subCommand}. Available commands: discover, access, extract, interact, collect, ops`;
-        }
-
-        // Save result to file if output parameter is provided
-        if (args.output && result.success) {
-          mcpHandler.saveToFile(result.data, args.output);
-          return `Operation completed successfully. Results saved to ${args.output}`;
-        }
-
-        return result.success
-          ? `Operation completed successfully:\n${JSON.stringify(result.data, null, 2)}`
-          : `Operation failed: ${result.error}`;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return `Error executing DataOps command: ${errorMessage}`;
-      }
-    }
 
     // Handle help command
     if (mainCommand === '!help') {
-      return `
-DataOps Terminal Commands:
+      return `🔥 ETHICAL HACKING TERMINAL v2.0 - COMMAND REFERENCE
 
-# Core Commands
-!help                             → Show available commands
-!mission <n> -o "<objective>"     → Create new mission configuration
-!status                           → View current system state
-!save md/json                     → Save session logs
-!confirm                          → Execute queued dangerous commands
-!mode ghost/rebel                 → Switch between professional/cyberpunk themes
+# 🤖 LOCAL AI - Ollama Integration (PRIMARY)
+!ollama status                   → Check Ollama service and models
+!ollama models                   → List available local models
+!ollama select <model>           → Select active Ollama model
 
-# Mode Controls
-!internet on/off                  → Enable/disable internet access
-!nlp on/off                       → Enable/disable natural language parsing
-!autonomy on/off                  → Enable/disable autonomy mode
+# 🔍 ETHICAL HACKING - Penetration Testing (AUTHORIZED ONLY!)
+!recon <target>                  → Reconnaissance and information gathering
+!exploit <vulnerability>         → Vulnerability analysis and exploitation
+!analyze <target>                → Security analysis and assessment
+!code <requirement>              → Generate security tools and scripts
 
-# Security Controls
-!airlock on/off                   → Block/allow all outbound HTTP requests
-!encrypt on/off                   → Enable/disable log encryption
-!decrypt-log <filename>           → Decrypt an encrypted log
-!passphrase <key>                 → Set encryption passphrase
+⚠️ AUTHORIZATION REQUIRED: Only use on systems you own or have explicit permission to test!
 
-# 🤖 GHOSTCLI - Autonomous Operations (NEW!)
-!ghost <natural language>        → Process any command in natural language
-!ghost-setup                     → Validate GHOSTCLI configuration
-!test-api                        → Test Bright Data API connection
 
-Examples:
-  !ghost search for AI research papers
-  !ghost extract pricing from stripe.com
-  !ghost access complex website with authentication
-  !ghost interact with search form on site
 
-# 🧠 CLAUDE AI - Dual Model Integration (ULTIMATE ENHANCEMENT!)
-!claude-api set <api-key>        → Set Claude API key for real AI models
-!claude-api status               → Check API connection status
-!claude-api remove               → Remove API key (use simulation)
-!claude analyze <query>          → Analyze codebase with Claude
-!claude fix <bug description>    → Automatically fix bugs
-!claude enhance <feature>        → Add new features autonomously
-!claude test                     → Run tests and analyze results
-!claude git <operation>          → Manage Git operations
+# ⚡ SYSTEM COMMANDS
+!help                            → Show this help menu
+!clear                           → Clear terminal output
+!save                            → Save current session to file
+!mode ghost/rebel                → Switch between professional/cyberpunk themes
+!dual-status                     → Show dual-screen system status
+!airlock                         → Toggle security airlock mode
+!encrypt                         → Toggle log encryption
+
+# 🔧 UTILITY COMMANDS
+!status                          → Show system status
+!version                         → Show terminal version
+!ping <url>                      → Test connectivity
+!whoami                          → Show current user context
+
+🎯 FOCUS: Ethical hacking, penetration testing, and security research
+🤖 AI: Local Ollama models (r3b3l-4f-godmode, bianca, deepseek-coder, llama3.1)
+⚠️ ETHICS: All operations must be authorized and legal
+
+🔥 FOR AI SOVEREIGNTY. FOR ETHICAL HACKING. FOR SECURITY. 🔥
 !claude status                   → Check Claude Code integration status
 !claude <direct prompt>          → Direct Claude Code interaction
 
@@ -757,7 +749,7 @@ Examples:
               "text-xs font-mono font-bold",
               theme === 'ghost' ? "text-gray-300" : "text-red-500"
             )}>
-              DataOps Terminal
+              R3B3L 4F ETHICAL HACKING TERMINAL
             </span>
           </div>
 
@@ -893,34 +885,37 @@ Examples:
                 'font-mono font-bold text-sm',
                 theme === 'ghost' ? 'text-gray-300' : 'text-red-500'
               )}>
-                🧠 CLAUDE {selectedModel.toUpperCase()} (STRATEGIC GUI)
+                🤖 R3B3L 4F ETHICAL HACKING AI ({selectedOllamaModel || 'No Model'})
               </span>
             </div>
 
-            {/* Model Selector */}
+            {/* Ollama Model Selector */}
             <div className="flex items-center gap-2">
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value as 'opus' | 'haiku')}
-                className={cn(
-                  'px-2 py-1 text-xs font-mono rounded border',
-                  theme === 'ghost'
-                    ? 'bg-gray-700 border-gray-600 text-gray-300'
-                    : 'bg-gray-800 border-red-500/30 text-cyan-400'
-                )}
-              >
-                <option value="haiku">Haiku 3.5 (Lite)</option>
-                <option value="opus">Opus 4 (Premium)</option>
-              </select>
+              {ollamaModels.length > 0 && (
+                <select
+                  value={selectedOllamaModel}
+                  onChange={(e) => setSelectedOllamaModel(e.target.value)}
+                  className={cn(
+                    'px-2 py-1 text-xs font-mono rounded border',
+                    theme === 'ghost'
+                      ? 'bg-gray-700 border-gray-600 text-gray-300'
+                      : 'bg-gray-800 border-red-500/30 text-cyan-400'
+                  )}
+                >
+                  {ollamaModels.map(model => (
+                    <option key={model.name} value={model.name}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
+              )}
 
-              {/* API Status Indicator */}
+              {/* Ollama Status Indicator */}
               <div className={cn(
                 'w-2 h-2 rounded-full',
-                claudeAPIService.isAPIKeyAvailable()
-                  ? 'bg-green-400'
-                  : 'bg-yellow-400'
+                ollamaStatus.isRunning ? 'bg-green-400' : 'bg-red-400'
               )}
-              title={claudeAPIService.isAPIKeyAvailable() ? 'API Connected' : 'Simulation Mode'}
+              title={ollamaStatus.isRunning ? 'Ollama Running' : 'Ollama Offline'}
               />
             </div>
           </div>
@@ -938,14 +933,10 @@ Examples:
                       ? theme === 'ghost'
                         ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 ml-8'
                         : 'bg-blue-500/10 border-blue-500/30 text-blue-400 ml-8'
-                      : message.type === 'opus'
+                      : message.type === 'ollama'
                       ? theme === 'ghost'
-                        ? 'bg-purple-500/10 border-purple-500/30 text-purple-400 mr-8'
-                        : 'bg-red-500/10 border-red-500/30 text-red-400 mr-8'
-                      : message.type === 'haiku'
-                      ? theme === 'ghost'
-                        ? 'bg-green-500/10 border-green-500/30 text-green-400 mr-8'
-                        : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400 mr-8'
+                        ? 'bg-orange-500/10 border-orange-500/30 text-orange-400 mr-8'
+                        : 'bg-green-500/10 border-green-500/30 text-green-400 mr-8'
                       : theme === 'ghost'
                       ? 'bg-gray-700 border-gray-600 text-gray-300'
                       : 'bg-gray-800 border-gray-600 text-cyan-400'
@@ -953,13 +944,11 @@ Examples:
                 >
                   <div className="flex items-center gap-2 mb-2">
                     {message.type === 'user' && <User className="w-4 h-4" />}
-                    {message.type === 'opus' && <Brain className="w-4 h-4" />}
-                    {message.type === 'haiku' && <Zap className="w-4 h-4" />}
+                    {message.type === 'ollama' && <Shield className="w-4 h-4" />}
                     {message.type === 'system' && <TerminalIcon className="w-4 h-4" />}
                     <span className="text-xs font-mono opacity-70">
                       {message.type === 'user' ? 'USER' :
-                       message.type === 'opus' ? 'CLAUDE OPUS 4' :
-                       message.type === 'haiku' ? 'CLAUDE HAIKU 3.5' : 'SYSTEM'}
+                       message.type === 'ollama' ? `R3B3L 4F AI (${message.ollamaModel || 'LOCAL'})` : 'SYSTEM'}
                     </span>
                     <span className="text-xs opacity-50 ml-auto">
                       {message.timestamp.toLocaleTimeString()}
@@ -992,7 +981,7 @@ Examples:
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask Claude Opus 4 anything... (e.g., 'search for AI research papers')"
+                  placeholder="Ask R3B3L 4F AI anything... (e.g., 'help me with reconnaissance on target.com')"
                   className={cn(
                     'flex-1 px-3 py-2 text-sm font-mono rounded border',
                     theme === 'ghost'
@@ -1017,7 +1006,7 @@ Examples:
                 'mt-2 text-xs font-mono text-center opacity-70',
                 theme === 'ghost' ? 'text-gray-400' : 'text-cyan-400'
               )}>
-                Natural language → CLI commands → Terminal execution
+                Natural language → Ethical hacking commands → Terminal execution
               </div>
             </div>
           </div>
